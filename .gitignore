@@ -1,5 +1,6 @@
+*.out
 .DS_Store
 .poetry
 .venv
-data/
 __pycache__/
+data/
