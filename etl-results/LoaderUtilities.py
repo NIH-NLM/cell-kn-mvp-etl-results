@@ -44,7 +44,12 @@ def load_results(results_path):
     return results
 
 
-def hyphenate(name):
-    for c in [" ", "_", ","]:
-        name = name.replace(c, "-").replace("--", "-")
-    return name
+def hyphenate(iname):
+    cname = iname
+    for c in [" ", "_", ",", "/"]:
+        cname = cname.replace(c, "-")
+        oname = cname.replace("--", "-")
+        while cname != oname:
+            cname = oname
+            oname = oname.replace("--", "-")
+    return oname

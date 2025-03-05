@@ -1,9 +1,15 @@
+import argparse
 import ast
 from pathlib import Path
 
 from rdflib.term import BNode, Literal, URIRef
 
-from LoaderUtilities import load_results, PURLBASE, RDFSBASE
+import ArangoDbUtilities as adb
+from LoaderUtilities import load_results, hyphenate, PURLBASE, RDFSBASE
+from OntologyParserLoader import load_tuples_into_adb_graph, parse_obo, VALID_VERTICES
+
+OBO_DIRPATH = Path("../data/obo")
+NSFOREST_DIRPATH = Path("../data/results")
 
 
 def create_tuples_from_author_to_cl(results):
@@ -52,21 +58,21 @@ def create_tuples_from_author_to_cl(results):
         (
             URIRef(f"{PURLBASE}/{csd_term}"),
             URIRef(f"{RDFSBASE}#Collection_version_id"),
-            results["collection_version_id"][0],
+            Literal(results["collection_version_id"][0]),
         )
     )
     tuples.append(
         (
             URIRef(f"{PURLBASE}/{pub_term}"),
             URIRef(f"{RDFSBASE}#PMID"),
-            results["PMID"][0],
+            Literal(str(results["PMID"][0])),
         )
     )
     tuples.append(
         (
             URIRef(f"{PURLBASE}/{pub_term}"),
             URIRef(f"{RDFSBASE}#PMCID"),
-            results["PMCID"][0],
+            Literal(str(results["PMCID"][0])),
         )
     )
 
@@ -82,9 +88,9 @@ def create_tuples_from_author_to_cl(results):
         # CL:0000000, BFO:0000050, UBERON:0001062
         tuples.append(
             (
-                URIRef(f"{PURLBASE}/{cl_term}"),
+                URIRef(f"{cl_term}"),
                 URIRef(f"{PURLBASE}/BFO_0000050"),
-                URIRef(f"{PURLBASE}/{uberon_term}"),
+                URIRef(f"{uberon_term}"),
             )
         )
 
@@ -92,7 +98,7 @@ def create_tuples_from_author_to_cl(results):
         # CL:0000000, RO:0015001, IAO:0000100
         tuples.append(
             (
-                URIRef(f"{PURLBASE}/{cl_term}"),
+                URIRef(f"{cl_term}"),
                 URIRef(f"{PURLBASE}/RO_0015001"),
                 URIRef(f"{PURLBASE}/{csd_term}"),
             )
@@ -104,7 +110,7 @@ def create_tuples_from_author_to_cl(results):
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
                 URIRef(f"{PURLBASE}/RO_0001000"),
-                URIRef(f"{PURLBASE}/{uberon_term}-{uuid_0}"),
+                URIRef(f"{uberon_term}-{uuid_0}"),
             )
         )
 
@@ -124,7 +130,7 @@ def create_tuples_from_author_to_cl(results):
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
                 URIRef(f"{PURLBASE}/RO_0002473"),
-                URIRef(f"{PURLBASE}/{cl_term}"),
+                URIRef(f"{cl_term}"),
             )
         )
 
@@ -148,7 +154,7 @@ def create_tuples_from_author_to_cl(results):
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{PURLBASE}/{cl_term}"),
+                URIRef(f"{cl_term}"),
                 URIRef(f"{RDFSBASE}#Match"),
                 Literal(row["match"]),
             )
@@ -156,7 +162,7 @@ def create_tuples_from_author_to_cl(results):
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{PURLBASE}/{cl_term}"),
+                URIRef(f"{cl_term}"),
                 URIRef(f"{RDFSBASE}#Mapping_method"),
                 Literal(row["mapping_method"]),
             )
@@ -172,7 +178,7 @@ def create_tuples_from_author_to_cl(results):
                 (
                     URIRef(f"{PURLBASE}/GS_{gene}"),
                     URIRef(f"{PURLBASE}/RO_0002607"),
-                    URIRef(f"{PURLBASE}/{cl_term}"),
+                    URIRef(f"{cl_term}"),
                 )
             )
 
@@ -184,7 +190,7 @@ def create_tuples_from_author_to_cl(results):
             # CL:0000000, RO:0002292, SO:0000704
             tuples.append(
                 (
-                    URIRef(f"{PURLBASE}/{cl_term}"),
+                    URIRef(f"{cl_term}"),
                     URIRef(f"{PURLBASE}/RO_0002292"),
                     URIRef(f"{PURLBASE}/GS_{gene}"),
                 )
@@ -196,7 +202,7 @@ def create_tuples_from_author_to_cl(results):
                 (
                     URIRef(f"{PURLBASE}/GS_{gene}"),
                     URIRef(f"{PURLBASE}/BFO_0000050"),
-                    URIRef(f"{PURLBASE}/{cl_term}"),
+                    URIRef(f"{cl_term}"),
                 )
             )
 
@@ -206,18 +212,65 @@ def create_tuples_from_author_to_cl(results):
                 (
                     URIRef(f"{PURLBASE}/GS_{gene}"),
                     URIRef(f"{PURLBASE}/RO_0002206"),
-                    URIRef(f"{PURLBASE}/{uberon_term}"),
+                    URIRef(f"{uberon_term}"),
                 )
             )
 
     return tuples
 
 
-if __name__ == "__main__":
+def main(parameters=None):
 
-    nsforest_path = Path(
-        "../data/cell-kn-mvp-nsforest-results-guo-2023-2025-02-22.csv"
+    parser = argparse.ArgumentParser(description="Load NSForest results")
+    group = parser.add_argument_group(
+        "Cell Ontology (CL)", "Version of the CL assumed loaded"
+    )
+    exclusive_group = group.add_mutually_exclusive_group(required=True)
+    exclusive_group.add_argument(
+        "--test", action="store_true", help="assume the test ontology loaded"
+    )
+    exclusive_group.add_argument(
+        "--full", action="store_true", help="assume the full ontology loaded"
+    )
+    parser.add_argument(
+        "--label",
+        default="",
+        help="label to add to database_name",
+    )
+
+    if parameters is None:
+        args = parser.parse_args()
+
+    else:
+        args = parser.parse_args(parameters)
+
+    if args.test:
+        db_name = "Cell-KN-v1.5"
+        graph_name = "CL-Test"
+
+    if args.full:
+        db_name = "Cell-KN-v1.5"
+        graph_name = "CL-Full"
+
+    if args.label:
+        db_name += f"-{args.label}"
+
+    ro_filename = "ro.owl"
+    log_filename = f"{graph_name}.log"
+
+    print("Parse the relationship ontology")
+    ro, _, _ = parse_obo(OBO_DIRPATH, ro_filename)
+
+    print("Getting ArangoDB database and graph, and loading tuples")
+    db = adb.create_or_get_database(db_name)
+    adb_graph = adb.create_or_get_graph(db, graph_name)
+    vertex_collections = {}
+    edge_collections = {}
+
+    nsforest_path = (
+        NSFOREST_DIRPATH / "cell-kn-mvp-nsforest-results-guo-2023-2025-02-22.csv"
     ).resolve()
+
     nsforest_results = load_results(nsforest_path).sort_values(
         "clusterName", ignore_index=True
     )
@@ -227,9 +280,11 @@ if __name__ == "__main__":
         .replace("nsforest-results", "map-author-to-cl")
         .replace("2023-2025-02-22", "2023-data-v0.4")
     )
+
     author_to_cl_results = load_results(author_to_cl_path).sort_values(
         "author_cell_set", ignore_index=True
     )
+
     author_to_cl_results = author_to_cl_results.merge(
         nsforest_results[["clusterName", "NSForest_markers", "binary_genes"]].copy(),
         left_on="author_cell_set",
@@ -237,3 +292,26 @@ if __name__ == "__main__":
     )
 
     author_to_cl_tuples = create_tuples_from_author_to_cl(author_to_cl_results)
+
+    with open("AuthorToClResultsLoader.out", "w") as f:
+        for tuple in author_to_cl_tuples:
+            f.write(str(tuple) + "\n")
+
+    VALID_VERTICES.add("CS")
+    VALID_VERTICES.add("CSD")
+    VALID_VERTICES.add("GS")
+    VALID_VERTICES.add("PUB")
+    VALID_VERTICES.add("DS")
+
+    load_tuples_into_adb_graph(
+        author_to_cl_tuples,
+        adb_graph,
+        vertex_collections,
+        edge_collections,
+        ro=ro,
+        do_update=True,
+    )
+
+
+if __name__ == "__main__":
+    main()
