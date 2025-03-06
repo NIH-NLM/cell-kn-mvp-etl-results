@@ -148,7 +148,7 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES):
 
         gene_ids = opentargets_results["gene_ids"]
 
-    n_to_dump = int(len(gene_ids) / 100)
+    n_to_dump = 25
     do_dump = False
     n_fetched = 0
     for gene_id in gene_ids:
@@ -174,7 +174,9 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES):
                     opentargets_results[gene_id][resource] = {}
 
         else:
-            print(f"Already assigned gget opentargets resources for gene id {gene_id} ({n_fetched} of {n_to_dump})")
+            print(
+                f"Already assigned gget opentargets resources for gene id {gene_id} ({n_fetched} of {n_to_dump})"
+            )
             if gene_id != gene_ids[-1]:
                 continue
 
@@ -189,6 +191,85 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES):
                 json.dump(opentargets_results, fp, indent=4)
 
     return opentargets_path, opentargets_results
+
+
+def collect_unique_drug_names(opentargets_results):
+
+    drug_names = set()
+
+    for gene_id, resources in opentargets_results.items():
+        if gene_id == "gene_ids":
+            continue
+        for drug in resources["drugs"]:
+            drug_names.add(drug["name"])
+
+    return list(drug_names)
+
+
+def get_ebi_results(opentargets_path, resources=RESOURCES):
+
+    ebi_path = Path(str(opentargets_path).replace("opentargets", "ebi"))
+
+    if not ebi_path.exists():
+
+        ebi_results = {}
+
+        nsforest_path = Path(str(opentargets_path).replace("-opentargets.json", ".csv"))
+
+        opentargets_path, opentargets_results = get_opentargets_results(
+            nsforest_path, resources=resources
+        )
+
+        drug_names = collect_unique_drug_names(opentargets_results)
+
+    else:
+
+        print(f"Loading ebi results from {ebi_path}")
+        with open(ebi_path, "r") as fp:
+            ebi_results = json.load(fp)
+
+        drug_names = ebi_results["drug_names"]
+
+    n_to_dump = 25
+    do_dump = False
+    n_fetched = 0
+    for drug_name in drug_names:
+        n_fetched += 1
+
+        if drug_name not in ebi_results:
+            do_dump = True
+
+            response = requests.get(f"https://www.ebi.ac.uk/ols/api/search?q={drug_name}&ontology=dron")
+            if response.status_code == 200:
+                print(
+                    f"Assigned EBI results for drug name {drug_name} ({n_fetched} of {n_to_dump})"
+                )
+                ebi_results[drug_name] = response.json()
+
+            else:
+                print(
+                    f"Could not assign EBI results for protein id {drug_name} ({n_fetched} of {n_to_dump})"
+                )
+                ebi_results[drug_name] = {}
+
+        else:
+            print(
+                f"Already assigned EBI results for protein id {drug_name} ({n_fetched}) or {n_to_dump}"
+            )
+            if drug_name != drug_names[-1]:
+                continue
+
+        if do_dump and (n_fetched >= n_to_dump or drug_name == drug_names[-1]):
+            do_dump = False
+            n_fetched = 0
+
+            ebi_results["drug_names"] = drug_names
+
+            print(f"Dumping ebi results to {ebi_path}")
+            with open(ebi_path, "w") as fp:
+                json.dump(ebi_results, fp, indent=4)
+
+    return ebi_path, ebi_results
 
 
 def collect_unique_protein_ids(opentargets_results):
@@ -229,7 +310,7 @@ def get_uniprot_results(opentargets_path, resources=RESOURCES):
 
         protein_ids = uniprot_results["protein_ids"]
 
-    n_to_dump = int(len(protein_ids) / 1000)
+    n_to_dump = 25
     do_dump = False
     n_fetched = 0
     for protein_id in protein_ids:
@@ -252,15 +333,21 @@ def get_uniprot_results(opentargets_path, resources=RESOURCES):
                 f"https://rest.uniprot.org/uniprotkb/{accession}?fields=accession,protein_name,cc_function,ft_binding"
             )
             if response.status_code == 200:
-                print(f"Assigned UniProt results for protein id {protein_id} ({n_fetched} of {n_to_dump})")
+                print(
+                    f"Assigned UniProt results for protein id {protein_id} ({n_fetched} of {n_to_dump})"
+                )
                 uniprot_results[protein_id] = response.json()
 
             else:
-                print(f"Could not assign UniProt results for protein id {protein_id} ({n_fetched} of {n_to_dump})")
+                print(
+                    f"Could not assign UniProt results for protein id {protein_id} ({n_fetched} of {n_to_dump})"
+                )
                 uniprot_results[protein_id] = {}
 
         else:
-            print(f"Already assigned UniProt results for protein id {protein_id} ({n_fetched}) or {n_to_dump}")
+            print(
+                f"Already assigned UniProt results for protein id {protein_id} ({n_fetched}) or {n_to_dump}"
+            )
             if protein_id != protein_ids[-1]:
                 continue
 
@@ -285,7 +372,9 @@ def main():
 
     opentargets_path, opentargets_results = get_opentargets_results(nsforest_path)
 
-    uniprot_path, uniprot_results = get_uniprot_results(opentargets_path)
+    # uniprot_path, uniprot_results = get_uniprot_results(opentargets_path)
+
+    ebi_path, ebi_results = get_ebi_results(opentargets_path)
 
 
 if __name__ == "__main__":
