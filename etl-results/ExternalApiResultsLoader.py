@@ -239,7 +239,9 @@ def get_ebi_results(opentargets_path, resources=RESOURCES):
         if drug_name not in ebi_results:
             do_dump = True
 
-            response = requests.get(f"https://www.ebi.ac.uk/ols/api/search?q={drug_name}&ontology=dron")
+            response = requests.get(
+                f"https://www.ebi.ac.uk/ols/api/search?q={drug_name}&ontology=dron"
+            )
             if response.status_code == 200:
                 print(
                     f"Assigned EBI results for drug name {drug_name} ({n_fetched} of {n_to_dump})"
@@ -248,13 +250,13 @@ def get_ebi_results(opentargets_path, resources=RESOURCES):
 
             else:
                 print(
-                    f"Could not assign EBI results for protein id {drug_name} ({n_fetched} of {n_to_dump})"
+                    f"Could not assign EBI results for drug name {drug_name} ({n_fetched} of {n_to_dump})"
                 )
                 ebi_results[drug_name] = {}
 
         else:
             print(
-                f"Already assigned EBI results for protein id {drug_name} ({n_fetched}) or {n_to_dump}"
+                f"Already assigned EBI results for drug name {drug_name} ({n_fetched}) or {n_to_dump}"
             )
             if drug_name != drug_names[-1]:
                 continue
@@ -270,6 +272,102 @@ def get_ebi_results(opentargets_path, resources=RESOURCES):
                 json.dump(ebi_results, fp, indent=4)
 
     return ebi_path, ebi_results
+
+
+def get_rxnav_results(opentargets_path, resources=RESOURCES):
+
+    rxnav_path = Path(str(opentargets_path).replace("opentargets", "rxnav"))
+
+    if not rxnav_path.exists():
+
+        rxnav_results = {}
+
+        nsforest_path = Path(str(opentargets_path).replace("-opentargets.json", ".csv"))
+
+        opentargets_path, opentargets_results = get_opentargets_results(
+            nsforest_path, resources=resources
+        )
+
+        drug_names = collect_unique_drug_names(opentargets_results)
+
+    else:
+
+        print(f"Loading RxNav results from {rxnav_path}")
+        with open(rxnav_path, "r") as fp:
+            rxnav_results = json.load(fp)
+
+        drug_names = rxnav_results["drug_names"]
+
+    n_to_dump = 25
+    do_dump = False
+    n_fetched = 0
+    for drug_name in drug_names:
+        n_fetched += 1
+
+        if drug_name not in rxnav_results:
+            do_dump = True
+
+            rxnav_results[drug_name] = {}
+
+            urls = [
+                f"https://rxnav.nlm.nih.gov/REST/rxcui.json?name={drug_name}",
+                f"https://rxnav.nlm.nih.gov/REST/spellingsuggestions.json?name={drug_name}",
+                f"https://rxnav.nlm.nih.gov/REST/Prescribe/drugs.json?name={drug_name}",
+            ]
+            for url in urls:
+                response = requests.get(url)
+                if response.status_code == 200:
+                    content = url.split("/")[-1].split("?")[0].replace(".json", "")
+                    print(
+                        f"Assigned RxNav {content} results for drug name {drug_name} ({n_fetched} of {n_to_dump})"
+                    )
+                    rxnav_results[drug_name].update(response.json())
+
+                else:
+                    print(
+                        f"Could not assign RxNav {content} results for protein id {drug_name} ({n_fetched} of {n_to_dump})"
+                    )
+
+            if "rxnormId" in rxnav_results[drug_name]["idGroup"]:
+
+                rxcui = rxnav_results[drug_name]["idGroup"]["rxnormId"][0]
+
+                urls = [
+                    f"https://rxnav.nlm.nih.gov/REST/rxcui/{rxcui}/properties.json",
+                    f"https://rxnav.nlm.nih.gov/REST/rxcui/{rxcui}/allProperties.json?prop=names+codes",
+                ]
+                for url in urls:
+                    response = requests.get(url)
+                    if response.status_code == 200:
+                        content = url.split("/")[-1].split("?")[0].replace(".json", "")
+                        print(
+                            f"Assigned RxNav {content} results for drug name {drug_name} ({n_fetched} of {n_to_dump})"
+                        )
+                        rxnav_results[drug_name].update(response.json())
+
+                    else:
+                        print(
+                            f"Could not assign RxNav {content} results for protein id {drug_name} ({n_fetched} of {n_to_dump})"
+                        )
+
+        else:
+            print(
+                f"Already assigned RxNav results for drug name {drug_name} ({n_fetched}) or {n_to_dump}"
+            )
+            if drug_name != drug_names[-1]:
+                continue
+
+        if do_dump and (n_fetched >= n_to_dump or drug_name == drug_names[-1]):
+            do_dump = False
+            n_fetched = 0
+
+            rxnav_results["drug_names"] = drug_names
+
+            print(f"Dumping RxNav results to {rxnav_path}")
+            with open(rxnav_path, "w") as fp:
+                json.dump(rxnav_results, fp, indent=4)
+
+    return rxnav_path, rxnav_results
 
 
 def collect_unique_protein_ids(opentargets_results):
@@ -374,7 +472,9 @@ def main():
 
     # uniprot_path, uniprot_results = get_uniprot_results(opentargets_path)
 
-    ebi_path, ebi_results = get_ebi_results(opentargets_path)
+    # ebi_path, ebi_results = get_ebi_results(opentargets_path)
+
+    rxnav_path, rxnav_results = get_rxnav_results(opentargets_path)
 
 
 if __name__ == "__main__":
