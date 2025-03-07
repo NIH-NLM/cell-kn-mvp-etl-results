@@ -10,7 +10,7 @@ import requests
 from requests.adapters import HTTPAdapter, Retry
 
 
-POLLING_INTERVAL = 3
+POLLING_INTERVAL = 1.5
 API_URL = "https://rest.uniprot.org"
 
 
