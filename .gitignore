@@ -1,6 +1,7 @@
 *.out
 .DS_Store
 .poetry
+.pybiomart.sqlite
 .venv
 __pycache__/
 data/
