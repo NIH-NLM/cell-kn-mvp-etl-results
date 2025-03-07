@@ -77,22 +77,45 @@ def map_gene_name_to_ids(name, gnm2ids):
     return ids
 
 
-def map_protein_id_to_accession(protein_id):
+def get_protein_id_to_accession_map(protein_ids):
 
-    job_id = submit_id_mapping(
-        from_db="Ensembl_Protein", to_db="UniProtKB", ids=[protein_id]
-    )
-    if check_id_mapping_results_ready(job_id):
-        link = get_id_mapping_results_link(job_id)
-        data = get_id_mapping_results_search(link)
+    pid2acc = {}
 
-    if len(data["results"]) == 0:
-        accession = None
+    batch_size = 1000
 
-    else:
-        accession = data["results"][0]["to"]["primaryAccession"]
+    ensp_ids = []
+    for protein_id in protein_ids:
 
-    return accession
+        if "ENSP" in protein_id:
+            ensp_ids.append(protein_id)
+
+        if len(ensp_ids) == batch_size or (
+            len(ensp_ids) > 0 and protein_id == protein_ids[-1]
+        ):
+
+            job_id = submit_id_mapping(
+                from_db="Ensembl_Protein", to_db="UniProtKB", ids=ensp_ids
+            )
+            if check_id_mapping_results_ready(job_id):
+                link = get_id_mapping_results_link(job_id)
+                data = get_id_mapping_results_search(link)
+
+            for result in data["results"]:
+                pid2acc[result["from"]] = result["to"]["primaryAccession"]
+
+            ensp_ids = []
+
+    return pid2acc
+
+
+def map_protein_id_to_accession(ensp_id, pid2acc):
+
+    acc = None
+
+    if ensp_id in pid2acc:
+        acc = pid2acc[ensp_id]
+
+    return acc
 
 
 def collect_unique_gene_symbols(nsforest_results):
@@ -148,13 +171,18 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES):
 
         gene_ids = opentargets_results["gene_ids"]
 
-    n_to_dump = 25
+    total_size = len(gene_ids)
+    n_so_far = 0
     do_dump = False
-    n_fetched = 0
+    batch_size = 25
+    n_in_batch = 0
     for gene_id in gene_ids:
-        n_fetched += 1
-
+        n_in_batch += 1
+        n_so_far += 1
         if gene_id not in opentargets_results:
+            print(
+                f"Fetched {n_in_batch}/{batch_size} in batch - {n_so_far}/{total_size} so far"
+            )
             do_dump = True
 
             opentargets_results[gene_id] = {}
@@ -165,24 +193,22 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES):
                         gene_id, resource=resource, json=True, verbose=True
                     )
                     print(
-                        f"Assigned gget opentargets resource {resource} for gene id {gene_id} ({n_fetched} of {n_to_dump})"
+                        f"Assigned gget opentargets resource {resource} for gene id {gene_id}"
                     )
                 except Exception as exc:
                     print(
-                        f"Could not assign gget opentargets resource {resource} for gene id {gene_id} ({n_fetched} of {n_to_dump})"
+                        f"Could not assign gget opentargets resource {resource} for gene id {gene_id}"
                     )
                     opentargets_results[gene_id][resource] = {}
 
         else:
-            print(
-                f"Already assigned gget opentargets resources for gene id {gene_id} ({n_fetched} of {n_to_dump})"
-            )
+            # print(f"Already assigned gget opentargets resources for gene id {gene_id}")
             if gene_id != gene_ids[-1]:
                 continue
 
-        if do_dump and (n_fetched >= n_to_dump or gene_id == gene_ids[-1]):
+        if do_dump and (n_in_batch >= batch_size or gene_id == gene_ids[-1]):
             do_dump = False
-            n_fetched = 0
+            n_in_batch = 0
 
             opentargets_results["gene_ids"] = gene_ids
 
@@ -230,40 +256,39 @@ def get_ebi_results(opentargets_path, resources=RESOURCES):
 
         drug_names = ebi_results["drug_names"]
 
-    n_to_dump = 25
+    total_size = len(drug_names)
+    n_so_far = 0
     do_dump = False
-    n_fetched = 0
+    batch_size = 25
+    n_in_batch = 0
     for drug_name in drug_names:
-        n_fetched += 1
-
+        n_in_batch += 1
+        n_so_far += 1
         if drug_name not in ebi_results:
+            print(
+                f"Fetched {n_in_batch}/{batch_size} in batch - {n_so_far}/{total_size} so far"
+            )
             do_dump = True
 
             response = requests.get(
                 f"https://www.ebi.ac.uk/ols/api/search?q={drug_name}&ontology=dron"
             )
             if response.status_code == 200:
-                print(
-                    f"Assigned EBI results for drug name {drug_name} ({n_fetched} of {n_to_dump})"
-                )
+                print(f"Assigned EBI results for drug name {drug_name}")
                 ebi_results[drug_name] = response.json()
 
             else:
-                print(
-                    f"Could not assign EBI results for drug name {drug_name} ({n_fetched} of {n_to_dump})"
-                )
+                print(f"Could not assign EBI results for drug name {drug_name}")
                 ebi_results[drug_name] = {}
 
         else:
-            print(
-                f"Already assigned EBI results for drug name {drug_name} ({n_fetched}) or {n_to_dump}"
-            )
+            # print(f"Already assigned EBI results for drug name {drug_name}")
             if drug_name != drug_names[-1]:
                 continue
 
-        if do_dump and (n_fetched >= n_to_dump or drug_name == drug_names[-1]):
+        if do_dump and (n_in_batch >= batch_size or drug_name == drug_names[-1]):
             do_dump = False
-            n_fetched = 0
+            n_in_batch = 0
 
             ebi_results["drug_names"] = drug_names
 
@@ -298,13 +323,18 @@ def get_rxnav_results(opentargets_path, resources=RESOURCES):
 
         drug_names = rxnav_results["drug_names"]
 
-    n_to_dump = 25
+    total_size = len(drug_names)
+    n_so_far = 0
     do_dump = False
-    n_fetched = 0
+    batch_size = 25
+    n_in_batch = 0
     for drug_name in drug_names:
-        n_fetched += 1
-
+        n_in_batch += 1
+        n_so_far += 1
         if drug_name not in rxnav_results:
+            print(
+                f"Fetched {n_in_batch}/{batch_size} in batch - {n_so_far}/{total_size} so far"
+            )
             do_dump = True
 
             rxnav_results[drug_name] = {}
@@ -318,14 +348,12 @@ def get_rxnav_results(opentargets_path, resources=RESOURCES):
                 response = requests.get(url)
                 if response.status_code == 200:
                     content = url.split("/")[-1].split("?")[0].replace(".json", "")
-                    print(
-                        f"Assigned RxNav {content} results for drug name {drug_name} ({n_fetched} of {n_to_dump})"
-                    )
+                    print(f"Assigned RxNav {content} results for drug name {drug_name}")
                     rxnav_results[drug_name].update(response.json())
 
                 else:
                     print(
-                        f"Could not assign RxNav {content} results for protein id {drug_name} ({n_fetched} of {n_to_dump})"
+                        f"Could not assign RxNav {content} results for protein id {drug_name}"
                     )
 
             if "rxnormId" in rxnav_results[drug_name]["idGroup"]:
@@ -341,25 +369,23 @@ def get_rxnav_results(opentargets_path, resources=RESOURCES):
                     if response.status_code == 200:
                         content = url.split("/")[-1].split("?")[0].replace(".json", "")
                         print(
-                            f"Assigned RxNav {content} results for drug name {drug_name} ({n_fetched} of {n_to_dump})"
+                            f"Assigned RxNav {content} results for drug name {drug_name}"
                         )
                         rxnav_results[drug_name].update(response.json())
 
                     else:
                         print(
-                            f"Could not assign RxNav {content} results for protein id {drug_name} ({n_fetched} of {n_to_dump})"
+                            f"Could not assign RxNav {content} results for protein id {drug_name}"
                         )
 
         else:
-            print(
-                f"Already assigned RxNav results for drug name {drug_name} ({n_fetched}) or {n_to_dump}"
-            )
+            # print(f"Already assigned RxNav results for drug name {drug_name}")
             if drug_name != drug_names[-1]:
                 continue
 
-        if do_dump and (n_fetched >= n_to_dump or drug_name == drug_names[-1]):
+        if do_dump and (n_in_batch >= batch_size or drug_name == drug_names[-1]):
             do_dump = False
-            n_fetched = 0
+            n_in_batch = 0
 
             rxnav_results["drug_names"] = drug_names
 
@@ -399,6 +425,7 @@ def get_uniprot_results(opentargets_path, resources=RESOURCES):
         )
 
         protein_ids = collect_unique_protein_ids(opentargets_results)
+        pid2acc = get_protein_id_to_accession_map(protein_ids)
 
     else:
 
@@ -407,18 +434,24 @@ def get_uniprot_results(opentargets_path, resources=RESOURCES):
             uniprot_results = json.load(fp)
 
         protein_ids = uniprot_results["protein_ids"]
+        pid2acc = uniprot_results["pid2acc"]
 
-    n_to_dump = 25
+    total_size = len(protein_ids)
+    n_so_far = 0
     do_dump = False
-    n_fetched = 0
+    batch_size = 25
+    n_in_batch = 0
     for protein_id in protein_ids:
-        n_fetched += 1
-
+        n_in_batch += 1
+        n_so_far += 1
         if protein_id not in uniprot_results:
+            print(
+                f"Fetched {n_in_batch}/{batch_size} in batch - {n_so_far}/{total_size} so far"
+            )
             do_dump = True
 
             if "ENSP" in protein_id:
-                accession = map_protein_id_to_accession(protein_id)
+                accession = map_protein_id_to_accession(protein_id, pid2acc)
                 if accession is None:
                     uniprot_results[protein_id] = {}
                     continue
@@ -431,29 +464,24 @@ def get_uniprot_results(opentargets_path, resources=RESOURCES):
                 f"https://rest.uniprot.org/uniprotkb/{accession}?fields=accession,protein_name,cc_function,ft_binding"
             )
             if response.status_code == 200:
-                print(
-                    f"Assigned UniProt results for protein id {protein_id} ({n_fetched} of {n_to_dump})"
-                )
+                print(f"Assigned UniProt results for protein id {protein_id}")
                 uniprot_results[protein_id] = response.json()
 
             else:
-                print(
-                    f"Could not assign UniProt results for protein id {protein_id} ({n_fetched} of {n_to_dump})"
-                )
+                print(f"Could not assign UniProt results for protein id {protein_id}")
                 uniprot_results[protein_id] = {}
 
         else:
-            print(
-                f"Already assigned UniProt results for protein id {protein_id} ({n_fetched}) or {n_to_dump}"
-            )
+            # print(f"Already assigned UniProt results for protein id {protein_id}")
             if protein_id != protein_ids[-1]:
                 continue
 
-        if do_dump and (n_fetched >= n_to_dump or protein_id == protein_ids[-1]):
+        if do_dump and (n_in_batch >= batch_size or protein_id == protein_ids[-1]):
             do_dump = False
-            n_fetched = 0
+            n_in_batch = 0
 
             uniprot_results["protein_ids"] = protein_ids
+            uniprot_results["pid2acc"] = pid2acc
 
             print(f"Dumping uniprot results to {uniprot_path}")
             with open(uniprot_path, "w") as fp:
@@ -470,12 +498,14 @@ def main():
 
     opentargets_path, opentargets_results = get_opentargets_results(nsforest_path)
 
-    # uniprot_path, uniprot_results = get_uniprot_results(opentargets_path)
-
-    # ebi_path, ebi_results = get_ebi_results(opentargets_path)
+    ebi_path, ebi_results = get_ebi_results(opentargets_path)
 
     rxnav_path, rxnav_results = get_rxnav_results(opentargets_path)
 
+    uniprot_path, uniprot_results = get_uniprot_results(opentargets_path)
+
+    return opentargets_results, ebi_results, rxnav_results, uniprot_results
+
 
 if __name__ == "__main__":
-    main()
+    opentargets_results, ebi_results, rxnav_results, uniprot_results = main()
