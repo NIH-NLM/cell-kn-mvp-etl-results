@@ -28,6 +28,8 @@ RESOURCES = [
 
 NSFOREST_DIRPATH = Path("../data/results")
 
+# TODO: Refactor to reduce massive redundancy
+
 
 def get_gene_name_to_ids_map():
     """Query BioMart to map gene names to ids.
@@ -353,7 +355,7 @@ def get_rxnav_results(opentargets_path, resources=RESOURCES):
 
                 else:
                     print(
-                        f"Could not assign RxNav {content} results for protein id {drug_name}"
+                        f"Could not assign RxNav {content} results for drug name {drug_name}"
                     )
 
             if "rxnormId" in rxnav_results[drug_name]["idGroup"]:
@@ -375,7 +377,7 @@ def get_rxnav_results(opentargets_path, resources=RESOURCES):
 
                     else:
                         print(
-                            f"Could not assign RxNav {content} results for protein id {drug_name}"
+                            f"Could not assign RxNav {content} results for drug name {drug_name}"
                         )
 
         else:
@@ -394,6 +396,171 @@ def get_rxnav_results(opentargets_path, resources=RESOURCES):
                 json.dump(rxnav_results, fp, indent=4)
 
     return rxnav_path, rxnav_results
+
+
+def get_prop_for_drug(rxnav_results, drug_name, prop_name):
+
+    # "DRUGBANK" or "UNII_CODE"
+
+    prop_value = None
+
+    if drug_name not in rxnav_results:
+        print(f"No RxNav results for drug name {drug_name}")
+
+    elif "propConceptGroup" not in rxnav_results[drug_name]:
+        print(f"No property group in RxNav results for drug name {drug_name}")
+
+    else:
+        for propConcept in rxnav_results[drug_name]["propConceptGroup"]["propConcept"]:
+            if propConcept["propName"] == prop_name:
+                prop_value = propConcept["propValue"]
+                break
+
+    return prop_value
+
+
+def get_drugbank_results(rxnav_path, resources=RESOURCES):
+
+    drugbank_path = Path(str(rxnav_path).replace("rxnav", "drugbank"))
+
+    if not drugbank_path.exists():
+
+        drugbank_results = {}
+
+        opentargets_path = Path(str(rxnav_path).replace("rxnav", "opentargets"))
+
+        rxnav_path, rxnav_results = get_rxnav_results(
+            opentargets_path, resources=resources
+        )
+
+        opentargets_path, opentargets_results = get_opentargets_results(
+            opentargets_path, resources=resources
+        )
+
+        drug_names = collect_unique_drug_names(opentargets_results)
+
+    else:
+
+        print(f"Loading DrugBank results from {drugbank_path}")
+        with open(drugbank_path, "r") as fp:
+            drugbank_results = json.load(fp)
+
+        drug_names = drugbank_results["drug_names"]
+
+    total_size = len(drug_names)
+    n_so_far = 0
+    do_dump = False
+    batch_size = 25
+    n_in_batch = 0
+    for drug_name in drug_names:
+        n_in_batch += 1
+        n_so_far += 1
+        if drug_name not in drugbank_results:
+            print(
+                f"Fetched {n_in_batch}/{batch_size} in batch - {n_so_far}/{total_size} so far"
+            )
+            do_dump = True
+
+            drugbank_results[drug_name] = {}
+
+            drugbank_id = get_prop_for_drug(rxnav_results, drug_name, "DRUGBANK")
+
+            response = requests.get(f"https://go.drugbank.com/drugs/{drugbank_id}")
+            if response.status_code == 200:
+                print(f"Assigned DrugBank results for drug name {drug_name}")
+                drugbank_results[drug_name].update(response.json())
+
+            else:
+                print(f"Could not assign DrugBank results for drug name {drug_name}")
+
+        else:
+            # print(f"Already assigned DrugBank results for drug name {drug_name}")
+            if drug_name != drug_names[-1]:
+                continue
+
+        if do_dump and (n_in_batch >= batch_size or drug_name == drug_names[-1]):
+            do_dump = False
+            n_in_batch = 0
+
+            drugbank_results["drug_names"] = drug_names
+
+            print(f"Dumping DrugBank results to {drugbank_path}")
+            with open(drugbank_path, "w") as fp:
+                json.dump(drugbank_results, fp, indent=4)
+
+    return drugbank_path, drugbank_results
+
+
+def get_ncats_results(rxnav_path, resources=RESOURCES):
+
+    ncats_path = Path(str(rxnav_path).replace("rxnav", "ncats"))
+
+    if not ncats_path.exists():
+
+        ncats_results = {}
+
+        opentargets_path = Path(str(rxnav_path).replace("rxnav", "opentargets"))
+
+        rxnav_path, rxnav_results = get_rxnav_results(
+            opentargets_path, resources=resources
+        )
+
+        opentargets_path, opentargets_results = get_opentargets_results(
+            opentargets_path, resources=resources
+        )
+
+        drug_names = collect_unique_drug_names(opentargets_results)
+
+    else:
+
+        print(f"Loading Ncats results from {ncats_path}")
+        with open(ncats_path, "r") as fp:
+            ncats_results = json.load(fp)
+
+        drug_names = ncats_results["drug_names"]
+
+    total_size = len(drug_names)
+    n_so_far = 0
+    do_dump = False
+    batch_size = 25
+    n_in_batch = 0
+    for drug_name in drug_names:
+        n_in_batch += 1
+        n_so_far += 1
+        if drug_name not in ncats_results:
+            print(
+                f"Fetched {n_in_batch}/{batch_size} in batch - {n_so_far}/{total_size} so far"
+            )
+            do_dump = True
+
+            ncats_results[drug_name] = {}
+
+            unii_code = get_prop_for_drug(rxnav_results, drug_name, "UNII_CODE")
+
+            response = requests.get(f"https://drugs.ncats.io/drug/{unii_code}")
+            if response.status_code == 200:
+                print(f"Assigned Ncats results for drug name {drug_name}")
+                ncats_results[drug_name].update(response.json())
+
+            else:
+                print(f"Could not assign Ncats results for drug name {drug_name}")
+
+        else:
+            # print(f"Already assigned Ncats results for drug name {drug_name}")
+            if drug_name != drug_names[-1]:
+                continue
+
+        if do_dump and (n_in_batch >= batch_size or drug_name == drug_names[-1]):
+            do_dump = False
+            n_in_batch = 0
+
+            ncats_results["drug_names"] = drug_names
+
+            print(f"Dumping Ncats results to {ncats_path}")
+            with open(ncats_path, "w") as fp:
+                json.dump(ncats_results, fp, indent=4)
+
+    return ncats_path, ncats_results
 
 
 def collect_unique_protein_ids(opentargets_results):
@@ -501,6 +668,12 @@ def main():
     ebi_path, ebi_results = get_ebi_results(opentargets_path)
 
     rxnav_path, rxnav_results = get_rxnav_results(opentargets_path)
+
+    # TODO: Restore if API becomes available
+    # drugbank_path, drugbank_results = get_drugbank_results(rxnav_path)
+
+    # TODO: Restore if API becomes available
+    # ncats_path, ncats_results = get_ncats_results(rxnav_path)
 
     uniprot_path, uniprot_results = get_uniprot_results(opentargets_path)
 
