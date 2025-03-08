@@ -8,7 +8,7 @@ import requests
 import scanpy as sc
 
 from LoaderUtilities import load_results
-from UniprotIdMapper import (
+from UniProtIdMapper import (
     submit_id_mapping,
     check_id_mapping_results_ready,
     get_id_mapping_results_link,

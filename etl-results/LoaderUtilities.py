@@ -23,6 +23,7 @@ def get_uuid():
     return "".join(random.choices(ALPHABET, k=12))
 
 
+# TODO: Rename for clarity
 def load_results(results_path):
     """Load NSForest results CSV file and append a UUID.
 
