@@ -2,7 +2,7 @@ import argparse
 import ast
 from pathlib import Path
 
-from rdflib.term import BNode, Literal, URIRef
+from rdflib.term import Literal, URIRef
 
 import ArangoDbUtilities as adb
 from LoaderUtilities import load_results, hyphenate, PURLBASE, RDFSBASE
