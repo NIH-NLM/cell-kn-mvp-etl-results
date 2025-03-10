@@ -31,8 +31,27 @@ NSFOREST_DIRPATH = Path("../data/results")
 # TODO: Refactor to reduce massive redundancy
 
 
+def get_gene_names_and_ids():
+    """Query BioMart to get gene names and ids.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    gnmsids : pd.DataFrame
+        DataFrame with columns containing gene names and ids
+    """
+    print("Getting gene names and ids from BioMart")
+    gnmsids = sc.queries.biomart_annotations(
+        "hsapiens", ["external_gene_name", "ensembl_gene_id"], use_cache=True
+    )
+    return gnmsids
+
+
 def get_gene_name_to_ids_map():
-    """Query BioMart to map gene names to ids.
+    """Map gene name to ids.
 
     Parameters
     ----------
@@ -44,10 +63,8 @@ def get_gene_name_to_ids_map():
         DataFrame indexed by gene name containing gene id
     """
     print("Creating gene name to ids map")
-    gnm2ids = sc.queries.biomart_annotations(
-        "hsapiens", ["external_gene_name", "ensembl_gene_id"], use_cache=True
-    ).set_index("external_gene_name")
-
+    gnmsids = get_gene_names_and_ids()
+    gnm2ids = gnmsids.set_index("external_gene_name")
     return gnm2ids
 
 
@@ -59,7 +76,7 @@ def map_gene_name_to_ids(name, gnm2ids):
     name : str
         Gene name
     gnm2ids : pd.DataFrame
-        DataFrame indexed by name containing id
+        DataFrame indexed by gene name containing gene id
 
     Returns
     -------
@@ -74,50 +91,155 @@ def map_gene_name_to_ids(name, gnm2ids):
             ids = [ids]
         print(f"Mapped gene name {name} to ids {ids}")
     else:
-        print(f"Could not find ids for name: {name}")
+        print(f"Could not find gene ids for gene name: {name}")
         ids = []
     return ids
 
 
+def get_gene_id_to_names_map():
+    """Map gene id to names.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    gid2nms : pd.DataFrame
+        DataFrame indexed by gene ids containing gene names
+    """
+    print("Creating gene id to names map")
+    gnmsids = get_gene_names_and_ids()
+    gid2nms = gnmsids.set_index("ensembl_gene_id")
+    return gid2nms
+
+
+def map_gene_id_to_names(gid, gid2nms):
+    """Map a gene id to a gene name list.
+
+    Parameters
+    ----------
+    gid : str
+        Gene id
+    gid2nms : pd.DataFrame
+        DataFrame indexed by gene id containing gene name
+
+    Returns
+    -------
+    list
+        Gene names
+    """
+    if gid in gid2nms.index:
+        names = gid2nms.loc[gid, "external_gene_name"]
+        if isinstance(names, pd.core.series.Series):
+            names = names.to_list()
+        else:
+            names = [names]
+        print(f"Mapped gene id {gid} to names {names}")
+    else:
+        print(f"Could not find gene names for gene id: {gid}")
+        names = []
+    return names
+
+
 def get_protein_id_to_accession_map(protein_ids):
 
-    pid2acc = {}
+    ensp2accn = {}
 
     batch_size = 1000
 
-    ensp_ids = []
+    ensps = []
     for protein_id in protein_ids:
 
         if "ENSP" in protein_id:
-            ensp_ids.append(protein_id)
+            ensps.append(protein_id)
 
-        if len(ensp_ids) == batch_size or (
-            len(ensp_ids) > 0 and protein_id == protein_ids[-1]
+        if len(ensps) == batch_size or (
+            len(ensps) > 0 and protein_id == protein_ids[-1]
         ):
 
             job_id = submit_id_mapping(
-                from_db="Ensembl_Protein", to_db="UniProtKB", ids=ensp_ids
+                from_db="Ensembl_Protein", to_db="UniProtKB", ids=ensps
             )
             if check_id_mapping_results_ready(job_id):
                 link = get_id_mapping_results_link(job_id)
                 data = get_id_mapping_results_search(link)
 
             for result in data["results"]:
-                pid2acc[result["from"]] = result["to"]["primaryAccession"]
+                ensp = result["from"]
+                accn = result["to"]["primaryAccession"]
+                if ensp not in ensp2accn:
+                    ensp2accn[ensp] = accn
+                else:
+                    if type(ensp2accn[ensp]) != list:
+                        ensp2accn[ensp] = [ensp2accn[ensp]]
+                    ensp2accn[ensp].append(accn)
 
-            ensp_ids = []
+            ensps = []
 
-    return pid2acc
+    return ensp2accn
 
 
-def map_protein_id_to_accession(ensp_id, pid2acc):
+def map_protein_id_to_accession(ensp, ensp2accn):
 
-    acc = None
+    accn = None
 
-    if ensp_id in pid2acc:
-        acc = pid2acc[ensp_id]
+    if ensp in ensp2accn:
+        accn = ensp2accn[ensp]
+        if type(accn) is list:
+            accn = accn[0]
 
-    return acc
+    return accn
+
+
+def get_accession_to_protein_id_map(protein_ids):
+
+    accn2esnp = {}
+
+    batch_size = 1000
+
+    accns = []
+    for protein_id in protein_ids:
+
+        if "ENSP" not in protein_id:
+            accns.append(protein_id)
+
+        if len(accns) == batch_size or (
+            len(accns) > 0 and protein_id == protein_ids[-1]
+        ):
+
+            job_id = submit_id_mapping(
+                from_db="UniProtKB_AC-ID", to_db="Ensembl_Protein", ids=accns
+            )
+            if check_id_mapping_results_ready(job_id):
+                link = get_id_mapping_results_link(job_id)
+                data = get_id_mapping_results_search(link)
+
+            for result in data["results"]:
+                accn = result["from"]
+                ensp = result["to"]
+                if accn not in accn2esnp:
+                    accn2esnp[accn] = ensp
+                else:
+                    if type(accn2esnp[accn]) != list:
+                        accn2esnp[accn] = [accn2esnp[accn]]
+                    accn2esnp[accn].append(ensp)
+
+            accns = []
+
+    return accn2esnp
+
+
+def map_accession_to_protein_id(accn, accn2ensp):
+
+    ensp = None
+
+    if accn in accn2ensp:
+        ensp = accn2ensp[accn]
+        if type(ensp) is list:
+            ensp = ensp[0]
+
+    return ensp
 
 
 def collect_unique_gene_symbols(nsforest_results):
@@ -171,6 +293,7 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES):
         with open(opentargets_path, "r") as fp:
             opentargets_results = json.load(fp)
 
+        gene_symbols = opentargets_results["gene_symbols"]
         gene_ids = opentargets_results["gene_ids"]
 
     total_size = len(gene_ids)
@@ -212,6 +335,7 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES):
             do_dump = False
             n_in_batch = 0
 
+            opentargets_results["gene_symbols"] = gene_symbols
             opentargets_results["gene_ids"] = gene_ids
 
             print(f"Dumping opentargets results to {opentargets_path}")
@@ -592,7 +716,8 @@ def get_uniprot_results(opentargets_path, resources=RESOURCES):
         )
 
         protein_ids = collect_unique_protein_ids(opentargets_results)
-        pid2acc = get_protein_id_to_accession_map(protein_ids)
+        ensp2accn = get_protein_id_to_accession_map(protein_ids)
+        accn2ensp = get_accession_to_protein_id_map(protein_ids)
 
     else:
 
@@ -601,7 +726,8 @@ def get_uniprot_results(opentargets_path, resources=RESOURCES):
             uniprot_results = json.load(fp)
 
         protein_ids = uniprot_results["protein_ids"]
-        pid2acc = uniprot_results["pid2acc"]
+        ensp2accn = uniprot_results["ensp2accn"]
+        accn2ensp = uniprot_results["accn2ensp"]
 
     total_size = len(protein_ids)
     n_so_far = 0
@@ -618,14 +744,14 @@ def get_uniprot_results(opentargets_path, resources=RESOURCES):
             do_dump = True
 
             if "ENSP" in protein_id:
-                accession = map_protein_id_to_accession(protein_id, pid2acc)
+                accession = map_protein_id_to_accession(protein_id, ensp2accn)
                 if accession is None:
                     uniprot_results[protein_id] = {}
                     continue
                 print(f"Mapped accession {accession} to protein id {protein_id}")
 
             else:
-                accession = protein_id
+                accession = [protein_id]
 
             response = requests.get(
                 f"https://rest.uniprot.org/uniprotkb/{accession}?fields=accession,protein_name,cc_function,ft_binding"
@@ -648,7 +774,8 @@ def get_uniprot_results(opentargets_path, resources=RESOURCES):
             n_in_batch = 0
 
             uniprot_results["protein_ids"] = protein_ids
-            uniprot_results["pid2acc"] = pid2acc
+            uniprot_results["ensp2accn"] = ensp2accn
+            uniprot_results["accn2ensp"] = accn2ensp
 
             print(f"Dumping uniprot results to {uniprot_path}")
             with open(uniprot_path, "w") as fp:
