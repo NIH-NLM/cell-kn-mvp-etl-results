@@ -1,1 +1,1 @@
-../cell-kn-etl-ontologies/src/main/python/OntologyParserLoader.py
+../../../cell-kn-etl-ontologies/src/main/python/OntologyParserLoader.py
