@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>gov.nih.nlm</groupId>
-  <artifactId>cell-kn-etl-results-java</artifactId>
+  <artifactId>cell-kn-etl-results</artifactId>
   <version>1.0</version>
   <packaging>jar</packaging>
 
-  <name>cell-kn-etl-results-java</name>
+  <name>cell-kn-etl-results</name>
   <url>http://maven.apache.org</url>
 
   <properties>
@@ -30,6 +30,13 @@
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
       <version>20250107</version>
+    </dependency>
+    <dependency>
+      <groupId>gov.nih.nlm</groupId>
+      <artifactId>cell-kn-etl-ontologies</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/cell-kn-etl-ontologies/target/cell-kn-etl-ontologies-1.0.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
