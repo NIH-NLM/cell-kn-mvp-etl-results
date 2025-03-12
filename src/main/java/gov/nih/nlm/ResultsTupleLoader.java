@@ -26,6 +26,7 @@ public class ResultsTupleLoader {
     // Assign location of ontology files
     private static final Path usrDir = Paths.get(System.getProperty("user.dir"));
     public static final Path tuplesDir = usrDir.resolve("data/tuples");
+    public static final Path schemaDir = usrDir.resolve("data/schema");
 
     // Connect to a local ArangoDB server instance
     private static final ArangoDbUtilities arangoDbUtilities = new ArangoDbUtilities();
@@ -288,13 +289,75 @@ public class ResultsTupleLoader {
     }
 
     /**
+     * Load tuples parsed from a schema file into a local ArangoDB server instance.
+     *
+     * @param cellKnGraph         Cell-KN ArangoDB graph
+     * @param ontologyElementMaps Maps terms and labels
+     */
+    public static void loadSchemaTuples(ArangoGraph cellKnGraph, Map<String, OntologyElementMap> ontologyElementMaps) {
+
+        // Create the database and graph
+        String cellKnSchemaDbName = "Cell-KN-Schema";
+        arangoDbUtilities.deleteDatabase(cellKnSchemaDbName);
+        ArangoDatabase cellKnSchemaDb = arangoDbUtilities.createOrGetDatabase(cellKnSchemaDbName);
+        String cellKnSchemaGraphName = "KN-Schema-v0.7";
+        arangoDbUtilities.deleteGraph(cellKnSchemaDb, cellKnSchemaGraphName);
+        ArangoGraph cellKnSchemaGraph = arangoDbUtilities.createOrGetGraph(cellKnSchemaDb, cellKnSchemaGraphName);
+
+        // Collect vertex keys for each vertex collection to prevent constructing
+        // duplicate vertices in the vertex collection
+        Map<String, Set<String>> vertexKeys = new HashMap<>();
+
+        // Collect edge keys in each edge collection to prevent constructing duplicate
+        // edges in the edge collection
+        Map<String, Set<String>> edgeKeys = new HashMap<>();
+
+        // Collect all vertices and edges before inserting them into the graph for improved performace
+        Map<String, ArangoVertexCollection> vertexCollections = new HashMap<>();
+        Map<String, Map<String, BaseDocument>> vertexDocuments = new HashMap<>();
+        Map<String, ArangoEdgeCollection> edgeCollections = new HashMap<>();
+        Map<String, Map<String, BaseEdgeDocument>> edgeDocuments = new HashMap<>();
+
+        Path tuplesFile = schemaDir.resolve("cell-kn-schema-v0.7.0.json");
+        System.out.println("Processing tuples file " + tuplesFile);
+
+        // Read the tuples file
+        ArrayList<ArrayList<Node>> tuplesArrayList;
+        try {
+            tuplesArrayList = readJsonFile(tuplesFile.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // Construct vertices
+        constructVertices(tuplesArrayList, cellKnSchemaGraph, vertexKeys, vertexCollections, vertexDocuments);
+
+        // Construct edges
+        constructEdges(tuplesArrayList, ontologyElementMaps, cellKnSchemaGraph, edgeKeys, edgeCollections, edgeDocuments);
+
+        // Insert vertices, and edges
+        insertVertices(vertexCollections, vertexDocuments);
+        insertEdges(edgeCollections, edgeDocuments);
+
+        // Replace Cell-KN schema vertices with Cell-KN vertices
+        for (String id : vertexDocuments.keySet()) {
+            for (String number : vertexDocuments.get(id).keySet()) {
+                BaseDocument cellKnDoc = cellKnGraph.vertexCollection(id).getVertex(number, BaseDocument.class);
+                if (cellKnDoc != null) {
+                    vertexCollections.get(id).replaceVertex(number, cellKnDoc);
+                }
+            }
+        }
+    }
+
+    /**
      * Load tuples parsed from a results file into a local ArangoDB server instance.
      *
      * @param args (None expected)
      */
     public static void main(String[] args) {
 
-        // Identify the tuples files
+        // Identify the results tuples files
         String tuplesPath;
         if (args.length > 0) {
             tuplesPath = args[0];
@@ -336,22 +399,25 @@ public class ResultsTupleLoader {
         }
 
         // Create the database and graph
-        String databaseName;
+        String cellKnDbName;
         if (args.length > 2) {
-            databaseName = args[2];
+            cellKnDbName = args[2];
         } else {
-            databaseName = "Cell-KN-v2.0";
+            cellKnDbName = "Cell-KN";
         }
-        // arangoDbUtilities.deleteDatabase(databaseName);
-        ArangoDatabase db = arangoDbUtilities.createOrGetDatabase(databaseName);
-        String graphName;
+        // NEVER DO THIS: arangoDbUtilities.deleteDatabase(databaseName);
+        ArangoDatabase cellKnDb = arangoDbUtilities.createOrGetDatabase(cellKnDbName);
+        String cellKnGraphName;
         if (args.length > 3) {
-            graphName = args[3];
+            cellKnGraphName = args[3];
         } else {
-            graphName = "Combined";
+            cellKnGraphName = "KN-v2.0";
         }
-        // arangoDbUtilities.deleteGraph(db, graphName);
-        ArangoGraph graph = arangoDbUtilities.createOrGetGraph(db, graphName);
+        // NEVER DO THIS: arangoDbUtilities.deleteGraph(db, graphName);
+        ArangoGraph cellKnGraph = arangoDbUtilities.createOrGetGraph(cellKnDb, cellKnGraphName);
+
+        // Load the schema tuples file
+        loadSchemaTuples(cellKnGraph, ontologyElementMaps);
 
         // Collect vertex keys for each vertex collection to prevent constructing
         // duplicate vertices in the vertex collection
@@ -366,10 +432,11 @@ public class ResultsTupleLoader {
         Map<String, Map<String, BaseDocument>> vertexDocuments = new HashMap<>();
         Map<String, ArangoEdgeCollection> edgeCollections = new HashMap<>();
         Map<String, Map<String, BaseEdgeDocument>> edgeDocuments = new HashMap<>();
+
+        // Read the results tuples files
         for (Path tuplesFile : tuplesFiles) {
             System.out.println("Processing tuples file " + tuplesFile);
 
-            // Read the tuples file
             ArrayList<ArrayList<Node>> tuplesArrayList;
             try {
                 tuplesArrayList = readJsonFile(tuplesFile.toString());
@@ -378,11 +445,11 @@ public class ResultsTupleLoader {
             }
 
             // Construct, and update vertices
-            constructVertices(tuplesArrayList, graph, vertexKeys, vertexCollections, vertexDocuments);
+            constructVertices(tuplesArrayList, cellKnGraph, vertexKeys, vertexCollections, vertexDocuments);
             updateVertices(tuplesArrayList, ontologyElementMaps, vertexDocuments);
 
             // Construct, and update edges
-            constructEdges(tuplesArrayList, ontologyElementMaps, graph, edgeKeys, edgeCollections, edgeDocuments);
+            constructEdges(tuplesArrayList, ontologyElementMaps, cellKnGraph, edgeKeys, edgeCollections, edgeDocuments);
             updateEdges(tuplesArrayList, ontologyElementMaps, edgeDocuments);
         }
         // Insert vertices, and edges
