@@ -12,7 +12,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -139,7 +138,7 @@ public class ResultsTupleLoader {
      * @param vertexDocuments     ArangoDB vertex documents
      */
     public static void updateVertices(ArrayList<ArrayList<Node>> tuplesArrayList, Map<String, OntologyElementMap> ontologyElementMaps,
-                                      Map<String, Map<String, BaseDocument>> vertexDocuments) throws URISyntaxException {
+                                      Map<String, Map<String, BaseDocument>> vertexDocuments) throws RuntimeException {
 
         Set<String> updatedVertices = new HashSet<>(); // For counting only
         System.out.println("Updating vertices using " + tuplesArrayList.size() + " tuples");
@@ -191,7 +190,7 @@ public class ResultsTupleLoader {
      * @param edgeDocuments       ArangoDB edge documents
      */
     public static void constructEdges(ArrayList<ArrayList<Node>> tuplesArrayList, Map<String, OntologyElementMap> ontologyElementMaps, ArangoGraph graph,
-                                      Map<String, Set<String>> edgeKeys, Map<String, ArangoEdgeCollection> edgeCollections, Map<String, Map<String, BaseEdgeDocument>> edgeDocuments) throws URISyntaxException {
+                                      Map<String, Set<String>> edgeKeys, Map<String, ArangoEdgeCollection> edgeCollections, Map<String, Map<String, BaseEdgeDocument>> edgeDocuments) throws RuntimeException {
 
         int nEdges = 0;
         System.out.println("Constructing edges using " + tuplesArrayList.size() + " tuples");
@@ -244,7 +243,7 @@ public class ResultsTupleLoader {
      * @param edgeDocuments       ArangoDB edge documents
      */
     public static void updateEdges(ArrayList<ArrayList<Node>> tuplesArrayList, Map<String, OntologyElementMap> ontologyElementMaps,
-                                   Map<String, Map<String, BaseEdgeDocument>> edgeDocuments) throws URISyntaxException {
+                                   Map<String, Map<String, BaseEdgeDocument>> edgeDocuments) throws RuntimeException {
 
         Set<String> updatedEdges = new HashSet<>(); // For counting only
         System.out.println("Updating edges using " + tuplesArrayList.size() + " tuples");
@@ -333,11 +332,7 @@ public class ResultsTupleLoader {
             System.out.println("No OBO files found matching pattern " + oboPattern);
             System.exit(2);
         } else {
-            try {
-                ontologyElementMaps = parseOntologyElements(oboFiles);
-            } catch (URISyntaxException e) {
-                throw new RuntimeException(e);
-            }
+            ontologyElementMaps = parseOntologyElements(oboFiles);
         }
 
         // Create the database and graph
@@ -345,9 +340,9 @@ public class ResultsTupleLoader {
         if (args.length > 2) {
             databaseName = args[2];
         } else {
-            databaseName = "Cell-KN-v1.5";
+            databaseName = "Cell-KN-v2.0";
         }
-        arangoDbUtilities.deleteDatabase(databaseName);
+        // arangoDbUtilities.deleteDatabase(databaseName);
         ArangoDatabase db = arangoDbUtilities.createOrGetDatabase(databaseName);
         String graphName;
         if (args.length > 3) {
@@ -355,7 +350,7 @@ public class ResultsTupleLoader {
         } else {
             graphName = "Combined";
         }
-        arangoDbUtilities.deleteGraph(db, graphName);
+        // arangoDbUtilities.deleteGraph(db, graphName);
         ArangoGraph graph = arangoDbUtilities.createOrGetGraph(db, graphName);
 
         // Collect vertex keys for each vertex collection to prevent constructing
@@ -384,19 +379,11 @@ public class ResultsTupleLoader {
 
             // Construct, and update vertices
             constructVertices(tuplesArrayList, graph, vertexKeys, vertexCollections, vertexDocuments);
-            try {
-                updateVertices(tuplesArrayList, ontologyElementMaps, vertexDocuments);
-            } catch (URISyntaxException e) {
-                throw new RuntimeException(e);
-            }
+            updateVertices(tuplesArrayList, ontologyElementMaps, vertexDocuments);
 
             // Construct, and update edges
-            try {
-                constructEdges(tuplesArrayList, ontologyElementMaps, graph, edgeKeys, edgeCollections, edgeDocuments);
-                updateEdges(tuplesArrayList, ontologyElementMaps, edgeDocuments);
-            } catch (URISyntaxException e) {
-                throw new RuntimeException(e);
-            }
+            constructEdges(tuplesArrayList, ontologyElementMaps, graph, edgeKeys, edgeCollections, edgeDocuments);
+            updateEdges(tuplesArrayList, ontologyElementMaps, edgeDocuments);
         }
         // Insert vertices, and edges
         insertVertices(vertexCollections, vertexDocuments);
