@@ -1,5 +1,6 @@
 import argparse
 import ast
+import json
 from pathlib import Path
 
 from rdflib.term import Literal, URIRef
@@ -10,6 +11,7 @@ from OntologyParserLoader import load_tuples_into_adb_graph, parse_obo, VALID_VE
 
 OBO_DIRPATH = Path("../data/obo")
 NSFOREST_DIRPATH = Path("../data/results")
+TUPLES_DIRPATH = Path("../data/tuples")
 
 
 def create_tuples_from_author_to_cl(results):
@@ -267,50 +269,67 @@ def main(parameters=None):
     vertex_collections = {}
     edge_collections = {}
 
-    nsforest_path = (
-        NSFOREST_DIRPATH / "cell-kn-mvp-nsforest-results-guo-2023-2025-02-22.csv"
-    ).resolve()
+    for author in ["guo", "li", "sikkema"]:
 
-    nsforest_results = load_results(nsforest_path).sort_values(
-        "clusterName", ignore_index=True
-    )
+        nsforest_path = (
+            NSFOREST_DIRPATH
+            / f"cell-kn-mvp-nsforest-results-{author}-2023-2025-02-22.csv"
+        ).resolve()
 
-    author_to_cl_path = Path(
-        str(nsforest_path)
-        .replace("nsforest-results", "map-author-to-cl")
-        .replace("2023-2025-02-22", "2023-data-v0.4")
-    )
+        nsforest_results = load_results(nsforest_path).sort_values(
+            "clusterName", ignore_index=True
+        )
 
-    author_to_cl_results = load_results(author_to_cl_path).sort_values(
-        "author_cell_set", ignore_index=True
-    )
+        if author == "li":
+            author_to_cl_path = Path(
+                str(nsforest_path)
+                .replace("nsforest-results", "map-author-to-cl")
+                .replace("2023-2025-02-22", "2023-data-v0.7")
+            )
+        else:
+            author_to_cl_path = Path(
+                str(nsforest_path)
+                .replace("nsforest-results", "map-author-to-cl")
+                .replace("2023-2025-02-22", "2023-data-v0.4")
+            )
+        print(f"Creating tuples from {author_to_cl_path}")
 
-    author_to_cl_results = author_to_cl_results.merge(
-        nsforest_results[["clusterName", "NSForest_markers", "binary_genes"]].copy(),
-        left_on="author_cell_set",
-        right_on="clusterName",
-    )
+        author_to_cl_results = load_results(author_to_cl_path).sort_values(
+            "author_cell_set", ignore_index=True
+        )
 
-    author_to_cl_tuples = create_tuples_from_author_to_cl(author_to_cl_results)
+        author_to_cl_results = author_to_cl_results.merge(
+            nsforest_results[
+                ["clusterName", "NSForest_markers", "binary_genes"]
+            ].copy(),
+            left_on="author_cell_set",
+            right_on="clusterName",
+        )
 
-    with open("AuthorToClResultsLoader.out", "w") as f:
-        for tuple in author_to_cl_tuples:
-            f.write(str(tuple) + "\n")
+        author_to_cl_tuples = create_tuples_from_author_to_cl(author_to_cl_results)
 
-    VALID_VERTICES.add("CS")
-    VALID_VERTICES.add("CSD")
-    VALID_VERTICES.add("GS")
-    VALID_VERTICES.add("PUB")
-    VALID_VERTICES.add("DS")
+        with open(TUPLES_DIRPATH / f"AuthorToClResultsLoader-{author}.json", "w") as f:
+            results = {}
+            results["tuples"] = author_to_cl_tuples
+            json.dump(results, f, indent=4)
 
-    load_tuples_into_adb_graph(
-        author_to_cl_tuples,
-        adb_graph,
-        vertex_collections,
-        edge_collections,
-        ro=ro,
-        do_update=True,
-    )
+        # VALID_VERTICES.add("BMC")
+        # VALID_VERTICES.add("CHEMBL")
+        # VALID_VERTICES.add("CS")
+        # VALID_VERTICES.add("CSD")
+        # VALID_VERTICES.add("DS")
+        # VALID_VERTICES.add("GS")
+        # VALID_VERTICES.add("PUB")
+        # VALID_VERTICES.add("SO")
+
+        # load_tuples_into_adb_graph(
+        #     author_to_cl_tuples,
+        #     adb_graph,
+        #     vertex_collections,
+        #     edge_collections,
+        #     ro=ro,
+        #     do_update=True,
+    # )
 
 
 if __name__ == "__main__":

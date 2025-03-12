@@ -1,5 +1,6 @@
 import argparse
 import ast
+import json
 from pathlib import Path
 
 from rdflib.term import Literal, URIRef
@@ -10,6 +11,7 @@ from OntologyParserLoader import load_tuples_into_adb_graph, parse_obo, VALID_VE
 
 OBO_DIRPATH = Path("../data/obo")
 NSFOREST_DIRPATH = Path("../data/results")
+TUPLES_DIRPATH = Path("../data/tuples")
 
 
 def create_tuples_from_nsforest(results):
@@ -241,32 +243,42 @@ def main(parameters=None):
     vertex_collections = {}
     edge_collections = {}
 
-    nsforest_path = (
-        NSFOREST_DIRPATH / "cell-kn-mvp-nsforest-results-guo-2023-2025-02-22.csv"
-    ).resolve()
+    for author in ["guo", "li", "sikkema"]:
 
-    nsforest_results = load_results(nsforest_path).sort_values(
-        "clusterName", ignore_index=True
-    )
+        nsforest_path = (
+            NSFOREST_DIRPATH
+            / f"cell-kn-mvp-nsforest-results-{author}-2023-2025-02-22.csv"
+        ).resolve()
+        print(f"Creating tuples from {nsforest_path}")
+        
+        nsforest_results = load_results(nsforest_path).sort_values(
+            "clusterName", ignore_index=True
+        )
 
-    nsforest_tuples = create_tuples_from_nsforest(nsforest_results)
+        nsforest_tuples = create_tuples_from_nsforest(nsforest_results)
 
-    with open("NSForestResultsLoader.out", "w") as f:
-        for tuple in nsforest_tuples:
-            f.write(str(tuple) + "\n")
+        with open(TUPLES_DIRPATH / f"NSForestResultsLoader-{author}.json", "w") as f:
+            results = {}
+            results["tuples"] = nsforest_tuples
+            json.dump(results, f, indent=4)
 
-    VALID_VERTICES.add("BMC")
-    VALID_VERTICES.add("CS")
-    VALID_VERTICES.add("GS")
+            # VALID_VERTICES.add("BMC")
+            # VALID_VERTICES.add("CHEMBL")
+            # VALID_VERTICES.add("CS")
+            # VALID_VERTICES.add("CSD")
+            # VALID_VERTICES.add("DS")
+            # VALID_VERTICES.add("GS")
+            # VALID_VERTICES.add("PUB")
+            # VALID_VERTICES.add("SO")
 
-    load_tuples_into_adb_graph(
-        nsforest_tuples,
-        adb_graph,
-        vertex_collections,
-        edge_collections,
-        ro=ro,
-        do_update=True,
-    )
+            # load_tuples_into_adb_graph(
+            #     nsforest_tuples,
+            #     adb_graph,
+            #     vertex_collections,
+            #     edge_collections,
+            #     ro=ro,
+            #     do_update=True,
+            # )
 
 
 if __name__ == "__main__":
