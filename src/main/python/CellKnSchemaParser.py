@@ -1,7 +1,11 @@
+import json
 from pathlib import Path
+from pprint import pprint
 
 import numpy as np
 import pandas as pd
+
+from LoaderUtilities import load_results, hyphenate, PURLBASE, RDFSBASE
 
 
 def read_schema(schema_path):
@@ -29,7 +33,7 @@ def read_schema(schema_path):
     ]
 
     # Drop unknown precicate relation
-    # schema = schema[schema["Predicate Relation"] != "???"]
+    schema = schema[schema["Predicate Relation"] != "???"]
 
     # Drop predicates since not present in the classes/relations
     # schema = schema[schema["Predicate Relation"] != "IS_MARKER_FOR_PROTEIN"]
@@ -74,6 +78,44 @@ def read_schema(schema_path):
     return schema, terms
 
 
+def create_tuples(schema):
+
+    tuples = []
+
+    df = schema[["Subject Node Curie", "Predicate Relation Curie", "Object Node Curie"]]
+
+    df = df.map(lambda e: e.replace("MONDO:0000001 or MONDO:0021178", "MONDO:0000001"))
+    df = df.map(
+        lambda e: e.replace(
+            "PATO:0000068, MONDO:0000001 (disease), or MOND...", "PATO:0000068"
+        )
+    )
+    df = df.map(
+        lambda e: e.replace("HsapDv:0000000 or MmusDv:0000000", "HsapDv:0000000")
+    )
+    df = df.map(lambda e: e.replace("EFO:0002772 or EFO:0010183", "EFO:0002772"))
+
+    df = df.map(
+        lambda e: e.replace(
+            "PATO:0000068, MONDO:0000001 (disease), or MONDO:0021178 (injury)",
+            "PATO:0000068",
+        )
+    )
+    df = df.map(lambda e: e.replace(":", "_"))
+
+    for _, row in df.iterrows():
+        s, o, p = row
+        tuples.append(
+            (
+                f"{PURLBASE}/{s}",
+                f"{PURLBASE}/{o}",
+                f"{PURLBASE}/{p}",
+            )
+        )
+
+    return tuples
+
+
 def identify_unique_classes(schema):
 
     # Identify unique subjects, objects, and vertices
@@ -85,7 +127,12 @@ def identify_unique_classes(schema):
 
 
 def identify_nsforest_triples(schema, subjects, objects, vertices, triples_path):
-    selected_vertices = ["Biomarker_combination", "Binary_gene_combination", "Cell_set", "Gene"]
+    selected_vertices = [
+        "Biomarker_combination",
+        "Binary_gene_combination",
+        "Cell_set",
+        "Gene",
+    ]
 
     # Identify triples which contain selected vertices
     triples_with_names = schema.loc[
@@ -100,7 +147,6 @@ def identify_nsforest_triples(schema, subjects, objects, vertices, triples_path)
     ]
 
     # Write the result to an Excel spreadsheet
-
     with pd.ExcelWriter(triples_path) as writer:
         pd.DataFrame(subjects, columns=["Subjects"]).to_excel(
             writer, sheet_name="Subjects"
@@ -152,18 +198,26 @@ def identify_author_to_cl_triples(schema, subjects, objects, vertices, triples_p
 
 
 def main():
-    schema_path = Path("../data/cell-kn-schema-v0.5.0.xlsx")
+    schema_path = Path("../../../data/schema/cell-kn-schema-v0.7.0.xlsx")
     schema, terms = read_schema(schema_path)
+
+    schema_tuples_path = Path(str(schema_path.resolve()).replace(".xlsx", ".json"))
+    schema_tuples = create_tuples(schema)
+
+    with open(schema_tuples_path, "w") as f:
+        results = {}
+        results["tuples"] = schema_tuples
+        json.dump(results, f, indent=4)
 
     subjects, objects, vertices = identify_unique_classes(schema)
 
-    triples_path = Path(str(schema_path.resolve()).replace(".xlsx", "-nsforest.xlsx"))
-    identify_nsforest_triples(schema, subjects, objects, vertices, triples_path)
+    nsforest_triples_path = Path(str(schema_path.resolve()).replace(".xlsx", "-nsforest.xlsx"))
+    identify_nsforest_triples(schema, subjects, objects, vertices, nsforest_triples_path)
 
-    triples_path = Path(
+    author_to_cl_triples_path = Path(
         str(schema_path.resolve()).replace(".xlsx", "-author-to-cl.xlsx")
     )
-    identify_author_to_cl_triples(schema, subjects, objects, vertices, triples_path)
+    identify_author_to_cl_triples(schema, subjects, objects, vertices, author_to_cl_triples_path)
 
 
 if __name__ == "__main__":
