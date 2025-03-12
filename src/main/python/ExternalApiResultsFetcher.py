@@ -27,7 +27,7 @@ RESOURCES = [
     "depmap",
 ]
 
-NSFOREST_DIRPATH = Path("../data/results")
+NSFOREST_DIRPATH = Path("../../../data/results")
 
 # TODO: Refactor to reduce massive redundancy
 

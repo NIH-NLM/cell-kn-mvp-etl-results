@@ -1,12 +1,9 @@
-import argparse
 import json
 from pathlib import Path
 
 from rdflib.term import Literal, URIRef
 
-import ArangoDbUtilities as adb
 from ExternalApiResultsFetcher import (
-    RESOURCES,
     get_opentargets_results,
     get_uniprot_results,
 )
@@ -14,15 +11,12 @@ from LoaderUtilities import (
     PURLBASE,
     RDFSBASE,
     get_gene_id_to_names_map,
-    hyphenate,
     map_protein_id_to_accession,
     map_gene_id_to_names,
 )
-from OntologyParserLoader import load_tuples_into_adb_graph, parse_obo, VALID_VERTICES
 
-OBO_DIRPATH = Path("../data/obo")
-NSFOREST_DIRPATH = Path("../data/results")
-TUPLES_DIRPATH = Path("../data/tuples")
+NSFOREST_DIRPATH = Path("../../../data/results")
+TUPLES_DIRPATH = Path("../../../data/tuples")
 
 
 def get_protein_term(protein_id, ensp2accn):
@@ -557,53 +551,7 @@ def create_tuples_from_uniprot(opentargets_path):
     return tuples
 
 
-def main(parameters=None):
-
-    parser = argparse.ArgumentParser(description="Load external API results")
-    group = parser.add_argument_group(
-        "Cell Ontology (CL)", "Version of the CL assumed loaded"
-    )
-    exclusive_group = group.add_mutually_exclusive_group(required=True)
-    exclusive_group.add_argument(
-        "--test", action="store_true", help="assume the test ontology loaded"
-    )
-    exclusive_group.add_argument(
-        "--full", action="store_true", help="assume the full ontology loaded"
-    )
-    parser.add_argument(
-        "--label",
-        default="",
-        help="label to add to database_name",
-    )
-
-    if parameters is None:
-        args = parser.parse_args()
-
-    else:
-        args = parser.parse_args(parameters)
-
-    if args.test:
-        db_name = "Cell-KN-v1.5"
-        graph_name = "CL-Test"
-
-    if args.full:
-        db_name = "Cell-KN-v1.5"
-        graph_name = "CL-Full"
-
-    if args.label:
-        db_name += f"-{args.label}"
-
-    ro_filename = "ro.owl"
-    log_filename = f"{graph_name}.log"
-
-    print("Parse the relationship ontology")
-    ro, _, _ = parse_obo(OBO_DIRPATH, ro_filename)
-
-    # print("Getting ArangoDB database and graph, and loading tuples")
-    # db = adb.create_or_get_database(db_name)
-    # adb_graph = adb.create_or_get_graph(db, graph_name)
-    # vertex_collections = {}
-    # edge_collections = {}
+def main():
 
     for author in ["guo", "li", "sikkema"]:
 
@@ -622,27 +570,6 @@ def main(parameters=None):
             results = {}
             results["tuples"] = tuples_to_load
             json.dump(results, f, indent=4)
-
-        # VALID_VERTICES.add("BMC")
-        # VALID_VERTICES.add("CHEMBL")
-        # VALID_VERTICES.add("CS")
-        # VALID_VERTICES.add("CSD")
-        # VALID_VERTICES.add("DOID")
-        # VALID_VERTICES.add("DS")
-        # VALID_VERTICES.add("GS")
-        # VALID_VERTICES.add("HP")
-        # VALID_VERTICES.add("PUB")
-        # VALID_VERTICES.add("RS")
-        # VALID_VERTICES.add("SO")
-
-        # load_tuples_into_adb_graph(
-        #     tuples_to_load,
-        #     adb_graph,
-        #     vertex_collections,
-        #     edge_collections,
-        #     ro=ro,
-        #     do_update=True,
-        # )
 
 
 if __name__ == "__main__":
