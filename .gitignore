@@ -39,6 +39,7 @@ build/
 
 ### Dev ###
 *.json
+*.notes
 *.out
 *.txt
 .DS_Store
