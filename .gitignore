@@ -41,6 +41,7 @@ build/
 *.json
 *.notes
 *.out
+*.tern-port
 *.txt
 .DS_Store
 .poetry
@@ -48,3 +49,4 @@ build/
 .venv
 __pycache__/
 data/
+docs/java/
