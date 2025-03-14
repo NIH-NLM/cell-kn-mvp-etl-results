@@ -33,10 +33,33 @@ NSFOREST_DIRPATH = Path("../../../data/results")
 
 
 def get_opentargets_results(nsforest_path, resources=RESOURCES):
+    """Use the gget opentargets command to obtain the specified
+    resources for each unique gene id mapped from each gene symbol in
+    the NSForest results loaded from the specified path. The
+    opentarget results are written out in batches to enable
+    restarting.
 
+    Parameters
+    ----------
+    nsforest_path : Path
+        Path to NSForest results
+    resources : list(str)
+        List of resource names to use with the gget opentargets
+        command
+
+    Returns
+    -------
+    opentargets_path : Path
+        Path to opentargets results
+    opentargets_results : dict
+        Dictionary containg opentargets results keyed by gene id, then
+        by resource
+    """
+    # Create, or load opentargets results
     opentargets_path = Path(str(nsforest_path).replace(".csv", "-opentargets.json"))
-
     if not opentargets_path.exists():
+
+        # Initialize results, and collect unique gene symbols and ids
 
         opentargets_results = {}
 
@@ -51,6 +74,8 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES):
 
     else:
 
+        # Load results, and assign unique gene symbols and ids
+
         print(f"Loading opentargets results from {opentargets_path}")
         with open(opentargets_path, "r") as fp:
             opentargets_results = json.load(fp)
@@ -58,6 +83,8 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES):
         gene_symbols = opentargets_results["gene_symbols"]
         gene_ids = opentargets_results["gene_ids"]
 
+    # Consider each gene id, and setup to dump the results in
+    # batches, and enable restarting
     total_size = len(gene_ids)
     n_so_far = 0
     do_dump = False
@@ -108,7 +135,19 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES):
 
 
 def collect_unique_drug_names(opentargets_results):
+    """Collect unique drug names contained in the opentargets results.
 
+    Parameters
+    ----------
+    opentargets_results : dict
+        Dictionary containg opentargets results keyed by gene id, then
+        by resource
+
+    Returns
+    -------
+    drug_names : list(str)
+        List of unique drum names
+    """
     drug_names = set()
 
     for gene_id, resources in opentargets_results.items():
@@ -121,15 +160,34 @@ def collect_unique_drug_names(opentargets_results):
 
 
 def get_ebi_results(opentargets_path, resources=RESOURCES):
+    """Use an EBI API endpoint for each unique drug name in the
+    opentargets results loaded from the specified path. The EBI
+    results are written out in batches to enable restarting.
 
+    Parameters
+    ----------
+    opentargets_path : Path
+        Path to opentarget results
+    resources : list(str)
+        List of resource names to use with the gget opentargets
+        command
+
+    Returns
+    -------
+    ebi_path : Path
+        Path to EBI results
+    ebi_results : dict
+        Dictionary containg EBI results keyed by drug name
+    """
+    # Create, or load EBI results
     ebi_path = Path(str(opentargets_path).replace("opentargets", "ebi"))
-
     if not ebi_path.exists():
+
+        # Initialize results, and collect unique drug names
 
         ebi_results = {}
 
         nsforest_path = Path(str(opentargets_path).replace("-opentargets.json", ".csv"))
-
         opentargets_path, opentargets_results = get_opentargets_results(
             nsforest_path, resources=resources
         )
@@ -138,12 +196,16 @@ def get_ebi_results(opentargets_path, resources=RESOURCES):
 
     else:
 
+        # Load results, and assign unique drug names
+
         print(f"Loading ebi results from {ebi_path}")
         with open(ebi_path, "r") as fp:
             ebi_results = json.load(fp)
 
         drug_names = ebi_results["drug_names"]
 
+    # Consider each drug name, and setup to dump the results in
+    # batches, and enable restarting
     total_size = len(drug_names)
     n_so_far = 0
     do_dump = False
@@ -188,10 +250,30 @@ def get_ebi_results(opentargets_path, resources=RESOURCES):
 
 
 def get_rxnav_results(opentargets_path, resources=RESOURCES):
+    """Use an RxNav API endpoint for each unique drug name in the
+    opentargets results loaded from the specified path. The RxNav
+    results are written out in batches to enable restarting.
 
+    Parameters
+    ----------
+    opentargets_path : Path
+        Path to opentarget results
+    resources : list(str)
+        List of resource names to use with the gget opentargets
+        command
+
+    Returns
+    -------
+    rxnav_path : Path
+        Path to rxnav results
+    rxnav_results : dict
+        Dictionary containg rxnav results keyed by drug name
+    """
+    # Create, or load RxNav results
     rxnav_path = Path(str(opentargets_path).replace("opentargets", "rxnav"))
-
     if not rxnav_path.exists():
+
+        # Initialize results, and collect unique drug names
 
         rxnav_results = {}
 
@@ -205,12 +287,16 @@ def get_rxnav_results(opentargets_path, resources=RESOURCES):
 
     else:
 
+        # Load results, and assign unique drug names
+
         print(f"Loading RxNav results from {rxnav_path}")
         with open(rxnav_path, "r") as fp:
             rxnav_results = json.load(fp)
 
         drug_names = rxnav_results["drug_names"]
 
+    # Consider each drug name, and setup to dump the results in
+    # batches, and enable restarting
     total_size = len(drug_names)
     n_so_far = 0
     do_dump = False
@@ -227,6 +313,8 @@ def get_rxnav_results(opentargets_path, resources=RESOURCES):
 
             rxnav_results[drug_name] = {}
 
+            # Get mapping from drug name to RXCUI, suggested
+            # spellings, and prescribable drugs information
             urls = [
                 f"https://rxnav.nlm.nih.gov/REST/rxcui.json?name={drug_name}",
                 f"https://rxnav.nlm.nih.gov/REST/spellingsuggestions.json?name={drug_name}",
@@ -244,6 +332,7 @@ def get_rxnav_results(opentargets_path, resources=RESOURCES):
                         f"Could not assign RxNav {content} results for drug name {drug_name}"
                     )
 
+            # Use the RXCUI to get drug properties
             if "rxnormId" in rxnav_results[drug_name]["idGroup"]:
 
                 rxcui = rxnav_results[drug_name]["idGroup"]["rxnormId"][0]
@@ -285,9 +374,24 @@ def get_rxnav_results(opentargets_path, resources=RESOURCES):
 
 
 def get_prop_for_drug(rxnav_results, drug_name, prop_name):
+    """Get the value for the specified property name contained in the
+    RxNav results for the specified drug name.
 
-    # "DRUGBANK" or "UNII_CODE"
+    Parameters
+    ----------
+    rxnav_results : dict
+        Dictionary containg rxnav results keyed by drug name
+    drug_name : str
+        Drug name key, currently only "DRUGBANK" or "UNII_CODE"
+        expected
+    prop_name : str
+        RxNav results property name key
 
+    Returns
+    -------
+    prov_value : str
+        RxNav results property name value
+    """
     prop_value = None
 
     if drug_name not in rxnav_results:
@@ -306,10 +410,38 @@ def get_prop_for_drug(rxnav_results, drug_name, prop_name):
 
 
 def get_drugbank_results(rxnav_path, resources=RESOURCES):
+    """Use the DrugBank website for each unique drug name in the
+    opentargets results loaded from the path corresponding to the
+    specified RxNav path. The DrugBank results are written out in
+    batches to enable restarting. Drug names are mapped to DrugBank
+    ids using the RxNav results.
 
+    Parameters
+    ----------
+    rxnav_path : Path
+        Path to RxNav results
+    resources : list(str)
+        List of resource names to use with the gget opentargets
+        command
+
+    Returns
+    -------
+    durgbank_path : Path
+        Path to DrugBank results
+    drugbank_results : dict
+        Dictionary containg RxNav results keyed by drug name
+
+    Notes
+    -----
+    As currently written, this function will not work. The DrubBank
+    website needs to be replaced by the DrugBank API, which requires a
+    license.
+    """
+    # Create, or load RxNav results
     drugbank_path = Path(str(rxnav_path).replace("rxnav", "drugbank"))
-
     if not drugbank_path.exists():
+
+        # Initialize results, and collect unique drug names
 
         drugbank_results = {}
 
@@ -327,12 +459,16 @@ def get_drugbank_results(rxnav_path, resources=RESOURCES):
 
     else:
 
+        # Load results, and assign unique drug names
+
         print(f"Loading DrugBank results from {drugbank_path}")
         with open(drugbank_path, "r") as fp:
             drugbank_results = json.load(fp)
 
         drug_names = drugbank_results["drug_names"]
 
+    # Consider each drug name, and setup to dump the results in
+    # batches, and enable restarting
     total_size = len(drug_names)
     n_so_far = 0
     do_dump = False
@@ -349,6 +485,7 @@ def get_drugbank_results(rxnav_path, resources=RESOURCES):
 
             drugbank_results[drug_name] = {}
 
+            # Map drug name to DrugBank id
             drugbank_id = get_prop_for_drug(rxnav_results, drug_name, "DRUGBANK")
 
             response = requests.get(f"https://go.drugbank.com/drugs/{drugbank_id}")
@@ -378,10 +515,37 @@ def get_drugbank_results(rxnav_path, resources=RESOURCES):
 
 
 def get_ncats_results(rxnav_path, resources=RESOURCES):
+    """Use the NCATS website for each unique drug name in the
+    opentargets results loaded from the path corresponding to the
+    specified RxNav path. The NCATS results are written out in batches
+    to enable restarting.
 
+    Parameters
+    ----------
+    rxnav_path : Path
+        Path to RxNav results
+    resources : list
+        List of resource names to use with the gget opentargets
+        command
+
+    Returns
+    -------
+    ncats_path : Path
+        Path to NCATS results
+    ncats_results : dict
+        Dictionary containg NCATS results keyed by drug name
+
+    Notes
+    -----
+    As currently written, this function will not work. The NCATS
+    website needs to be replaced by an NCATS API, which is currently
+    unkown.
+    """
+    # Create, or load NCATS results
     ncats_path = Path(str(rxnav_path).replace("rxnav", "ncats"))
-
     if not ncats_path.exists():
+
+        # Initialize results, and collect unique drug names
 
         ncats_results = {}
 
@@ -399,12 +563,16 @@ def get_ncats_results(rxnav_path, resources=RESOURCES):
 
     else:
 
+        # Load results, and assign unique drug names
+
         print(f"Loading Ncats results from {ncats_path}")
         with open(ncats_path, "r") as fp:
             ncats_results = json.load(fp)
 
         drug_names = ncats_results["drug_names"]
 
+    # Consider each drug name, and setup to dump the results in
+    # batches, and enable restarting
     total_size = len(drug_names)
     n_so_far = 0
     do_dump = False
@@ -421,6 +589,7 @@ def get_ncats_results(rxnav_path, resources=RESOURCES):
 
             ncats_results[drug_name] = {}
 
+            # Map drug name to UNII_CODE
             unii_code = get_prop_for_drug(rxnav_results, drug_name, "UNII_CODE")
 
             response = requests.get(f"https://drugs.ncats.io/drug/{unii_code}")
@@ -450,7 +619,23 @@ def get_ncats_results(rxnav_path, resources=RESOURCES):
 
 
 def collect_unique_protein_ids(opentargets_results):
+    """Collect unique protein ids contained in the opentargets results.
 
+    Parameters
+    ----------
+    opentargets_results : dict
+        Dictionary containg opentargets results keyed by gene id, then
+        by resource
+
+    Returns
+    -------
+    protein_ids : list
+        List of unique protein ids
+
+    Notes
+    -----
+    Protein ids may be either Ensembl ids or UniProt accessions
+    """
     protein_ids = set()
 
     for gene_id, resources in opentargets_results.items():
@@ -464,10 +649,32 @@ def collect_unique_protein_ids(opentargets_results):
 
 
 def get_uniprot_results(opentargets_path, resources=RESOURCES):
+    """Use a UniProt API endpoint for each protein id in the
+    opentargets results loaded from the specified path. The UniProt
+    results are written out in batches to enable restarting.
 
+    Parameters
+    ----------
+    opentargets_path : Path
+        Path to opentarget results
+    resources : list
+        List of resource names to use with the gget opentargets
+        command
+
+    Returns
+    -------
+    uniprot_path : Path
+        Path to UniProt results
+    uniprot_results : dict
+        Dictionary containg UniProt results keyed by protein id
+    """
+    # Create, or load UniProt results
     uniprot_path = Path(str(opentargets_path).replace("opentargets", "uniprot"))
-
     if not uniprot_path.exists():
+
+        # Initialize results, and collect unique protein ids, and
+        # their mapping to and from Ensembl protein ids and UniProg
+        # accessions
 
         uniprot_results = {}
 
@@ -483,6 +690,10 @@ def get_uniprot_results(opentargets_path, resources=RESOURCES):
 
     else:
 
+        # Load results, and assign unique protein ids, and their
+        # mapping to and from Ensembl protein ids and UniProg
+        # accessions
+
         print(f"Loading uniprot results from {uniprot_path}")
         with open(uniprot_path, "r") as fp:
             uniprot_results = json.load(fp)
@@ -491,6 +702,8 @@ def get_uniprot_results(opentargets_path, resources=RESOURCES):
         ensp2accn = uniprot_results["ensp2accn"]
         accn2ensp = uniprot_results["accn2ensp"]
 
+    # Consider each protein id, and setup to dump the results in
+    # batches, and enable restarting
     total_size = len(protein_ids)
     n_so_far = 0
     do_dump = False
@@ -506,6 +719,8 @@ def get_uniprot_results(opentargets_path, resources=RESOURCES):
             do_dump = True
 
             if "ENSP" in protein_id:
+
+                # Map Ensembl id to UniProt accession
                 accession = map_protein_id_to_accession(protein_id, ensp2accn)
                 if accession is None:
                     uniprot_results[protein_id] = {}
@@ -513,6 +728,8 @@ def get_uniprot_results(opentargets_path, resources=RESOURCES):
                 print(f"Mapped accession {accession} to protein id {protein_id}")
 
             else:
+
+                # Assume protein id is a UniProt accession
                 accession = protein_id
 
             response = requests.get(
@@ -547,7 +764,43 @@ def get_uniprot_results(opentargets_path, resources=RESOURCES):
 
 
 def main():
+    """Load NSForest results from processing datasets corresponding to
+    the Guo et al. 2023, Li et al. 2023, and Sikkema, et al. 2023
+    publications, then
 
+    - Use the gget opentargets command to obtain the diseases, drugs,
+      interactions, pharmacogenetics, tractability, expression, and
+      depmap resources for each unique gene id mapped from each gene
+      symbol in the NSForest results
+
+    - Use an EBI API endpoint to obtain drug ontology data for each
+      unique drug name in the opentargets results
+
+    - Use an RxNav API endpoint for each unique drug name in the
+      opentargets results to obtain the mapping from drug name to
+      RXCUI, suggested spellings, prescribable drugs information, and
+      drug properties
+
+    - Use a UniProt API endpoint for each protein id in the
+      opentargets results to obtain other protein ids, descriptions,
+      and comments
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    opentargets_results : dict
+        Dictionary containg opentargets results keyed by gene id, then
+        by resource
+    ebi_results : dict
+        Dictionary containg EBI results keyed by drug name
+    rxnav_results : dict
+        Dictionary containg rxnav results keyed by drug name
+    uniprot_results : dict
+        Dictionary containg UniProt results keyed by protein id
+    """
     for author in ["guo", "li", "sikkema"]:
 
         nsforest_path = (

@@ -1,4 +1,5 @@
-"""From: https://www.uniprot.org/help/id_mapping"""
+"""Source from https://www.uniprot.org/help/id_mapping, comments added"""
+
 import json
 import re
 import time
@@ -20,6 +21,22 @@ session.mount("https://", HTTPAdapter(max_retries=retries))
 
 
 def check_response(response):
+    """Check requests response for HTTP errors.
+
+    Parameters
+    ----------
+    response : requests.Response
+        Response object from request
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    HTTPError
+        If the request raises an exception
+    """
     try:
         response.raise_for_status()
     except requests.HTTPError:
@@ -28,6 +45,27 @@ def check_response(response):
 
 
 def submit_id_mapping(from_db, to_db, ids):
+    """Submit and id mapping job.
+
+    Parameters
+    ----------
+    from_db : str
+        Database from which to map
+    to_db : str
+        Database to which to map
+    ids : list(str)
+        Frob database ids
+
+    Returns
+    -------
+    str
+        Job id of the submitted job
+
+    Raises
+    ------
+    HTTPError
+        If the request raises an exception
+    """
     request = requests.post(
         f"{API_URL}/idmapping/run",
         data={"from": from_db, "to": to_db, "ids": ",".join(ids)},
@@ -37,6 +75,18 @@ def submit_id_mapping(from_db, to_db, ids):
 
 
 def get_next_link(headers):
+    """Get the next link in the response headers.
+
+    Parameters
+    ----------
+    headers : dict
+        Case-insensitive Dictionary of Response Headers
+
+    Returns
+    -------
+    str
+        The next link
+    """
     re_next_link = re.compile(r'<(.+)>; rel="next"')
     if "Link" in headers:
         match = re_next_link.match(headers["Link"])
@@ -45,6 +95,26 @@ def get_next_link(headers):
 
 
 def check_id_mapping_results_ready(job_id):
+    """Periodically check the status of a submitted id mapping job
+    until completed.
+
+    Parameters
+    ----------
+    job_id : str
+        Job id of a submitted job
+
+    Returns
+    -------
+    bool
+       Flag indicating id mapping job has completed
+
+    Raises
+    ------
+    HTTPError
+        If the request raises an exception
+    Exception
+        If the the job status is not "NEW" or "RUNNING"
+    """
     while True:
         request = session.get(f"{API_URL}/idmapping/status/{job_id}")
         check_response(request)
@@ -60,6 +130,27 @@ def check_id_mapping_results_ready(job_id):
 
 
 def get_batch(batch_response, file_format, compressed):
+    """Get and decode batch response, yielding after each batch.
+
+    Parameters
+    ----------
+    batch_response : requests.Response
+        Response object from request
+    file_format : str
+        One of "json", "tsv", "xlsx", or "xml"
+    compressed : bool
+        Flag indicating the response is compressed, or not
+
+    Returns
+    -------
+    dict | list(str) | str
+        The decoded response, dict if file_format = "json", list(str)
+        if file_format = "tsv", str otherwise
+    Raises
+    ------
+    HTTPError
+        If the request raises an exception
+    """
     batch_url = get_next_link(batch_response.headers)
     while batch_url:
         batch_response = session.get(batch_url)
@@ -69,6 +160,22 @@ def get_batch(batch_response, file_format, compressed):
 
 
 def combine_batches(all_results, batch_results, file_format):
+    """Combine batch responses consistent with file_format.
+
+    Parameters
+    ----------
+    all_results : dict | list(str) | str
+        Batch response combined consistent with file_format
+    batch_results : dict | list(str) | str
+        Another batch response
+    file_format : str
+        One of "json", "tsv", "xlsx", or "xml"
+
+    Returns
+    -------
+    all_results : dict | list(str) | str
+        Batch response combined consistent with file_format
+    """
     if file_format == "json":
         for key in ("results", "failedIds"):
             if key in batch_results and batch_results[key]:
@@ -81,6 +188,23 @@ def combine_batches(all_results, batch_results, file_format):
 
 
 def get_id_mapping_results_link(job_id):
+    """Get redirect link for an id mapping job.
+
+    Parameters
+    ----------
+    job_id : str
+        Job id of a submitted job
+
+    Returns
+    -------
+    str
+        Redirect link
+
+    Raises
+    ------
+    HTTPError
+        If the request raises an exception
+    """
     url = f"{API_URL}/idmapping/details/{job_id}"
     request = session.get(url)
     check_response(request)
@@ -88,6 +212,24 @@ def get_id_mapping_results_link(job_id):
 
 
 def decode_results(response, file_format, compressed):
+    """Decompress response, if needed, then decode consisten with
+    file_format.
+
+    Parameters
+    ----------
+    response : requests.Response
+        The request response to decode
+    file_format : str
+        One of "json", "tsv", "xlsx", or "xml"
+    compressed : bool
+        Flag indicating the response is compressed, or not
+
+    Returns
+    -------
+    dict | list(str) | str
+        The decoded response, dict if file_format = "json", list(str)
+        if file_format = "tsv", str otherwise
+    """
     if compressed:
         decompressed = zlib.decompress(response.content, 16 + zlib.MAX_WBITS)
         if file_format == "json":
@@ -113,11 +255,35 @@ def decode_results(response, file_format, compressed):
 
 
 def get_xml_namespace(element):
+    """Get the XML namespace of an element.
+
+    Parameters
+    ----------
+    element : ElementTree.Element
+       The element for which to get the namespace
+
+    Returns
+    -------
+    str
+       The XML namespace
+    """
     m = re.match(r"\{(.*)\}", element.tag)
     return m.groups()[0] if m else ""
 
 
 def merge_xml_results(xml_results):
+    """Merge all entry elements.
+
+    Parameters
+    ----------
+    xml_results : list(str)
+        List containing XML result strings
+
+    Returns
+    -------
+    str
+        The merged XML string
+    """
     merged_root = ElementTree.fromstring(xml_results[0])
     for result in xml_results[1:]:
         root = ElementTree.fromstring(result)
@@ -128,11 +294,43 @@ def merge_xml_results(xml_results):
 
 
 def print_progress_batches(batch_index, size, total):
+    """Print the progress of the batch request.
+
+    Parameters
+    ----------
+    batch_index : int
+        The number of the batch
+    size : int
+        The size of the batch
+    total : int
+        The number of results in the batch response
+
+    Returns
+    -------
+    None
+    """
     n_fetched = min((batch_index + 1) * size, total)
     print(f"Fetched: {n_fetched} / {total}")
 
 
 def get_id_mapping_results_search(url):
+    """Get id mapping request search results.
+
+    Parameters
+    ----------
+    url : str
+        The id mapping request URL
+
+    Returns
+    -------
+    results : dict | list(str) | str
+        Batch response combined consistent with file_format
+
+    Raises
+    ------
+    HTTPError
+        If the request raises an exception
+    """
     parsed = urlparse(url)
     query = parse_qs(parsed.query)
     file_format = query["format"][0] if "format" in query else "json"
@@ -160,6 +358,24 @@ def get_id_mapping_results_search(url):
 
 
 def get_id_mapping_results_stream(url):
+    """Get id mapping request stream results.
+
+    Parameters
+    ----------
+    url : str
+        The id mapping request URL
+
+    Returns
+    -------
+    dict | list(str) | str
+        The decoded response, dict if file_format = "json", list(str)
+        if file_format = "tsv", str otherwise
+
+    Raises
+    ------
+    HTTPError
+        If the request raises an exception
+    """
     if "/stream/" not in url:
         url = url.replace("/results/", "/results/stream/")
     request = session.get(url)
@@ -174,7 +390,17 @@ def get_id_mapping_results_stream(url):
 
 
 def main():
+    """Provide a simple example of submitting and id mapping job, then
+    waiting for the result, and printing it.
 
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    None
+    """
     job_id = submit_id_mapping(
         from_db="Ensembl_Protein", to_db="UniProtKB", ids=["ENSP00000484862"]
     )

@@ -11,6 +11,19 @@ TUPLES_DIRPATH = Path("../../../data/tuples")
 
 
 def create_tuples_from_author_to_cl(results):
+    """Creates tuples from manual author cell set to CL term mapping
+    consistent with schema v0.7.
+
+    Parameters
+    ----------
+    results : pd.DataFrame
+        DataFrame containing NSForest results
+
+    Returns
+    -------
+    tuples : list(tuple(str))
+        List of tuples (triples or quadruples) created
+    """
     tuples = []
 
     # Nodes for these results
@@ -218,18 +231,33 @@ def create_tuples_from_author_to_cl(results):
 
 
 def main():
+    """Load manual author cell set to CL term mapping for the NSForest
+    results from processing datasets corresponding to the Guo et
+    al. 2023, Li et al. 2023, and Sikkema, et al. 2023 publications,
+    create tuples consistent with schema v0.7, and write the result to
+    a JSON file.
 
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    None
+    """
     for author in ["guo", "li", "sikkema"]:
 
+        # Load NSForest results
         nsforest_path = (
             NSFOREST_DIRPATH
             / f"cell-kn-mvp-nsforest-results-{author}-2023-2025-02-22.csv"
         ).resolve()
-
         nsforest_results = load_results(nsforest_path).sort_values(
             "clusterName", ignore_index=True
         )
 
+        # Map NSForest results filename to manual author cell set to
+        # CL term mapping filename, then load mapping results
         if author == "li":
             author_to_cl_path = Path(
                 str(nsforest_path)
@@ -242,12 +270,12 @@ def main():
                 .replace("nsforest-results", "map-author-to-cl")
                 .replace("2023-2025-02-22", "2023-data-v0.4")
             )
-        print(f"Creating tuples from {author_to_cl_path}")
-
         author_to_cl_results = load_results(author_to_cl_path).sort_values(
             "author_cell_set", ignore_index=True
         )
 
+        # Merge NSForest results with manual author cell set to CL
+        # term mapping since author cell sets may not align exactly
         author_to_cl_results = author_to_cl_results.merge(
             nsforest_results[
                 ["clusterName", "NSForest_markers", "binary_genes"]
@@ -256,8 +284,8 @@ def main():
             right_on="clusterName",
         )
 
+        print(f"Creating tuples from {author_to_cl_path}")
         author_to_cl_tuples = create_tuples_from_author_to_cl(author_to_cl_results)
-
         with open(TUPLES_DIRPATH / f"AuthorToClResultsLoader-{author}.json", "w") as f:
             results = {}
             results["tuples"] = author_to_cl_tuples

@@ -9,11 +9,27 @@ from LoaderUtilities import load_results, hyphenate, PURLBASE, RDFSBASE
 
 
 def read_schema(schema_path):
+    """Reads the schema, then resolves a number of computationally
+    incompatible, hand entered, contingent anachronisms.
 
+    Parameters
+    ----------
+    schema_path : Path
+        Path to schema Excel file
+
+    Returns
+    -------
+    schema : pd.DataFrame
+        DataFrame containing the schema triples
+    terms : pd.DataFrame
+        DataFrame containing the mapping from terms to CURIEs
+    """
+    # Read schema, and mapping from term to CURIE
     schema = pd.read_excel(schema_path, 0)
     terms = pd.read_excel(schema_path, 2)
 
-    # Drop Subtype, child, parent, or pathway since not present in the classes/relations
+    # Drop subtype, child, parent, or pathway since not present in the
+    # classes/relations
     schema["Subject Node"] = schema["Subject Node"].str.replace(" (subtype/child)", "")
     schema["Object Node"] = schema["Object Node"].str.replace(" (parent)", "")
     schema["Object Node"] = schema["Object Node"].str.replace("/pathway", "")
@@ -32,14 +48,16 @@ def read_schema(schema_path):
         & (schema["Object Node"] != "Cellular_component")
     ]
 
-    # Drop unknown precicate relation
+    # Drop unknown predicate relation
     schema = schema[schema["Predicate Relation"] != "???"]
 
+    # TODO: Remove
     # Drop predicates since not present in the classes/relations
     # schema = schema[schema["Predicate Relation"] != "IS_MARKER_FOR_PROTEIN"]
     # schema = schema[schema["Predicate Relation"] != "IS_A"]
 
-    # Organism and species appear in the schema as seperate entries, but as combined in the classes/relations
+    # Organism and species appear in the schema as separate entries,
+    # but as combined in the classes/relations
     combined = terms[terms["Schema Name"] == "Organism/Species"]
     organism = combined.copy()
     species = combined.copy()
@@ -48,7 +66,8 @@ def read_schema(schema_path):
     terms[terms["Schema Name"] == "Organism/Species"] = organism
     terms = pd.concat((terms, species))
 
-    # Ensure schema subject and object nodes, and predicate terms match classes/relations schema names
+    # Ensure schema subject and object nodes, and predicate terms
+    # match classes/relations schema names
     missing_subjects = set(schema["Subject Node"]) - set(terms["Schema Name"])
     if missing_subjects != set():
         raise Exception(f"Unexpected missing subjects: {missing_subjects}")
@@ -59,12 +78,14 @@ def read_schema(schema_path):
     if missing_predicates != set():
         raise Exception(f"Unexpected missing predicates: {missing_predicates}")
 
-    # Add subject and object nodes with their type: class or individual
+    # Add subject and object nodes with their type: class or
+    # individual
     connections = schema["Connections"].str.split("-", expand=True)
     schema["Subject Node Type"] = schema["Subject Node"] + "_" + connections[0]
     schema["Object Node Type"] = schema["Object Node"] + "_" + connections[1]
 
-    # Add subject and object nodes, and predicate terms with their CURIE
+    # Add subject and object nodes, and predicate terms with their
+    # CURIE
     schema["Subject Node Curie"] = schema["Subject Node"].apply(
         lambda n: terms["CURIE"][terms["Schema Name"] == n].iloc[0]
     )
@@ -79,11 +100,23 @@ def read_schema(schema_path):
 
 
 def create_tuples(schema):
+    """Create tuples suitable for loading the schema into ArangoDB.
 
+    Parameters
+    ----------
+    schema : pd.DataFrame
+        DataFrame containing the schema triples
+
+    Returns
+    -------
+    tuples : list(tuple(str))
+        List of tuples (triples or quadruples) created
+    """
     tuples = []
 
+    # Resolve even more computationally incompatible, hand entered,
+    # contingent anachronisms
     df = schema[["Subject Node Curie", "Predicate Relation Curie", "Object Node Curie"]]
-
     df = df.map(lambda e: e.replace("MONDO:0000001 or MONDO:0021178", "MONDO:0000001"))
     df = df.map(
         lambda e: e.replace(
@@ -94,7 +127,6 @@ def create_tuples(schema):
         lambda e: e.replace("HsapDv:0000000 or MmusDv:0000000", "HsapDv:0000000")
     )
     df = df.map(lambda e: e.replace("EFO:0002772 or EFO:0010183", "EFO:0002772"))
-
     df = df.map(
         lambda e: e.replace(
             "PATO:0000068, MONDO:0000001 (disease), or MONDO:0021178 (injury)",
@@ -103,6 +135,7 @@ def create_tuples(schema):
     )
     df = df.map(lambda e: e.replace(":", "_"))
 
+    # Create the tuples
     for _, row in df.iterrows():
         s, o, p = row
         tuples.append(
@@ -117,16 +150,51 @@ def create_tuples(schema):
 
 
 def identify_unique_classes(schema):
+    """Identify unique subject, object, and vertex classes. Vertex
+    classes equal the union of subject and object classes.
 
-    # Identify unique subjects, objects, and vertices
+    Parameters
+    ----------
+    schema : pd.DataFrame
+        DataFrame containing the schema triples
+
+    Returns
+    -------
+    subjects : np.ndarray
+        Numpy array containing unique subject classes
+    objects : np.ndarray
+        Numpy array containing unique object classes
+    vertices : np.ndarray
+        Numpy array containing unique vertex classes
+    """
     subjects = np.unique(schema["Subject Node Type"].values)
     objects = np.unique(schema["Object Node Type"].values)
     vertices = np.unique(np.concatenate((subjects, objects)))
-
     return subjects, objects, vertices
 
 
 def identify_nsforest_triples(schema, subjects, objects, vertices, triples_path):
+    """Identify triples which contain vertices corresponding to
+    NSForest results, then write the result to an Excel spreadsheet.
+
+    Parameters
+    ----------
+    schema : pd.DataFrame
+        DataFrame containing the schema triples
+    subjects : np.ndarray
+        Numpy array containing unique subject classes
+    objects : np.ndarray
+        Numpy array containing unique object classes
+    vertices : np.ndarray
+        Numpy array containing unique vertex classes
+    triples_path : Path
+        Path to which to write triples
+
+    Returns
+    -------
+    None
+    """
+    # Assign vertices corresponding to NSForest results
     selected_vertices = [
         "Biomarker_combination",
         "Binary_gene_combination",
@@ -162,6 +230,29 @@ def identify_nsforest_triples(schema, subjects, objects, vertices, triples_path)
 
 
 def identify_author_to_cl_triples(schema, subjects, objects, vertices, triples_path):
+    """Identify triples which contain vertices corresponding to the
+    manual mapping of author cell set to CL term results, then write
+    the result to an Excel spreadsheet.
+
+    Parameters
+    ----------
+    schema : pd.DataFrame
+        DataFrame containing the schema triples
+    subjects : np.ndarray
+        Numpy array containing unique subject classes
+    objects : np.ndarray
+        Numpy array containing unique object classes
+    vertices : np.ndarray
+        Numpy array containing unique vertex classes
+    triples_path : Path
+        Path to which to write triples
+
+    Returns
+    -------
+    None
+    """
+    # Assign vertices corresponding to the manual mapping of author
+    # cell set to CL term results
     selected_vertices = [
         "Anatomical_structure",
         "Cell_set",
@@ -198,26 +289,50 @@ def identify_author_to_cl_triples(schema, subjects, objects, vertices, triples_p
 
 
 def main():
-    schema_path = Path("../../../data/schema/cell-kn-schema-v0.7.0.xlsx")
-    schema, terms = read_schema(schema_path)
+    """Read the schema, resolve a number of computationally
+    incompatible, hand entered, contingent anachronisms, then create
+    and write tuples suitable for loading the schema into ArangoDB.
 
-    schema_tuples_path = Path(str(schema_path.resolve()).replace(".xlsx", ".json"))
+
+    Parameters
+    ----------
+
+    Returns
+    -------
+    """
+    # Read the schema, and create the tuples
+    schema_path = Path("../../../data/schema/cell-kn-schema-v0.7.0.xlsx")
+    print(f"Creating tuples from {schema_path}")
+    schema, terms = read_schema(schema_path)
     schema_tuples = create_tuples(schema)
 
+    # Write the tuples
+    schema_tuples_path = Path(str(schema_path.resolve()).replace(".xlsx", ".json"))
     with open(schema_tuples_path, "w") as f:
         results = {}
         results["tuples"] = schema_tuples
         json.dump(results, f, indent=4)
 
+    # Identify unique subject, object, and vertex classes
     subjects, objects, vertices = identify_unique_classes(schema)
 
-    nsforest_triples_path = Path(str(schema_path.resolve()).replace(".xlsx", "-nsforest.xlsx"))
-    identify_nsforest_triples(schema, subjects, objects, vertices, nsforest_triples_path)
+    # Identify and write triples which contain vertices corresponding
+    # to NSForest results
+    nsforest_triples_path = Path(
+        str(schema_path.resolve()).replace(".xlsx", "-nsforest.xlsx")
+    )
+    identify_nsforest_triples(
+        schema, subjects, objects, vertices, nsforest_triples_path
+    )
 
+    # Identify and write triples which contain vertices corresponding
+    # to the manual mapping of author cell set to CL term results
     author_to_cl_triples_path = Path(
         str(schema_path.resolve()).replace(".xlsx", "-author-to-cl.xlsx")
     )
-    identify_author_to_cl_triples(schema, subjects, objects, vertices, author_to_cl_triples_path)
+    identify_author_to_cl_triples(
+        schema, subjects, objects, vertices, author_to_cl_triples_path
+    )
 
 
 if __name__ == "__main__":

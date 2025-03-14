@@ -11,7 +11,22 @@ TUPLES_DIRPATH = Path("../../../data/tuples")
 
 
 def create_tuples_from_nsforest(results):
+    """Creates tuples from NSForest results consistent with schema
+    v0.7.
+
+    Parameters
+    ----------
+    results : pd.DataFrame
+        DataFrame containing NSForest results
+
+    Returns
+    -------
+    tuples : list(tuple(str))
+        List of tuples (triples or quadruples) created
+    """
     tuples = []
+
+    # Nodes for each cell set, marker and binary genes, and cell type
     for _, row in results.iterrows():
         uuid = row["uuid"]
         cluster_name = hyphenate(row["clusterName"])
@@ -103,29 +118,27 @@ def create_tuples_from_nsforest(results):
         )
 
         # Edge annotations for BMC terms
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{PURLBASE}/{bmc_term}"),
-                URIRef(f"{PURLBASE}/#Source_algorithm"),  # [IAO_0000064]
-                Literal("NSForest-v4.0_dev"),
-            )
-        )
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{PURLBASE}/{bmc_term}"),
-                URIRef(f"{RDFSBASE}#F_beta_confidence_score"),  # [STAT:0000663]
-                Literal(str(row["f_score"])),
-            )
-        )
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{PURLBASE}/{bmc_term}"),
-                URIRef(f"{RDFSBASE}#PPV"),  # [STAT:0000416]
-                Literal(str(row["PPV"])),
-            )
+        tuples.extend(
+            [
+                (
+                    URIRef(f"{PURLBASE}/{cs_term}"),
+                    URIRef(f"{PURLBASE}/{bmc_term}"),
+                    URIRef(f"{PURLBASE}/#Source_algorithm"),  # [IAO_0000064]
+                    Literal("NSForest-v4.0_dev"),
+                ),
+                (
+                    URIRef(f"{PURLBASE}/{cs_term}"),
+                    URIRef(f"{PURLBASE}/{bmc_term}"),
+                    URIRef(f"{RDFSBASE}#F_beta_confidence_score"),  # [STAT:0000663]
+                    Literal(str(row["f_score"])),
+                ),
+                (
+                    URIRef(f"{PURLBASE}/{cs_term}"),
+                    URIRef(f"{PURLBASE}/{bmc_term}"),
+                    URIRef(f"{RDFSBASE}#PPV"),  # [STAT:0000416]
+                    Literal(str(row["PPV"])),
+                ),
+            ]
         )
         # TODO: Restore when available in data
         # tuples.append(
@@ -136,45 +149,39 @@ def create_tuples_from_nsforest(results):
         #         Literal(str(row["recall"])),
         #     )
         # )
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{PURLBASE}/{bmc_term}"),
-                URIRef(f"{RDFSBASE}#TN"),  # [STAT:0000597]
-                Literal(str(row["TN"])),
-            )
-        )
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{PURLBASE}/{bmc_term}"),
-                URIRef(f"{RDFSBASE}#TP"),  # [STAT:0000595]
-                Literal(str(row["TP"])),
-            )
-        )
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{PURLBASE}/{bmc_term}"),
-                URIRef(f"{RDFSBASE}#FN"),  # [STAT:0000598]
-                Literal(str(row["FN"])),
-            )
-        )
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{PURLBASE}/{bmc_term}"),
-                URIRef(f"{RDFSBASE}#FP"),  # [STAT:0000596]
-                Literal(str(row["FP"])),
-            )
-        )
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{PURLBASE}/{bmc_term}"),
-                URIRef(f"{RDFSBASE}#Marker_count"),  # [STAT:0000047]
-                Literal(str(row["marker_count"])),
-            )
+        tuples.extend(
+            [
+                (
+                    URIRef(f"{PURLBASE}/{cs_term}"),
+                    URIRef(f"{PURLBASE}/{bmc_term}"),
+                    URIRef(f"{RDFSBASE}#TN"),  # [STAT:0000597]
+                    Literal(str(row["TN"])),
+                ),
+                (
+                    URIRef(f"{PURLBASE}/{cs_term}"),
+                    URIRef(f"{PURLBASE}/{bmc_term}"),
+                    URIRef(f"{RDFSBASE}#TP"),  # [STAT:0000595]
+                    Literal(str(row["TP"])),
+                ),
+                (
+                    URIRef(f"{PURLBASE}/{cs_term}"),
+                    URIRef(f"{PURLBASE}/{bmc_term}"),
+                    URIRef(f"{RDFSBASE}#FN"),  # [STAT:0000598]
+                    Literal(str(row["FN"])),
+                ),
+                (
+                    URIRef(f"{PURLBASE}/{cs_term}"),
+                    URIRef(f"{PURLBASE}/{bmc_term}"),
+                    URIRef(f"{RDFSBASE}#FP"),  # [STAT:0000596]
+                    Literal(str(row["FP"])),
+                ),
+                (
+                    URIRef(f"{PURLBASE}/{cs_term}"),
+                    URIRef(f"{PURLBASE}/{bmc_term}"),
+                    URIRef(f"{RDFSBASE}#Marker_count"),  # [STAT:0000047]
+                    Literal(str(row["marker_count"])),
+                ),
+            ]
         )
 
         # Edge annotations for BGC terms
@@ -192,21 +199,32 @@ def create_tuples_from_nsforest(results):
 
 
 def main():
+    """Load NSForest results from processing datasets corresponding to
+    the Guo et al. 2023, Li et al. 2023, and Sikkema, et al. 2023
+    publications, create tuples consistent with schema v0.7, and write
+    the result to a JSON file.
 
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    None
+    """
     for author in ["guo", "li", "sikkema"]:
 
+        # Load NSForest results
         nsforest_path = (
             NSFOREST_DIRPATH
             / f"cell-kn-mvp-nsforest-results-{author}-2023-2025-02-22.csv"
         ).resolve()
-        print(f"Creating tuples from {nsforest_path}")
-
         nsforest_results = load_results(nsforest_path).sort_values(
             "clusterName", ignore_index=True
         )
 
+        print(f"Creating tuples from {nsforest_path}")
         nsforest_tuples = create_tuples_from_nsforest(nsforest_results)
-
         with open(TUPLES_DIRPATH / f"NSForestResultsLoader-{author}.json", "w") as f:
             results = {}
             results["tuples"] = nsforest_tuples

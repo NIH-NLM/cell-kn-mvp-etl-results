@@ -20,7 +20,21 @@ TUPLES_DIRPATH = Path("../../../data/tuples")
 
 
 def get_protein_term(protein_id, ensp2accn):
+    """Map protein id to term by mapping Ensembl ids to UniProt
+    accessions, if needed, and following the term naming convention
+    for parsing.
 
+    Parameters
+    ----------
+    protein_id : str
+        Protein id provided by gget opentargets command
+    ensp2accn : dict
+        Mapping of Ensembl id to UniProt accession
+
+    Returns
+    -------
+    protein_term : str
+    """
     protein_term = None
 
     if "ENSP" in protein_id:
@@ -36,28 +50,50 @@ def get_protein_term(protein_id, ensp2accn):
 
 
 def create_tuples_from_opentargets(opentargets_path):
+    """Creates tuples from the result of using the gget opentargets
+    command to obtain resources for each unique gene id mapped from
+    each gene symbol from corresponding NSForest results.
 
+    Parameters
+    ----------
+    opentargets_path : Path
+        Path to opentargets results
+
+    Returns
+    -------
+    tuples : list(tuple(str))
+        List of tuples (triples or quadruples) created
+    """
     tuples = []
 
+    # Load the opentargets results
     nsforest_path = Path(str(opentargets_path).replace("-opentargets.json", ".csv"))
-
     opentargets_path, opentargets_results = get_opentargets_results(nsforest_path)
 
-    uniprot_path, uniprot_results = get_uniprot_results(opentargets_path)
-
+    # Load the UniProt results to obtain the Ensembl id to UniProt
+    # accession mapping
+    _uniprot_path, uniprot_results = get_uniprot_results(opentargets_path)
     ensp2accn = uniprot_results["ensp2accn"]
 
+    # Consider each gene id
     gid2nms = get_gene_id_to_names_map()
     for gene_id in opentargets_results["gene_ids"]:
+
+        # Map id to name
         gene_symbol = map_gene_id_to_names(gene_id, gid2nms)
+
+        # Follow term naming convention for parsing
         gene_term = gene_id.replace("ENSG", "GS_")
 
         # == Gene relations
 
         for disease in opentargets_results[gene_id]["diseases"]:
             if "EFO" in disease["id"]:
+                # Skip EFO terms
                 continue
+
             elif disease["score"] < 0.5:
+                # Skip diseases with low evidence scores
                 continue
 
             # == Disease relations
@@ -100,6 +136,8 @@ def create_tuples_from_opentargets(opentargets_path):
             )
 
         for drug in opentargets_results[gene_id]["drugs"]:
+
+            # Follow term naming convention for parsing
             drug_term = drug["id"].replace("CHEMBL", "CHEMBL_")
 
             # == Drug_product relations
@@ -123,6 +161,8 @@ def create_tuples_from_opentargets(opentargets_path):
             )
 
             for drug_trial_id in drug["trial_ids"]:
+
+                # Follow term naming convention for parsing
                 drug_trial_term = drug_trial_id.replace("NCT", "NCT_")
 
                 # == Clinical_trial relations
@@ -196,12 +236,16 @@ def create_tuples_from_opentargets(opentargets_path):
 
         for interaction in opentargets_results[gene_id]["interactions"]:
             if interaction["gene_b_id"] is None:
+                # Skip interactions missing the second protein
                 continue
             if (
                 interaction["evidence_score"] is None
                 or interaction["evidence_score"] < 0.5
             ):
+                # Skip interactions with low evidence scores
                 continue
+
+            # Follow term naming convention for parsing
             gene_b_term = interaction["gene_b_id"].replace("ENSG", "GS_")
 
             # Gene, GENETICALLY_INTERACTS_WITH, Gene
@@ -272,7 +316,10 @@ def create_tuples_from_opentargets(opentargets_path):
 
         for pharmacogenetic in opentargets_results[gene_id]["pharmacogenetics"]:
             if pharmacogenetic["rs_id"] is None:
+                # Skip pharmacogenetics missing an id
                 continue
+
+            # Follow term naming convention for parsing
             rs_term = pharmacogenetic["rs_id"].replace("rs", "RS_")
             variant_consequence_term = pharmacogenetic[
                 "variant_consequence_id"
@@ -300,7 +347,10 @@ def create_tuples_from_opentargets(opentargets_path):
 
             for pharmacogenetic_drug in pharmacogenetic["drugs"]:
                 if pharmacogenetic_drug["id"] is None:
+                    # Skip pharmacogenetic drugs missing an id
                     continue
+
+                # Follow term naming convention for parsing
                 pharmacogenetic_drug_term = pharmacogenetic_drug["id"].replace(
                     "CHEMBL", "CHEMBL_"
                 )
@@ -378,17 +428,16 @@ def create_tuples_from_opentargets(opentargets_path):
         # == Gene annotations
 
         tuples.append(
-            [
-                (
-                    URIRef(f"{PURLBASE}/{gene_term}"),
-                    URIRef(f"{RDFSBASE}#Symbol"),
-                    Literal(str(gene_symbol)),
-                )
-            ]
+            (
+                URIRef(f"{PURLBASE}/{gene_term}"),
+                URIRef(f"{RDFSBASE}#Symbol"),
+                Literal(str(gene_symbol)),
+            )
         )
 
         for tractability in opentargets_results[gene_id]["tractability"]:
             if tractability == {}:
+                # Skip empty tractabilities
                 continue
             tuples.extend(
                 [
@@ -407,6 +456,7 @@ def create_tuples_from_opentargets(opentargets_path):
 
         for expression in opentargets_results[gene_id]["expression"]:
             if expression["tissue_id"][0:7] != "UBERON_":
+                # Skip expressions for tissue not in UBERON
                 continue
 
             # == Expression relations
@@ -455,22 +505,40 @@ def create_tuples_from_opentargets(opentargets_path):
 
 
 def create_tuples_from_uniprot(opentargets_path):
+    """Creates tuples from the result of using a UniProt API endpoint
+    for each protein id in the opentargets results corresponding to
+    the specified path to obtain other protein ids, descriptions, and
+    comments.
 
+    Parameters
+    ----------
+    opentargets_path : Path
+        Path to opentargets results
+
+    Returns
+    -------
+    tuples : list(tuple(str))
+        List of tuples (triples or quadruples) created
+    """
     tuples = []
 
-    uniprot_path, uniprot_results = get_uniprot_results(opentargets_path)
-
+    # Load the UniProt results, and assign the Ensembl id to UniProt
+    # accession mapping
+    _uniprot_path, uniprot_results = get_uniprot_results(opentargets_path)
     ensp2accn = uniprot_results["ensp2accn"]
 
+    # Consider each protein id
     for protein_id in uniprot_results["protein_ids"]:
-
         if uniprot_results[protein_id] == []:
+            # Skip empty proteins
             continue
+
+        # == Protein annotations
 
         protein_term = get_protein_term(protein_id, ensp2accn)
         if protein_term is None:
+            # Skip unmappable protein ids
             continue
-
         if "proteinDescription" in uniprot_results[protein_id]:
             if "recommendedName" in uniprot_results[protein_id]["proteinDescription"]:
                 tuples.append(
@@ -486,7 +554,6 @@ def create_tuples_from_uniprot(opentargets_path):
                         ),
                     )
                 )
-
             if "alternativeNames" in uniprot_results[protein_id]["proteinDescription"]:
                 tuples.append(
                     (
@@ -501,7 +568,6 @@ def create_tuples_from_uniprot(opentargets_path):
                         ),
                     )
                 )
-
             if "submissionNames" in uniprot_results[protein_id]["proteinDescription"]:
                 tuples.append(
                     (
@@ -516,7 +582,6 @@ def create_tuples_from_uniprot(opentargets_path):
                         ),
                     )
                 )
-
             if "cdAntigenNames" in uniprot_results[protein_id]["proteinDescription"]:
                 tuples.append(
                     (
@@ -531,7 +596,6 @@ def create_tuples_from_uniprot(opentargets_path):
                         ),
                     )
                 )
-
         if "comments" in uniprot_results[protein_id]:
             if uniprot_results[protein_id]["comments"] != []:
                 tuples.append(
@@ -552,20 +616,49 @@ def create_tuples_from_uniprot(opentargets_path):
 
 
 def main():
+    """Load results from
 
+    - using the gget opentargets command to obtain the diseases,
+      drugs, interactions, pharmacogenetics, tractability, expression,
+      and depmap resources for each unique gene id mapped from each
+      gene symbol in the NSForest results from processing datasets
+      corresponding to the Guo et al. 2023, Li et al. 2023, and
+      Sikkema, et al. 2023 publications,
+
+    - using an EBI API endpoint to obtain drug ontology data for each
+      unique drug name in the opentargets results,
+
+    - using an RxNav API endpoint for each unique drug name in the
+      opentargets results to obtain the mapping from drug name to
+      RXCUI, suggested spellings, prescribable drugs information, and
+      drug properties, and
+
+    - using a UniProt API endpoint for each protein id in the
+      opentargets results to obtain other protein ids, descriptions,
+      and comments
+
+    Then create tuples consistent with schema v0.7, and write the
+    result to a JSON file.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    None
+    """
     for author in ["guo", "li", "sikkema"]:
-
         opentargets_path = (
             NSFOREST_DIRPATH
             / f"cell-kn-mvp-nsforest-results-{author}-2023-2025-02-22-opentargets.json"
         ).resolve()
 
+        print(f"Creating tuples from {opentargets_path}")
         opentargets_tuples = create_tuples_from_opentargets(opentargets_path)
         uniprot_tuples = create_tuples_from_uniprot(opentargets_path)
-
         tuples_to_load = opentargets_tuples.copy()
         tuples_to_load.extend(uniprot_tuples)
-
         with open(TUPLES_DIRPATH / f"ExternalApiResultsLoader-{author}.json", "w") as f:
             results = {}
             results["tuples"] = tuples_to_load
