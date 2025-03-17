@@ -2,9 +2,7 @@ import json
 from pathlib import Path
 
 import gget
-import pandas as pd
 import requests
-import scanpy as sc
 
 from LoaderUtilities import (
     load_results,
@@ -809,11 +807,11 @@ def main():
         ).resolve()
         print(f"Fetching results for {nsforest_path}")
 
-        opentargets_path, opentargets_results = get_opentargets_results(nsforest_path)
+        opentargets_path, _opentargets_results = get_opentargets_results(nsforest_path)
 
-        ebi_path, ebi_results = get_ebi_results(opentargets_path)
+        _ebi_path, _ebi_results = get_ebi_results(opentargets_path)
 
-        rxnav_path, rxnav_results = get_rxnav_results(opentargets_path)
+        _rxnav_path, _rxnav_results = get_rxnav_results(opentargets_path)
 
         # TODO: Restore if API becomes available
         # drugbank_path, drugbank_results = get_drugbank_results(rxnav_path)
@@ -821,10 +819,8 @@ def main():
         # TODO: Restore if API becomes available
         # ncats_path, ncats_results = get_ncats_results(rxnav_path)
 
-        uniprot_path, uniprot_results = get_uniprot_results(opentargets_path)
-
-    return opentargets_results, ebi_results, rxnav_results, uniprot_results
+        _uniprot_path, _uniprot_results = get_uniprot_results(opentargets_path)
 
 
 if __name__ == "__main__":
-    opentargets_results, ebi_results, rxnav_results, uniprot_results = main()
+    main()

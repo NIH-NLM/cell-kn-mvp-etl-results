@@ -1,11 +1,10 @@
 import json
 from pathlib import Path
-from pprint import pprint
 
 import numpy as np
 import pandas as pd
 
-from LoaderUtilities import load_results, hyphenate, PURLBASE, RDFSBASE
+from LoaderUtilities import PURLBASE
 
 
 def read_schema(schema_path):
@@ -303,7 +302,7 @@ def main():
     # Read the schema, and create the tuples
     schema_path = Path("../../../data/schema/cell-kn-schema-v0.7.0.xlsx")
     print(f"Creating tuples from {schema_path}")
-    schema, terms = read_schema(schema_path)
+    schema, _terms = read_schema(schema_path)
     schema_tuples = create_tuples(schema)
 
     # Write the tuples

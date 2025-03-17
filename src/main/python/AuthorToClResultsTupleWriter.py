@@ -182,12 +182,13 @@ def create_tuples_from_author_to_cl(results):
         # Nodes for each cell type and marker gene
         marker_genes = ast.literal_eval(row["NSForest_markers"])
         for gene in marker_genes:
+            gene_term = f"GS_{gene}"
 
             # Gene_Class, IS_MARKER_FOR, Cell_type_Class
             # SO:0000704, RO:0002607, CL:0000000
             tuples.append(
                 (
-                    URIRef(f"{PURLBASE}/GS_{gene}"),
+                    URIRef(f"{PURLBASE}/{gene_term}"),
                     URIRef(f"{PURLBASE}/RO_0002607"),
                     URIRef(f"{cl_term}"),
                 )
@@ -196,6 +197,7 @@ def create_tuples_from_author_to_cl(results):
         # Nodes for each cell type, and marker and binary gene
         binary_genes = ast.literal_eval(row["binary_genes"])
         for gene in marker_genes + binary_genes:
+            gene_term = f"GS_{gene}"
 
             # Cell_type_Class, EXPRESSES, Gene_Class
             # CL:0000000, RO:0002292, SO:0000704
@@ -203,7 +205,7 @@ def create_tuples_from_author_to_cl(results):
                 (
                     URIRef(f"{cl_term}"),
                     URIRef(f"{PURLBASE}/RO_0002292"),
-                    URIRef(f"{PURLBASE}/GS_{gene}"),
+                    URIRef(f"{PURLBASE}/{gene_term}"),
                 )
             )
 
@@ -211,7 +213,7 @@ def create_tuples_from_author_to_cl(results):
             # SO:0000704, BFO:0000050, CL:0000000
             tuples.append(
                 (
-                    URIRef(f"{PURLBASE}/GS_{gene}"),
+                    URIRef(f"{PURLBASE}/{gene_term}"),
                     URIRef(f"{PURLBASE}/BFO_0000050"),
                     URIRef(f"{cl_term}"),
                 )
@@ -221,7 +223,7 @@ def create_tuples_from_author_to_cl(results):
             # SO:0000704, RO:0002206, UBERON:0001062
             tuples.append(
                 (
-                    URIRef(f"{PURLBASE}/GS_{gene}"),
+                    URIRef(f"{PURLBASE}/{gene_term}"),
                     URIRef(f"{PURLBASE}/RO_0002206"),
                     URIRef(f"{uberon_term}"),
                 )

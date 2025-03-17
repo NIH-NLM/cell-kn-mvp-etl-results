@@ -42,20 +42,20 @@ def write_triple_components(annotation_results_path, terms):
     # Identify unique subject, and object names and identifiers
     names = {}
     identifiers = {}
-    for type in list(subject_types) + list(object_types):
-        names[type] = set()
-        identifiers[type] = set()
+    for node_type in list(subject_types) + list(object_types):
+        names[node_type] = set()
+        identifiers[node_type] = set()
     for triple in annotation_results:
         for node in ["subject", "object"]:
-            type = triple[node + "_type"]
+            node_type = triple[node + "_type"]
             name = triple[node + "_name"]
             identifier = triple[node + "_identifier"]
-            names[type].add(name)
-            identifiers[type].add(identifier)
+            names[node_type].add(name)
+            identifiers[node_type].add(identifier)
 
     # Write triple component descriptions
     annotation_components_path = Path(
-        str(annotation_results_path).replace(".py", ".out")
+        str(annotation_results_path).replace(".json", ".out")
     )
     with open(annotation_components_path, "w") as f:
 
@@ -100,7 +100,7 @@ def main():
     """
     # Load the schema, and mapping of term to CURIES
     schema_path = Path("../../../data/schema/cell-kn-schema-v0.7.0.xlsx")
-    schema, terms = read_schema(schema_path)
+    _schema, terms = read_schema(schema_path)
 
     # Load the annotation results, and write triple component descriptions
     annotation_results_path = Path(

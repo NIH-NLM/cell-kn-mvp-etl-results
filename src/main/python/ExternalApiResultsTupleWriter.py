@@ -80,10 +80,10 @@ def create_tuples_from_opentargets(opentargets_path):
     for gene_id in opentargets_results["gene_ids"]:
 
         # Map id to name
-        gene_symbol = map_gene_id_to_names(gene_id, gid2nms)
+        gene_symbol = map_gene_id_to_names(gene_id, gid2nms)[0]
 
         # Follow term naming convention for parsing
-        gene_term = gene_id.replace("ENSG", "GS_")
+        gene_term = f"GS_{gene_symbol}"  # gene_id.replace("ENSG", "GS_")
 
         # == Gene relations
 
@@ -92,7 +92,7 @@ def create_tuples_from_opentargets(opentargets_path):
                 # Skip EFO terms
                 continue
 
-            elif disease["score"] < 0.5:
+            if disease["score"] < 0.5:
                 # Skip diseases with low evidence scores
                 continue
 
@@ -245,8 +245,12 @@ def create_tuples_from_opentargets(opentargets_path):
                 # Skip interactions with low evidence scores
                 continue
 
+            # Map id to name
+            gene_b_id = interaction["gene_b_id"]
+            gene_b_symbol = map_gene_id_to_names(gene_b_id, gid2nms)[0]
+
             # Follow term naming convention for parsing
-            gene_b_term = interaction["gene_b_id"].replace("ENSG", "GS_")
+            gene_b_term = f"GS_{gene_b_symbol}"  # interaction["gene_b_id"].replace("ENSG", "GS_")
 
             # Gene, GENETICALLY_INTERACTS_WITH, Gene
             tuples.append(
@@ -257,8 +261,14 @@ def create_tuples_from_opentargets(opentargets_path):
                 )
             )
 
+            # Get protein terms, handling Ensembl ids and the term
+            # naming convention for parsing
+            protein_a_id = interaction["protein_a_id"]
+            protein_a_term = get_protein_term(protein_a_id, ensp2accn)
+            protein_b_id = interaction["protein_b_id"]
+            protein_b_term = get_protein_term(protein_b_id, ensp2accn)
+
             # Gene, PRODUCES, Protein
-            protein_a_term = get_protein_term(interaction["protein_a_id"], ensp2accn)
             if protein_a_term is not None:
                 tuples.append(
                     (
@@ -267,7 +277,6 @@ def create_tuples_from_opentargets(opentargets_path):
                         URIRef(f"{PURLBASE}/{protein_a_term}"),
                     )
                 )
-            protein_b_term = get_protein_term(interaction["protein_b_id"], ensp2accn)
             if protein_b_term is not None:
                 tuples.append(
                     (
@@ -303,13 +312,13 @@ def create_tuples_from_opentargets(opentargets_path):
                         URIRef(f"{PURLBASE}/{gene_term}"),
                         URIRef(f"{PURLBASE}/{gene_b_term}"),
                         URIRef(f"{RDFSBASE}#Protein_a"),
-                        Literal(str(interaction["protein_a_id"])),
+                        Literal(str(protein_a_id)),
                     ),
                     (
                         URIRef(f"{PURLBASE}/{gene_term}"),
                         URIRef(f"{PURLBASE}/{gene_b_term}"),
                         URIRef(f"{RDFSBASE}#Protein_b"),
-                        Literal(str(interaction["protein_b_id"])),
+                        Literal(str(protein_b_id)),
                     ),
                 ]
             )
@@ -535,6 +544,8 @@ def create_tuples_from_uniprot(opentargets_path):
 
         # == Protein annotations
 
+        # Get protein term, handling Ensembl ids and the term naming
+        # convention for parsing
         protein_term = get_protein_term(protein_id, ensp2accn)
         if protein_term is None:
             # Skip unmappable protein ids

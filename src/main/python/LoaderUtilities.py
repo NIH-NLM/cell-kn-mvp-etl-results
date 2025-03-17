@@ -45,7 +45,7 @@ def load_results(results_path):
         DataFrame containing results
     """
     results = pd.read_csv(results_path)
-    if not "uuid" in results.columns:
+    if "uuid" not in results.columns:
         print(f"Add UUID column to results CSV file {results_path.name}")
         results["uuid"] = [get_uuid() for idx in results.index]
         results.to_csv(results_path)
@@ -228,7 +228,7 @@ def get_protein_id_to_accession_map(protein_ids):
                 if ensp not in ensp2accn:
                     ensp2accn[ensp] = accn
                 else:
-                    if isinstance(ensp2accn[ensp]) != list:
+                    if not isinstance(ensp2accn[ensp], list):
                         ensp2accn[ensp] = [ensp2accn[ensp]]
                     ensp2accn[ensp].append(accn)
 
@@ -259,7 +259,7 @@ def map_protein_id_to_accession(ensp, ensp2accn):
 
     if ensp in ensp2accn:
         accn = ensp2accn[ensp]
-        if isinstance(accn) is list:
+        if isinstance(accn, list):
             accn = accn[0]
 
     return accn
@@ -307,7 +307,7 @@ def get_accession_to_protein_id_map(protein_ids):
                 if accn not in accn2esnp:
                     accn2esnp[accn] = ensp
                 else:
-                    if type(accn2esnp[accn]) != list:
+                    if not isinstance(accn2esnp[accn], list):
                         accn2esnp[accn] = [accn2esnp[accn]]
                     accn2esnp[accn].append(ensp)
 
@@ -338,7 +338,7 @@ def map_accession_to_protein_id(accn, accn2ensp):
 
     if accn in accn2ensp:
         ensp = accn2ensp[accn]
-        if isinstance(ensp) is list:
+        if isinstance(ensp, list):
             ensp = ensp[0]
 
     return ensp
