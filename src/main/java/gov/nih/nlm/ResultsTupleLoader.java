@@ -436,7 +436,6 @@ public class ResultsTupleLoader {
         // Read the results tuples files
         for (Path tuplesFile : tuplesFiles) {
             System.out.println("Processing tuples file " + tuplesFile);
-
             ArrayList<ArrayList<Node>> tuplesArrayList;
             try {
                 tuplesArrayList = readJsonFile(tuplesFile.toString());
