@@ -57,6 +57,16 @@ Data can be fetched from the following external sources:
 
 ## Dependencies
 
+### Submodule
+
+The `cell-kn-etl-results` repository includes the
+`cell-kn-etl-ontologies` repository as a submodule. After cloning
+`cell-kn-etl-results`, initialize and update the submodule as follows:
+```
+git submodule init
+git submodule update
+```
+
 ### Java
 
 Java SE 21 and Maven 3 or compatible are required to generate the
