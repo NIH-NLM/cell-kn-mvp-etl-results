@@ -28,7 +28,7 @@ def create_tuples_from_author_to_cl(results):
 
     # Nodes for these results
     csd_term = f"CSD_{results['dataset_id'][0]}"
-    pub_term = f"PUB_{results['DOI'][0]}"
+    pub_term = f"PUB_{results['DOI'][0].replace('/', '-')}"
 
     # Cell_set_dataset_Ind, SOURCE, Publication_Ind
     # IAO:0000100, dc:source, IAO:0000311
