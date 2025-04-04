@@ -339,7 +339,7 @@ public class ResultsTupleLoader {
         insertVertices(vertexCollections, vertexDocuments);
         insertEdges(edgeCollections, edgeDocuments);
 
-        // Replace Cell-KN schema vertices with Cell-KN vertices
+        // Replace Cell-KN schema vertices which have no attributes with Cell-KN vertices which do
         for (String id : vertexDocuments.keySet()) {
             for (String number : vertexDocuments.get(id).keySet()) {
                 BaseDocument cellKnDoc = cellKnGraph.vertexCollection(id).getVertex(number, BaseDocument.class);
@@ -416,9 +416,6 @@ public class ResultsTupleLoader {
         // NEVER DO THIS: arangoDbUtilities.deleteGraph(db, graphName);
         ArangoGraph cellKnGraph = arangoDbUtilities.createOrGetGraph(cellKnDb, cellKnGraphName);
 
-        // Load the schema tuples file
-        loadSchemaTuples(cellKnGraph, ontologyElementMaps);
-
         // Collect vertex keys for each vertex collection to prevent constructing
         // duplicate vertices in the vertex collection
         Map<String, Set<String>> vertexKeys = new HashMap<>();
@@ -454,5 +451,8 @@ public class ResultsTupleLoader {
         // Insert vertices, and edges
         insertVertices(vertexCollections, vertexDocuments);
         insertEdges(edgeCollections, edgeDocuments);
+
+        // Load the schema tuples file
+        loadSchemaTuples(cellKnGraph, ontologyElementMaps);
     }
 }

@@ -2,6 +2,7 @@ import ast
 import json
 from pathlib import Path
 
+import pandas as pd
 from rdflib.term import Literal, URIRef
 
 from LoaderUtilities import load_results, hyphenate, PURLBASE, RDFSBASE
@@ -199,15 +200,17 @@ def create_tuples_from_nsforest(results):
     return tuples
 
 
-def main():
+def main(summarize=False):
     """Load NSForest results from processing datasets corresponding to
     the Guo et al. 2023, Li et al. 2023, and Sikkema, et al. 2023
     publications, create tuples consistent with schema v0.7, and write
-    the result to a JSON file.
+    the result to a JSON file. If summarizing, retain the first row
+    only, and include results in output.
 
     Parameters
     ----------
-    None
+    summarize : bool
+        Flag to summarize results, or not
 
     Returns
     -------
@@ -223,13 +226,24 @@ def main():
         nsforest_results = load_results(nsforest_path).sort_values(
             "clusterName", ignore_index=True
         )
+        if summarize:
+            nsforest_results = nsforest_results.head(1)
 
         print(f"Creating tuples from {nsforest_path}")
         nsforest_tuples = create_tuples_from_nsforest(nsforest_results)
-        with open(TUPLES_DIRPATH / f"NSForestResultsLoader-{author}.json", "w") as f:
-            results = {}
-            results["tuples"] = nsforest_tuples
-            json.dump(results, f, indent=4)
+        if summarize:
+            output_dirpath = TUPLES_DIRPATH / "summaries"
+        else:
+            output_dirpath = TUPLES_DIRPATH
+        with open(output_dirpath / f"NSForestResultsLoader-{author}.json", "w") as f:
+            data = {}
+            if summarize:
+                data["results"] = nsforest_results.to_dict()
+            data["tuples"] = nsforest_tuples
+            json.dump(data, f, indent=4)
+
+        if summarize:
+            break
 
 
 if __name__ == "__main__":
