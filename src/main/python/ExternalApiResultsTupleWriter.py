@@ -314,7 +314,9 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
             gene_b_symbol = map_gene_id_to_names(gene_b_id, gid2nms)[0]
 
             # Follow term naming convention for parsing
-            gene_b_term = f"GS_{gene_b_symbol}"  # interaction["gene_b_id"].replace("ENSG", "GS_")
+            gene_b_term = (
+                f"GS_{gene_b_symbol}"  # interaction["gene_b_id"].replace("ENSG", "GS_")
+            )
 
             # Gene, GENETICALLY_INTERACTS_WITH, Gene
             tuples.append(
