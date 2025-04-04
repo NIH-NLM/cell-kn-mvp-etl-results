@@ -247,4 +247,5 @@ def main(summarize=False):
 
 
 if __name__ == "__main__":
+    main(summarize=True)
     main()
