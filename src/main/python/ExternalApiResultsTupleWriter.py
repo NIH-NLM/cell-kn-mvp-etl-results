@@ -4,6 +4,7 @@ from pathlib import Path
 from rdflib.term import Literal, URIRef
 
 from ExternalApiResultsFetcher import (
+    RESOURCES,
     get_opentargets_results,
     get_uniprot_results,
 )
@@ -49,20 +50,26 @@ def get_protein_term(protein_id, ensp2accn):
     return protein_term
 
 
-def create_tuples_from_opentargets(opentargets_path):
+def create_tuples_from_opentargets(opentargets_path, summarize=False):
     """Creates tuples from the result of using the gget opentargets
     command to obtain resources for each unique gene id mapped from
-    each gene symbol from corresponding NSForest results.
+    each gene symbol from corresponding NSForest results. If
+    summnarizing, retain the first gene id only.
 
     Parameters
     ----------
     opentargets_path : Path
         Path to opentargets results
+    summarize : bool
+        Flag to summarize results, or not
 
     Returns
     -------
     tuples : list(tuple(str))
         List of tuples (triples or quadruples) created
+    results : dict
+        Dictionary containg opentargets results keyed by gene id, then
+        by resource
     """
     tuples = []
 
@@ -75,9 +82,63 @@ def create_tuples_from_opentargets(opentargets_path):
     _uniprot_path, uniprot_results = get_uniprot_results(opentargets_path)
     ensp2accn = uniprot_results["ensp2accn"]
 
-    # Consider each gene id
+    # Assign gene ids to consider
     gid2nms = get_gene_id_to_names_map()
-    for gene_id in opentargets_results["gene_ids"]:
+    if summarize:
+
+        # Find a gene id with all resources, and a valid disease and interaction
+        for gene_id in opentargets_results["gene_ids"]:
+
+            # Find a gene id for which all resources are not empty
+            is_empty = False
+            for resource in RESOURCES:
+                if len(opentargets_results[gene_id][resource]) == 0:
+                    is_empty = True
+                    break
+            if not is_empty:
+
+                # Find a valid disease
+                found_disease = False
+                for disease in opentargets_results[gene_id]["diseases"]:
+                    if "MONDO" in disease["id"] and disease["score"] > 0.5:
+                        found_disease = True
+                        break
+
+                # Find a valid interaction
+                found_interaction = False
+                for interaction in opentargets_results[gene_id]["interactions"]:
+                    if (
+                        interaction["evidence_score"] is not None
+                        and interaction["evidence_score"] > 0.5
+                    ):
+                        found_interaction = True
+                        break
+
+                if found_disease and found_interaction:
+                    break
+
+        # Consider selected gene id
+        gene_ids = [gene_id]
+        results = {}
+        results[gene_id] = opentargets_results[gene_id]
+        results[gene_id]["symbol"] = map_gene_id_to_names(gene_id, gid2nms)[0]
+
+        # Retain only the first result for each resource
+        for resource in RESOURCES:
+            if resource == "diseases":
+                results[gene_id][resource] = [disease]
+            elif resource == "interactions":
+                results[gene_id][resource] = [interaction]
+            else:
+                results[gene_id][resource] = [results[gene_id][resource][0]]
+
+    else:
+
+        # Consider all gene ids
+        gene_ids = opentargets_results["gene_ids"]
+        results = opentargets_results
+
+    for gene_id in gene_ids:
 
         # Map id to name
         gene_symbol = map_gene_id_to_names(gene_id, gid2nms)[0]
@@ -87,7 +148,7 @@ def create_tuples_from_opentargets(opentargets_path):
 
         # == Gene relations
 
-        for disease in opentargets_results[gene_id]["diseases"]:
+        for disease in results[gene_id]["diseases"]:
             if "EFO" in disease["id"]:
                 # Skip EFO terms
                 continue
@@ -135,7 +196,10 @@ def create_tuples_from_opentargets(opentargets_path):
                 )
             )
 
-        for drug in opentargets_results[gene_id]["drugs"]:
+        for drug in results[gene_id]["drugs"]:
+            if "EFO" in drug["disease_id"]:
+                # Skip EFO terms
+                continue
 
             # Follow term naming convention for parsing
             drug_term = drug["id"].replace("CHEMBL", "CHEMBL_")
@@ -234,7 +298,7 @@ def create_tuples_from_opentargets(opentargets_path):
                     ]
                 )
 
-        for interaction in opentargets_results[gene_id]["interactions"]:
+        for interaction in results[gene_id]["interactions"]:
             if interaction["gene_b_id"] is None:
                 # Skip interactions missing the second protein
                 continue
@@ -323,7 +387,7 @@ def create_tuples_from_opentargets(opentargets_path):
                 ]
             )
 
-        for pharmacogenetic in opentargets_results[gene_id]["pharmacogenetics"]:
+        for pharmacogenetic in results[gene_id]["pharmacogenetics"]:
             if pharmacogenetic["rs_id"] is None:
                 # Skip pharmacogenetics missing an id
                 continue
@@ -444,7 +508,7 @@ def create_tuples_from_opentargets(opentargets_path):
             )
         )
 
-        for tractability in opentargets_results[gene_id]["tractability"]:
+        for tractability in results[gene_id]["tractability"]:
             if tractability == {}:
                 # Skip empty tractabilities
                 continue
@@ -463,7 +527,7 @@ def create_tuples_from_opentargets(opentargets_path):
                 ]
             )
 
-        for expression in opentargets_results[gene_id]["expression"]:
+        for expression in results[gene_id]["expression"]:
             if expression["tissue_id"][0:7] != "UBERON_":
                 # Skip expressions for tissue not in UBERON
                 continue
@@ -510,24 +574,28 @@ def create_tuples_from_opentargets(opentargets_path):
                 ]
             )
 
-    return tuples
+    return tuples, results
 
 
-def create_tuples_from_uniprot(opentargets_path):
+def create_tuples_from_uniprot(opentargets_path, summarize=False):
     """Creates tuples from the result of using a UniProt API endpoint
     for each protein id in the opentargets results corresponding to
     the specified path to obtain other protein ids, descriptions, and
-    comments.
+    comments. If summnarizing, retain the first protein id only.
 
     Parameters
     ----------
     opentargets_path : Path
         Path to opentargets results
+    summarize : bool
+        Flag to summarize results, or not
 
     Returns
     -------
     tuples : list(tuple(str))
         List of tuples (triples or quadruples) created
+    results : dict
+        Dictionary containg UniProt results keyed by protein id
     """
     tuples = []
 
@@ -536,9 +604,27 @@ def create_tuples_from_uniprot(opentargets_path):
     _uniprot_path, uniprot_results = get_uniprot_results(opentargets_path)
     ensp2accn = uniprot_results["ensp2accn"]
 
-    # Consider each protein id
-    for protein_id in uniprot_results["protein_ids"]:
-        if uniprot_results[protein_id] == []:
+    # Assign protein ids to consider
+    if summarize:
+
+        # Find a protein id for which results are not empty
+        for protein_id in uniprot_results["protein_ids"]:
+            if uniprot_results[protein_id] != [] and "ENSP" in protein_id:
+                break
+
+        # Consider selected protein id
+        protein_ids = [protein_id]
+        results = {}
+        results[protein_id] = uniprot_results[protein_id]
+        results[protein_id]["accession"] = get_protein_term(protein_id, ensp2accn).replace("PR_", "")
+    else:
+
+        # Consider all protein ids
+        protein_ids = uniprot_results["protein_ids"]
+        results = uniprot_results
+
+    for protein_id in protein_ids:
+        if results[protein_id] == []:
             # Skip empty proteins
             continue
 
@@ -550,83 +636,79 @@ def create_tuples_from_uniprot(opentargets_path):
         if protein_term is None:
             # Skip unmappable protein ids
             continue
-        if "proteinDescription" in uniprot_results[protein_id]:
-            if "recommendedName" in uniprot_results[protein_id]["proteinDescription"]:
+        if "proteinDescription" in results[protein_id]:
+            if "recommendedName" in results[protein_id]["proteinDescription"]:
                 tuples.append(
                     (
                         URIRef(f"{PURLBASE}/{protein_term}"),
                         URIRef(f"{RDFSBASE}#Recommended_name"),
                         Literal(
                             str(
-                                uniprot_results[protein_id]["proteinDescription"][
+                                results[protein_id]["proteinDescription"][
                                     "recommendedName"
                                 ]["fullName"]["value"]
                             )
                         ),
                     )
                 )
-            if "alternativeNames" in uniprot_results[protein_id]["proteinDescription"]:
+            if "alternativeNames" in results[protein_id]["proteinDescription"]:
                 tuples.append(
                     (
                         URIRef(f"{PURLBASE}/{protein_term}"),
                         URIRef(f"{RDFSBASE}#Alternative_name"),
                         Literal(
                             str(
-                                uniprot_results[protein_id]["proteinDescription"][
+                                results[protein_id]["proteinDescription"][
                                     "alternativeNames"
                                 ][0]["fullName"]["value"]
                             )
                         ),
                     )
                 )
-            if "submissionNames" in uniprot_results[protein_id]["proteinDescription"]:
+            if "submissionNames" in results[protein_id]["proteinDescription"]:
                 tuples.append(
                     (
                         URIRef(f"{PURLBASE}/{protein_term}"),
                         URIRef(f"{RDFSBASE}#Submission_name"),
                         Literal(
                             str(
-                                uniprot_results[protein_id]["proteinDescription"][
+                                results[protein_id]["proteinDescription"][
                                     "submissionNames"
                                 ][0]["fullName"]["value"]
                             )
                         ),
                     )
                 )
-            if "cdAntigenNames" in uniprot_results[protein_id]["proteinDescription"]:
+            if "cdAntigenNames" in results[protein_id]["proteinDescription"]:
                 tuples.append(
                     (
                         URIRef(f"{PURLBASE}/{protein_term}"),
                         URIRef(f"{RDFSBASE}#CD_antigen_name"),
                         Literal(
                             str(
-                                uniprot_results[protein_id]["proteinDescription"][
+                                results[protein_id]["proteinDescription"][
                                     "cdAntigenNames"
                                 ][0]["value"]
                             )
                         ),
                     )
                 )
-        if "comments" in uniprot_results[protein_id]:
-            if uniprot_results[protein_id]["comments"] != []:
+        if "comments" in results[protein_id]:
+            if results[protein_id]["comments"] != []:
                 tuples.append(
                     (
                         URIRef(f"{PURLBASE}/{protein_term}"),
                         URIRef(f"{RDFSBASE}#Comment"),
                         Literal(
-                            str(
-                                uniprot_results[protein_id]["comments"][0]["texts"][0][
-                                    "value"
-                                ]
-                            )
+                            str(results[protein_id]["comments"][0]["texts"][0]["value"])
                         ),
                     ),
                 )
 
-    return tuples
+    return tuples, results
 
 
-def main():
+def main(summarize=False):
     """Load results from
 
     - using the gget opentargets command to obtain the diseases,
@@ -649,7 +731,9 @@ def main():
       and comments
 
     Then create tuples consistent with schema v0.7, and write the
-    result to a JSON file.
+    result to a JSON file. If summarizing, retain the first gene id
+    opentargets results, and protein id uniprot results only, and
+    include results in output.
 
     Parameters
     ----------
@@ -666,15 +750,29 @@ def main():
         ).resolve()
 
         print(f"Creating tuples from {opentargets_path}")
-        opentargets_tuples = create_tuples_from_opentargets(opentargets_path)
-        uniprot_tuples = create_tuples_from_uniprot(opentargets_path)
+        opentargets_tuples, opentargets_results = create_tuples_from_opentargets(
+            opentargets_path, summarize=summarize
+        )
+        uniprot_tuples, uniprot_results = create_tuples_from_uniprot(
+            opentargets_path, summarize=summarize
+        )
         tuples_to_load = opentargets_tuples.copy()
         tuples_to_load.extend(uniprot_tuples)
-        with open(TUPLES_DIRPATH / f"ExternalApiResultsLoader-{author}.json", "w") as f:
-            results = {}
-            results["tuples"] = tuples_to_load
-            json.dump(results, f, indent=4)
+        if summarize:
+            output_dirpath = TUPLES_DIRPATH / "summaries"
+        else:
+            output_dirpath = TUPLES_DIRPATH
+        with open(output_dirpath / f"ExternalApiResultsLoader-{author}.json", "w") as f:
+            data = {}
+            if summarize:
+                data["opentargets"] = opentargets_results
+                data["uniprot"] = uniprot_results
+            data["tuples"] = tuples_to_load
+            json.dump(data, f, indent=4)
+
+        if summarize:
+            break
 
 
 if __name__ == "__main__":
-    main()
+    main(summarize=True)
