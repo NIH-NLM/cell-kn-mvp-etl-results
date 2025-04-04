@@ -263,7 +263,9 @@ def main(summarize=False):
             nsforest_results = nsforest_results.head(1)
 
         # Map NSForest results filename to manual author cell set to
-        # CL term mapping filename, then load mapping results
+        # CL term mapping filename, then load mapping results,
+        # dropping "uuid" column in order to merge "uuid" column from
+        # NSForest results
         if author == "li":
             author_to_cl_path = Path(
                 str(nsforest_path)
@@ -278,13 +280,13 @@ def main(summarize=False):
             )
         author_to_cl_results = load_results(author_to_cl_path).sort_values(
             "author_cell_set", ignore_index=True
-        )
+        ).drop(columns=["uuid"])
 
         # Merge NSForest results with manual author cell set to CL
         # term mapping since author cell sets may not align exactly
         author_to_cl_results = author_to_cl_results.merge(
             nsforest_results[
-                ["clusterName", "NSForest_markers", "binary_genes"]
+                ["clusterName", "NSForest_markers", "binary_genes", "uuid"]
             ].copy(),
             left_on="author_cell_set",
             right_on="clusterName",
