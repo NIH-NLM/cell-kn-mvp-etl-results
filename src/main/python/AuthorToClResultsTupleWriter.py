@@ -90,10 +90,11 @@ def create_tuples_from_author_to_cl(results):
     # Nodes for each cell type or cell set
     uuid_0 = results["uuid"][0]
     for _, row in results.iterrows():
+        uuid = row["uuid"]
         cl_term = row["cell_ontology_id"]
         uberon_term = row["uberon_entity_id"]
         author_cell_set = hyphenate(row["author_cell_set"])
-        cs_term = f"CS_{author_cell_set}-{uuid_0}"
+        cs_term = f"CS_{author_cell_set}-{uuid}"
 
         # Cell_type_Class, PART_OF, Anatomical_structure_Class
         # CL:0000000, BFO:0000050, UBERON:0001062
@@ -263,7 +264,9 @@ def main(summarize=False):
             nsforest_results = nsforest_results.head(1)
 
         # Map NSForest results filename to manual author cell set to
-        # CL term mapping filename, then load mapping results
+        # CL term mapping filename, then load mapping results,
+        # dropping "uuid" column in order to merge "uuid" column from
+        # NSForest results
         if author == "li":
             author_to_cl_path = Path(
                 str(nsforest_path)
@@ -278,13 +281,13 @@ def main(summarize=False):
             )
         author_to_cl_results = load_results(author_to_cl_path).sort_values(
             "author_cell_set", ignore_index=True
-        )
+        ).drop(columns=["uuid"])
 
         # Merge NSForest results with manual author cell set to CL
         # term mapping since author cell sets may not align exactly
         author_to_cl_results = author_to_cl_results.merge(
             nsforest_results[
-                ["clusterName", "NSForest_markers", "binary_genes"]
+                ["clusterName", "NSForest_markers", "binary_genes", "uuid"]
             ].copy(),
             left_on="author_cell_set",
             right_on="clusterName",
@@ -308,4 +311,5 @@ def main(summarize=False):
 
 
 if __name__ == "__main__":
+    main(summarize=True)
     main()
