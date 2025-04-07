@@ -90,10 +90,11 @@ def create_tuples_from_author_to_cl(results):
     # Nodes for each cell type or cell set
     uuid_0 = results["uuid"][0]
     for _, row in results.iterrows():
+        uuid = row["uuid"]
         cl_term = row["cell_ontology_id"]
         uberon_term = row["uberon_entity_id"]
         author_cell_set = hyphenate(row["author_cell_set"])
-        cs_term = f"CS_{author_cell_set}-{uuid_0}"
+        cs_term = f"CS_{author_cell_set}-{uuid}"
 
         # Cell_type_Class, PART_OF, Anatomical_structure_Class
         # CL:0000000, BFO:0000050, UBERON:0001062
