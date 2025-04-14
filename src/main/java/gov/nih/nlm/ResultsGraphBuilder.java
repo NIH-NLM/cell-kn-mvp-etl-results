@@ -21,7 +21,7 @@ import static gov.nih.nlm.OntologyElementParser.parseOntologyElements;
 import static gov.nih.nlm.OntologyTripleLoader.*;
 import static gov.nih.nlm.PathUtilities.listFilesMatchingPattern;
 
-public class ResultsTupleLoader {
+public class ResultsGraphBuilder {
 
     // Assign location of ontology files
     private static final Path usrDir = Paths.get(System.getProperty("user.dir"));
