@@ -52,10 +52,10 @@ public class PhenotypeGraphBuilder {
 		queryStr += " FOR v, e, p IN 3 ANY cs GRAPH @graphName";
 		// Filter for paths with 4 vertices"
 		queryStr += " FILTER LENGTH(p.vertices) == 4";
-		// Find only paths with correct route - CL - UBERON - NCBITaxon or CL - GS - MONDO/CHEMBL
+		// Find only paths with correct route - CL - UBERON - NCBITaxon or CL - GS - MONDO/CHEMBL or CL - CSD - PUB
 		queryStr += " AND IS_SAME_COLLECTION('CL', p.vertices[1])"
-				+ " AND (IS_SAME_COLLECTION('UBERON', p.vertices[2]) OR IS_SAME_COLLECTION('GS', p.vertices[2]))"
-				+ " AND (IS_SAME_COLLECTION('NCBITaxon', p.vertices[3]) OR IS_SAME_COLLECTION('MONDO', p.vertices[3]) OR IS_SAME_COLLECTION('CHEMBL', p.vertices[3]))"
+				+ " AND (IS_SAME_COLLECTION('UBERON', p.vertices[2]) OR IS_SAME_COLLECTION('GS', p.vertices[2]) OR IS_SAME_COLLECTION('CSD', p.vertices[2]))"
+				+ " AND (IS_SAME_COLLECTION('NCBITaxon', p.vertices[3]) OR IS_SAME_COLLECTION('MONDO', p.vertices[3]) OR IS_SAME_COLLECTION('CHEMBL', p.vertices[3]) OR IS_SAME_COLLECTION('PUB', p.vertices[3]))"
 				+ " RETURN p";
 		//@formatter:on
 
