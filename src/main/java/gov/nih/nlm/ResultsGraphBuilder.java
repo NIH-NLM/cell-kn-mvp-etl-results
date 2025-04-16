@@ -21,7 +21,7 @@ import static gov.nih.nlm.OntologyElementParser.parseOntologyElements;
 import static gov.nih.nlm.OntologyTripleLoader.*;
 import static gov.nih.nlm.PathUtilities.listFilesMatchingPattern;
 
-public class ResultsTupleLoader {
+public class ResultsGraphBuilder {
 
     // Assign location of ontology files
     private static final Path usrDir = Paths.get(System.getProperty("user.dir"));
@@ -403,7 +403,7 @@ public class ResultsTupleLoader {
         if (args.length > 2) {
             cellKnDbName = args[2];
         } else {
-            cellKnDbName = "Cell-KN";
+            cellKnDbName = "Cell-KN-Ontologies";
         }
         // NEVER DO THIS: arangoDbUtilities.deleteDatabase(databaseName);
         ArangoDatabase cellKnDb = arangoDbUtilities.createOrGetDatabase(cellKnDbName);
@@ -411,7 +411,7 @@ public class ResultsTupleLoader {
         if (args.length > 3) {
             cellKnGraphName = args[3];
         } else {
-            cellKnGraphName = "KN-v2.0";
+            cellKnGraphName = "KN-Ontologies-v2.0";
         }
         // NEVER DO THIS: arangoDbUtilities.deleteGraph(db, graphName);
         ArangoGraph cellKnGraph = arangoDbUtilities.createOrGetGraph(cellKnDb, cellKnGraphName);
