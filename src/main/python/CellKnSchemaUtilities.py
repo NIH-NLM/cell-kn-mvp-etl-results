@@ -4,6 +4,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+import ArangoDbUtilities as adb
 from LoaderUtilities import PURLBASE
 
 
@@ -48,7 +49,7 @@ def read_schema(schema_path):
     ]
 
     # Drop unknown predicate relation
-    schema = schema[schema["Predicate Relation"] != "???"]
+    # schema = schema[schema["Predicate Relation"] != "???"]
 
     # TODO: Remove
     # Drop predicates since not present in the classes/relations
@@ -65,17 +66,23 @@ def read_schema(schema_path):
     terms[terms["Schema Name"] == "Organism/Species"] = organism
     terms = pd.concat((terms, species))
 
+    # Replace contingent predicate with placeholder
+    schema["Predicate Relation"] = schema["Predicate Relation"].str.replace(
+        "??? Need looser relationship to express that the two are merely associated",
+        "ASSOCIATED_WITH",
+    )
+
     # Ensure schema subject and object nodes, and predicate terms
     # match classes/relations schema names
     missing_subjects = set(schema["Subject Node"]) - set(terms["Schema Name"])
     if missing_subjects != set():
-        raise Exception(f"Unexpected missing subjects: {missing_subjects}")
+        print(f"Unexpected missing subjects: {missing_subjects}")
     missing_objects = set(schema["Object Node"]) - set(terms["Schema Name"])
     if missing_objects != set():
-        raise Exception(f"Unexpected missing objects: {missing_objects}")
+        print(f"Unexpected missing objects: {missing_objects}")
     missing_predicates = set(schema["Predicate Relation"]) - set(terms["Schema Name"])
     if missing_predicates != set():
-        raise Exception(f"Unexpected missing predicates: {missing_predicates}")
+        print(f"Unexpected missing predicates: {missing_predicates}")
 
     # Add subject and object nodes with their type: class or
     # individual
@@ -86,13 +93,25 @@ def read_schema(schema_path):
     # Add subject and object nodes, and predicate terms with their
     # CURIE
     schema["Subject Node Curie"] = schema["Subject Node"].apply(
-        lambda n: terms["CURIE"][terms["Schema Name"] == n].iloc[0]
+        lambda n: (
+            terms["CURIE"][terms["Schema Name"] == n].iloc[0]
+            if (terms["Schema Name"] == n).any()
+            else "NA"
+        )
     )
     schema["Object Node Curie"] = schema["Object Node"].apply(
-        lambda n: terms["CURIE"][terms["Schema Name"] == n].iloc[0]
+        lambda n: (
+            terms["CURIE"][terms["Schema Name"] == n].iloc[0]
+            if (terms["Schema Name"] == n).any()
+            else "NA"
+        )
     )
     schema["Predicate Relation Curie"] = schema["Predicate Relation"].apply(
-        lambda n: terms["CURIE"][terms["Schema Name"] == n].iloc[0]
+        lambda n: (
+            terms["CURIE"][terms["Schema Name"] == n].iloc[0]
+            if (terms["Schema Name"] == n).any()
+            else "NA"
+        )
     )
 
     return schema, terms
@@ -287,6 +306,40 @@ def identify_author_to_cl_triples(schema, subjects, objects, vertices, triples_p
         triples_with_curies.to_excel(writer, sheet_name="Triples with CURIEs")
 
 
+def load_graph(graph, schema):
+    """Create vertices from unique schema subject and object nodes,
+    then create edges from all schema triples.
+
+    Parameters
+    ----------
+    adb_graph : arango.graph.Graph
+        An ArangoDB graph instance
+    schema : pd.DataFrame
+        DataFrame containing the schema triples
+
+    Returns
+    -------
+    None
+    """
+    # Create vertices from unique schema subject and object nodes
+    for node in pd.concat([schema["Subject Node"], schema["Object Node"]]).unique():
+        vertex_collection = adb.create_or_get_vertex_collection(graph, node)
+        vertex = {"_key": node, "label": node.replace("_", " ").title()}
+        vertex_collection.insert(vertex)
+
+    # Create edges from all schema triples
+    for _, row in schema.iterrows():
+        s, p, o = row[["Subject Node", "Predicate Relation", "Object Node"]]
+        edge_collection, _ = adb.create_or_get_edge_collection(graph, s, o)
+        edge = {
+            "_key": f"{s}-{p}-{o}",
+            "_from": f"{s}/{s}",
+            "_to": f"{o}/{o}",
+            "label": p,
+        }
+        edge_collection.insert(edge)
+
+
 def main():
     """Read the schema, resolve a number of computationally
     incompatible, hand entered, contingent anachronisms, then create
@@ -300,12 +353,12 @@ def main():
     -------
     """
     # Read the schema, and create the tuples
-    schema_path = Path("../../../data/schema/cell-kn-schema-v0.7.0.xlsx")
-    print(f"Creating tuples from {schema_path}")
+    schema_path = Path("../../../data/schema/cell-kn-schema-2024-04-16.xlsx")
     schema, _terms = read_schema(schema_path)
     schema_tuples = create_tuples(schema)
 
     # Write the tuples
+    print(f"Creating tuples from {schema_path}")
     schema_tuples_path = Path(str(schema_path.resolve()).replace(".xlsx", ".json"))
     with open(schema_tuples_path, "w") as f:
         results = {}
@@ -332,6 +385,15 @@ def main():
     identify_author_to_cl_triples(
         schema, subjects, objects, vertices, author_to_cl_triples_path
     )
+
+    # Load the schema graph
+    db_name = "Cell-KN-Schema"
+    graph_name = "KN-Schema-2024-04-16"
+    print(f"Loading {db_name}/{graph_name}")
+    adb.delete_database(db_name)
+    db = adb.create_or_get_database(db_name)
+    graph = adb.create_or_get_graph(db, graph_name)
+    load_graph(graph, schema)
 
 
 if __name__ == "__main__":
