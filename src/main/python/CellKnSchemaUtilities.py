@@ -395,6 +395,21 @@ def main():
     graph = adb.create_or_get_graph(db, graph_name)
     load_graph(graph, schema)
 
+    # TODO: Relocate?
+    # Create analyzers and views
+    for database_name in ["Cell-KN-Ontologies", "Cell-KN-Phenotypes"]:
+
+        # First delete
+        adb.delete_view(database_name)
+        adb.delete_analyzer(database_name)
+
+        # Then create
+        adb.create_analyzer(database_name)
+        adb.create_view(
+            database_name,
+            collection_maps_name="../../../cell-kn-etl-ontologies/data/cell-kn-mvp-collection-maps-2024-04-17.json",
+        )
+
 
 if __name__ == "__main__":
     main()
