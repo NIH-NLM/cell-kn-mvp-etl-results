@@ -18,7 +18,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import static gov.nih.nlm.OntologyElementParser.parseOntologyElements;
-import static gov.nih.nlm.OntologyTripleLoader.*;
+import static gov.nih.nlm.OntologyGraphBuilder.*;
 import static gov.nih.nlm.PathUtilities.listFilesMatchingPattern;
 
 public class ResultsGraphBuilder {
@@ -106,7 +106,7 @@ public class ResultsGraphBuilder {
             for (Node n : tupleArrayList) {
 
                 // Only construct valid vertices
-                OntologyTripleLoader.VTuple vtuple = createVTuple(n);
+                OntologyGraphBuilder.VTuple vtuple = createVTuple(n);
                 if (!vtuple.isValidVertex()) continue;
 
                 // Create a vertex collection, if needed
@@ -159,7 +159,7 @@ public class ResultsGraphBuilder {
             String literal = o.getLiteralValue().toString();
 
             // Ensure the subject contains a valid ontology ID
-            OntologyTripleLoader.VTuple vtuple = createVTuple(tupleArrayList.get(tripleSubjectIdx));
+            OntologyGraphBuilder.VTuple vtuple = createVTuple(tupleArrayList.get(tripleSubjectIdx));
             if (!vtuple.isValidVertex()) continue;
 
             // Parse the predicate
@@ -202,11 +202,11 @@ public class ResultsGraphBuilder {
             if (tupleArrayList.size() != 3) continue;
 
             // Ensure the subject contains a valid ontology ID
-            OntologyTripleLoader.VTuple s_vtuple = createVTuple(tupleArrayList.get(tripleSubjectIdx));
+            OntologyGraphBuilder.VTuple s_vtuple = createVTuple(tupleArrayList.get(tripleSubjectIdx));
             if (!s_vtuple.isValidVertex()) continue;
 
             // Ensure the object contains a valid ontology ID
-            OntologyTripleLoader.VTuple o_vtuple = createVTuple(tupleArrayList.get(tripleObjectIdx));
+            OntologyGraphBuilder.VTuple o_vtuple = createVTuple(tupleArrayList.get(tripleObjectIdx));
             if (!o_vtuple.isValidVertex()) continue;
 
             // Parse the predicate
@@ -255,11 +255,11 @@ public class ResultsGraphBuilder {
             if (tupleArrayList.size() != 4) continue;
 
             // Ensure the subject contains a valid ontology ID
-            OntologyTripleLoader.VTuple s_vtuple = createVTuple(tupleArrayList.get(quadrupleSubjectIdx));
+            OntologyGraphBuilder.VTuple s_vtuple = createVTuple(tupleArrayList.get(quadrupleSubjectIdx));
             if (!s_vtuple.isValidVertex()) continue;
 
             // Ensure the object contains a valid ontology ID
-            OntologyTripleLoader.VTuple o_vtuple = createVTuple(tupleArrayList.get(quadrupleObjectIdx));
+            OntologyGraphBuilder.VTuple o_vtuple = createVTuple(tupleArrayList.get(quadrupleObjectIdx));
             if (!o_vtuple.isValidVertex()) continue;
 
             // Parse the predicate
@@ -452,7 +452,8 @@ public class ResultsGraphBuilder {
         insertVertices(vertexCollections, vertexDocuments);
         insertEdges(edgeCollections, edgeDocuments);
 
+        // TODO: Remove after testing Python version
         // Load the schema tuples file
-        loadSchemaTuples(cellKnGraph, ontologyElementMaps);
+        // loadSchemaTuples(cellKnGraph, ontologyElementMaps);
     }
 }
