@@ -289,9 +289,11 @@ def main(summarize=False):
                 .replace("nsforest-results", "map-author-to-cl")
                 .replace("2023-2025-02-22", "2023-data-v0.4")
             )
-        author_to_cl_results = load_results(author_to_cl_path).sort_values(
-            "author_cell_set", ignore_index=True
-        ).drop(columns=["uuid"])
+        author_to_cl_results = (
+            load_results(author_to_cl_path)
+            .sort_values("author_cell_set", ignore_index=True)
+            .drop(columns=["uuid"])
+        )
 
         # Merge NSForest results with manual author cell set to CL
         # term mapping since author cell sets may not align exactly
