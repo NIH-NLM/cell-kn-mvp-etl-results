@@ -400,14 +400,20 @@ def main():
     for database_name in ["Cell-KN-Ontologies", "Cell-KN-Phenotypes"]:
 
         # First delete
-        adb.delete_view(database_name)
-        adb.delete_analyzer(database_name)
+        try:
+            adb.delete_view(database_name)
+        except Exception as ex:
+            print(f"No view in {database_name} to delete")
+        try:
+            adb.delete_analyzer(database_name)
+        except Exception as ex:
+            print(f"No analyzer in {database_name} to delete")
 
         # Then create
         adb.create_analyzer(database_name)
         adb.create_view(
             database_name,
-            collection_maps_name="../../../cell-kn-etl-ontologies/data/cell-kn-mvp-collection-maps-2024-04-17.json",
+            collection_maps_name="../../../cell-kn-etl-ontologies/data/cell-kn-mvp-collection-maps-2025-04-23.json",
         )
 
 
