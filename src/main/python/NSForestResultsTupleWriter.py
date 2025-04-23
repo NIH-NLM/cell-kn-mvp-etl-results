@@ -38,16 +38,15 @@ def create_tuples_from_nsforest(results):
         bmc_term = f"BMC_{uuid}-NSF"
         bgc_term = f"BMC_{uuid}-BG"
 
-        # TODO: Remove Biomarker_combination_Class
         # Biomarker_combination_Ind, INSTANCE_OF, Biomarker_combination_Class
         # ---, rdf:type, SO:0001260
-        # tuples.append(
-        #     (
-        #         URIRef(f"{PURLBASE}/{bmc_term}"),
-        #         URIRef(f"{RDFSBASE}/rdf#type"),
-        #         URIRef(f"{PURLBASE}/SO_0001260"),
-        #     )
-        # )
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{bmc_term}"),
+                URIRef(f"{RDFSBASE}/rdf#type"),
+                URIRef(f"{PURLBASE}/SO_0001260"),
+            )
+        )
 
         # Gene_Class, PART_OF, Biomarker_combination_Ind
         # SO:0000704, BFO:0000050, SO:0001260
@@ -114,6 +113,15 @@ def create_tuples_from_nsforest(results):
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
+                URIRef(f"{RDFSBASE}#Markers"),
+                Literal(" ".join(nsforest_markers)),
+            )
+        )
+
+        # Biomarker_combination_Ind, RO:0015004 (has characterizing marker set), NSForest_markers
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{bmc_term}"),
                 URIRef(f"{RDFSBASE}#Markers"),
                 Literal(" ".join(nsforest_markers)),
             )
