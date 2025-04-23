@@ -337,7 +337,7 @@ public class ResultsGraphBuilder {
 
         // Insert vertices, and edges
         insertVertices(vertexCollections, vertexDocuments);
-        insertEdges(edgeCollections, edgeDocuments);
+        insertEdges(vertexCollections, edgeCollections, edgeDocuments);
 
         // Replace Cell-KN schema vertices which have no attributes with Cell-KN vertices which do
         for (String id : vertexDocuments.keySet()) {
@@ -450,7 +450,7 @@ public class ResultsGraphBuilder {
         }
         // Insert vertices, and edges
         insertVertices(vertexCollections, vertexDocuments);
-        insertEdges(edgeCollections, edgeDocuments);
+        insertEdges(vertexCollections, edgeCollections, edgeDocuments);
 
         // TODO: Remove after testing Python version
         // Load the schema tuples file

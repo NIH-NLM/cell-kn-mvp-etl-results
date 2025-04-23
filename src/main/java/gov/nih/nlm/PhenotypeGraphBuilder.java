@@ -10,6 +10,8 @@ import com.arangodb.model.AqlQueryOptions;
 
 import java.util.*;
 
+import static gov.nih.nlm.OntologyGraphBuilder.*;
+
 /**
  * Queries the fully populated ontology ArangoDB to identify all paths that
  * connect cell set vertices inward to UBERON then NCBITaxon vertices, and
@@ -108,39 +110,7 @@ public class PhenotypeGraphBuilder {
         return edgeDocuments;
     }
 
-    /**
-     * Get the document collection name, which is typically an ontology id.
-     *
-     * @param document Vertex or edge document
-     * @return Collection name
-     */
-    private static String getDocumentId(BaseDocument document) {
-        return document.getId().substring(0, document.getId().indexOf("/"));
-    }
-
-    /**
-     * Get the from vertex document collection, which is typically an ontology id.
-     *
-     * @param document Edge document
-     * @return From vertex document collection name
-     */
-    private static String getFromId(BaseEdgeDocument document) {
-        String idPair = getDocumentId(document);
-        return idPair.substring(0, idPair.indexOf("-"));
-    }
-
-    /**
-     * Get the to vertex document collection, which is typically an ontology id.
-     *
-     * @param document Edge document
-     * @return To vertex document collection name
-     */
-    private static String getToId(BaseEdgeDocument document) {
-        String idPair = getDocumentId(document);
-        return idPair.substring(idPair.indexOf("-") + 1);
-    }
-
-    /**
+     /**
      * Collect CHEMBL-MONDO edges in the ontology database and fully populated graph corresponding to collected vertices.
      *
      * @param vertexDocuments Collected vertex documents
@@ -156,7 +126,7 @@ public class PhenotypeGraphBuilder {
         List<BaseDocument> chemblVertexDocuments = new ArrayList<>();
         List<BaseDocument> mondoVertexDocuments = new ArrayList<>();
         for (BaseDocument vertexDocument : vertexDocuments) {
-            String id = getDocumentId(vertexDocument);
+            String id = getDocumentCollectionName(vertexDocument.getId());
             if (id.equals("CHEMBL")) {
                 chemblVertexDocuments.add(vertexDocument);
             } else if (id.equals("MONDO")) {
@@ -195,7 +165,7 @@ public class PhenotypeGraphBuilder {
         long startTime = System.nanoTime();
         Map<String, ArangoVertexCollection> vertexCollections = new HashMap<>();
         for (BaseDocument vertexDocument : vertexDocuments) {
-            String id = getDocumentId(vertexDocument);
+            String id = getDocumentCollectionName(vertexDocument.getId());
             if (!vertexCollections.containsKey(id)) {
                 vertexCollections.put(id, arangoDbUtilities.createOrGetVertexCollection(graph, id));
             }
@@ -216,9 +186,9 @@ public class PhenotypeGraphBuilder {
         long startTime = System.nanoTime();
         Map<String, ArangoEdgeCollection> edgeCollections = new HashMap<>();
         for (BaseEdgeDocument edgeDocument : edgeDocuments) {
-            String idPair = getDocumentId(edgeDocument);
-            String idFrom = getFromId(edgeDocument);
-            String idTo = getToId(edgeDocument);
+            String idPair = getDocumentCollectionName(edgeDocument.getId());
+            String idFrom = getDocumentCollectionName(edgeDocument.getFrom());
+            String idTo = getDocumentCollectionName(edgeDocument.getTo());
             if (!edgeCollections.containsKey(idPair)) {
                 edgeCollections.put(idPair, arangoDbUtilities.createOrGetEdgeCollection(graph, idFrom, idTo));
             }
