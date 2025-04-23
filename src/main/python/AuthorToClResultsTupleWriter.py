@@ -4,6 +4,7 @@ from pathlib import Path
 
 from rdflib.term import Literal, URIRef
 
+from E_Utilities import get_data_for_pmid
 from LoaderUtilities import load_results, hyphenate, PURLBASE, RDFSBASE
 
 NSFOREST_DIRPATH = Path("../../../data/results")
@@ -86,6 +87,15 @@ def create_tuples_from_author_to_cl(results):
             Literal(str(results["PMCID"][0])),
         )
     )
+    data = get_data_for_pmid(results["PMID"][0])
+    for key in data.keys():
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{pub_term}"),
+                URIRef(f"{RDFSBASE}#{key.capitalize()}"),
+                Literal(data[key]),
+            )
+        )
 
     # Nodes for each cell type or cell set
     uuid_0 = results["uuid"][0]
