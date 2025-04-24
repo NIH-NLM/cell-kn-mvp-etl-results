@@ -19,7 +19,7 @@ def find_names_or_none(soup, names):
 
     Parameters
     ----------
-    soup : ?
+    soup : bs4.element.Tag
         Any soup returned by BeautifulSoup
     names : list(str)
         List of tag names to find in order
