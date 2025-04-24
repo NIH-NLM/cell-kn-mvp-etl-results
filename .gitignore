@@ -47,6 +47,7 @@ build/
 .poetry
 .pybiomart.sqlite
 .venv
+.zshenv
 __pycache__/
 data/
 docs/java/
