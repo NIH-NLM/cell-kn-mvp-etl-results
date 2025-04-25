@@ -80,11 +80,13 @@ def get_data_for_pmid(pmid):
         if soup:
             data["author"] = find_names_or_none(
                 soup, ["AuthorList", "Author", "LastName"]
-            )
-            data["journal"] = find_names_or_none(soup, ["Journal", "Title"])
+            )  # First author
+            if len(find_names_or_none(soup, ["AuthorList"])) > 1:
+                data["author"] += " et al."
+            data["journal"] = find_names_or_none(soup, ["Journal", "ISOAbbreviation"])
             data["title"] = find_names_or_none(soup, ["ArticleTitle"])
             data["year"] = find_names_or_none(soup, ["ArticleDate", "Year"])
-
+            data["citation"] = f"{data['author']} ({data['year']}) {data['journal']}"
     else:
         print(f"Encountered error in fetching from PubMed: {response.status_code}")
 
