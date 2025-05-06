@@ -206,15 +206,6 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
 
             # == Drug_product relations
 
-            # Gene, MOLECULARLY_INTERACTS_WITH, Drug_product
-            tuples.append(
-                (
-                    URIRef(f"{PURLBASE}/{gene_term}"),
-                    URIRef(f"{RDFSBASE}#MOLECULARLY_INTERACTS_WITH"),
-                    URIRef(f"{PURLBASE}/{drug_term}"),
-                )
-            )
-
             # Drug_product, IS_SUBSTANCE_THAT_TREATS, Disease
             tuples.append(
                 (
@@ -256,6 +247,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                         ),
                     ]
                 )
+
                 # == Drug_product annotations
 
                 tuples.extend(
@@ -318,6 +310,8 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                 f"GS_{gene_b_symbol}"  # interaction["gene_b_id"].replace("ENSG", "GS_")
             )
 
+            # == Interaction relations
+
             # Gene, GENETICALLY_INTERACTS_WITH, Gene
             tuples.append(
                 (
@@ -343,14 +337,22 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                         URIRef(f"{PURLBASE}/{protein_a_term}"),
                     )
                 )
-            if protein_b_term is not None:
-                tuples.append(
-                    (
-                        URIRef(f"{PURLBASE}/{gene_term}"),
-                        URIRef(f"{RDFSBASE}#PRODUCES"),
-                        URIRef(f"{PURLBASE}/{protein_b_term}"),
+
+                for drug in results[gene_id]["drugs"]:
+                    if "EFO" in drug["disease_id"]:
+                        # Skip EFO terms
+                        continue
+
+                    # == Drug_product relations
+
+                    # Drug_product, MOLECULARLY_INTERACTS_WITH, Protein
+                    tuples.append(
+                        (
+                            URIRef(f"{PURLBASE}/{drug_term}"),
+                            URIRef(f"{RDFSBASE}#MOLECULARLY_INTERACTS_WITH"),
+                            URIRef(f"{PURLBASE}/{protein_a_term}"),
+                        )
                     )
-                )
 
             # == Gene to Interaction edge annotations
 
@@ -618,7 +620,9 @@ def create_tuples_from_uniprot(opentargets_path, summarize=False):
         protein_ids = [protein_id]
         results = {}
         results[protein_id] = uniprot_results[protein_id]
-        results[protein_id]["accession"] = get_protein_term(protein_id, ensp2accn).replace("PR_", "")
+        results[protein_id]["accession"] = get_protein_term(
+            protein_id, ensp2accn
+        ).replace("PR_", "")
     else:
 
         # Consider all protein ids
