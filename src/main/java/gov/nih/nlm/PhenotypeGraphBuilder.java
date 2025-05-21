@@ -10,7 +10,7 @@ import com.arangodb.model.AqlQueryOptions;
 
 import java.util.*;
 
-import static gov.nih.nlm.OntologyGraphBuilder.*;
+import static gov.nih.nlm.OntologyGraphBuilder.getDocumentCollectionName;
 
 /**
  * Queries the fully populated ontology ArangoDB to identify all paths that
@@ -43,28 +43,79 @@ public class PhenotypeGraphBuilder {
         // Capture query options
         AqlQueryOptions queryOpts = new AqlQueryOptions();
 
-        // Construct AQL query string
+        // Construct AQL query string prefix and suffixes
         //@formatter:off
-		String queryStr = "FOR cs IN CS";
-		if (limit > 0) {
-			bindVars.put("limit", limit);
-			queryStr += " LIMIT @limit";
-		}
-		// Iterate through CS collection
-		queryStr += " FOR v, e, p IN 3 ANY cs GRAPH @graphName";
-		// Filter for paths with 4 vertices"
-		queryStr += " FILTER LENGTH(p.vertices) == 4";
-		// Find only paths with correct route - CL - UBERON - NCBITaxon or CL - GS - MONDO/CHEMBL or CL - CSD - PUB
-		queryStr += " AND IS_SAME_COLLECTION('CL', p.vertices[1])"
-				+ " AND (IS_SAME_COLLECTION('UBERON', p.vertices[2]) OR IS_SAME_COLLECTION('GS', p.vertices[2]) OR IS_SAME_COLLECTION('CSD', p.vertices[2]))"
-				+ " AND (IS_SAME_COLLECTION('NCBITaxon', p.vertices[3]) OR IS_SAME_COLLECTION('MONDO', p.vertices[3]) OR IS_SAME_COLLECTION('CHEMBL', p.vertices[3]) OR IS_SAME_COLLECTION('PUB', p.vertices[3]))"
-				+ " RETURN p";
-		//@formatter:on
+        String queryPrefix = "FOR cs IN CS ";
+        if (limit > 0) {
+            bindVars.put("limit", limit);
+            queryPrefix += "LIMIT @limit ";
+        }
+        ArrayList<String> queryStrings = new ArrayList<>();
+        queryStrings.add(
+                queryPrefix
+                + "FOR v, e, p IN 2 ANY cs GRAPH @graphName "
+                + "FILTER "
+                + "IS_SAME_COLLECTION('BMC', p.vertices[1]) "
+                + "AND "
+                + "IS_SAME_COLLECTION('GS', p.vertices[2]) "
+                + "RETURN p"
+        );
+        queryStrings.add(
+                queryPrefix
+                + "FOR v, e, p IN 3 ANY cs GRAPH @graphName "
+                + "FILTER "
+                + "IS_SAME_COLLECTION('CL', p.vertices[1]) "
+                + "AND "
+                + "IS_SAME_COLLECTION('UBERON', p.vertices[2]) "
+                + "AND "
+                + "IS_SAME_COLLECTION('NCBITaxon', p.vertices[3]) "
+                + "RETURN p"
+        );
+        queryStrings.add(
+                queryPrefix
+                + "FOR v, e, p IN 3 ANY cs GRAPH @graphName "
+                + "FILTER "
+                + "IS_SAME_COLLECTION('CL', p.vertices[1]) "
+                + "AND "
+                + "IS_SAME_COLLECTION('CSD', p.vertices[2]) "
+                + "AND "
+                + "IS_SAME_COLLECTION('PUB', p.vertices[3]) "
+                + "RETURN p"
+        );
+        queryStrings.add(
+                queryPrefix
+                + "FOR v, e, p IN 3 ANY cs GRAPH @graphName "
+                + "FILTER "
+                + "IS_SAME_COLLECTION('CL', p.vertices[1]) "
+                + "AND "
+                + "IS_SAME_COLLECTION('GS', p.vertices[2]) "
+                + "AND "
+                + "IS_SAME_COLLECTION('MONDO', p.vertices[3]) "
+                + "RETURN p"
+        );
+        queryStrings.add(
+                queryPrefix
+                + "FOR v, e, p IN 4 ANY cs GRAPH @graphName "
+                + "FILTER "
+                + "IS_SAME_COLLECTION('CL', p.vertices[1]) "
+                + "AND "
+                + "IS_SAME_COLLECTION('GS', p.vertices[2]) "
+                + "AND "
+                + "IS_SAME_COLLECTION('PR', p.vertices[3]) "
+                + "AND "
+                + "IS_SAME_COLLECTION('CHEMBL', p.vertices[4]) "
+                + "RETURN p"
+        );
+        //@formatter:on
 
         // Execute query
         ArangoDatabase db = arangoDbUtilities.createOrGetDatabase(databaseName);
         System.out.println("Quering a fully populated ontology ArangoDB to identify paths");
-        List<Map> paths = db.query(queryStr, Map.class, bindVars, queryOpts).asListRemaining();
+        List<Map> paths = new ArrayList<>();
+        for (String queryString : queryStrings) {
+            System.out.println("Query: " + queryString);
+            paths.addAll(db.query(queryString, Map.class, bindVars, queryOpts).asListRemaining());
+        }
         return paths;
     }
 
@@ -110,7 +161,7 @@ public class PhenotypeGraphBuilder {
         return edgeDocuments;
     }
 
-     /**
+    /**
      * Collect CHEMBL-MONDO edges in the ontology database and fully populated graph corresponding to collected vertices.
      *
      * @param vertexDocuments Collected vertex documents
