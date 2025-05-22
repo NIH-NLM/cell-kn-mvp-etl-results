@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from pprint import pprint
 
-from CellKnSchemaTupleWriter import read_schema
+from CellKnSchemaUtilities import read_schema
 
 
 def write_triple_components(annotation_results_path, terms):
@@ -104,7 +104,7 @@ def main():
 
     # Load the annotation results, and write triple component descriptions
     annotation_results_path = Path(
-        "../../../data/results/cell-kn-mvp-annotation-results-2025-03-03.json"
+        "../../../data/results/cell-kn-mvp-annotation-results-2025-03-14.json"
     )
     write_triple_components(annotation_results_path, terms)
 

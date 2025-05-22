@@ -52,6 +52,7 @@ def create_tuples_from_nsforest(results):
         # Gene_Class, PART_OF, Biomarker_combination_Ind
         # SO:0000704, BFO:0000050, SO:0001260
         for gene in nsforest_markers:
+            # TODO: Use gs_term?
             gene_term = f"GS_{gene}"
             tuples.append(
                 (
