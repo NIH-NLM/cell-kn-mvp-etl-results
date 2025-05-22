@@ -53,10 +53,10 @@ def create_tuples_from_nsforest(results):
         # SO:0000704, BFO:0000050, SO:0001260
         for gene in nsforest_markers:
             # TODO: Use gs_term?
-            gene_term = f"GS_{gene}"
+            gs_term = f"GS_{gene}"
             tuples.append(
                 (
-                    URIRef(f"{PURLBASE}/{gene_term}"),
+                    URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{PURLBASE}/BFO_0000050"),
                     URIRef(f"{PURLBASE}/{bmc_term}"),
                 )
