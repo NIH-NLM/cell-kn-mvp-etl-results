@@ -207,6 +207,16 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
 
             # == Drug_product relations
 
+            # TODO: Remove
+            # Gene, MOLECULARLY_INTERACTS_WITH, Drug_product
+            tuples.append(
+                (
+                    URIRef(f"{PURLBASE}/{gene_term}"),
+                    URIRef(f"{RDFSBASE}#MOLECULARLY_INTERACTS_WITH"),
+                    URIRef(f"{PURLBASE}/{drug_term}"),
+                )
+            )
+
             # Drug_product, IS_SUBSTANCE_THAT_TREATS, Disease
             tuples.append(
                 (
@@ -339,21 +349,22 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                     )
                 )
 
-                for drug in results[gene_id]["drugs"]:
-                    if "EFO" in drug["disease_id"]:
-                        # Skip EFO terms
-                        continue
+                # TODO: Restore
+                # for drug in results[gene_id]["drugs"]:
+                #     if "EFO" in drug["disease_id"]:
+                #         # Skip EFO terms
+                #         continue
 
-                    # == Drug_product relations
+                #     # == Drug_product relations
 
-                    # Drug_product, MOLECULARLY_INTERACTS_WITH, Protein
-                    tuples.append(
-                        (
-                            URIRef(f"{PURLBASE}/{drug_term}"),
-                            URIRef(f"{RDFSBASE}#MOLECULARLY_INTERACTS_WITH"),
-                            URIRef(f"{PURLBASE}/{protein_a_term}"),
-                        )
-                    )
+                #     # Drug_product, MOLECULARLY_INTERACTS_WITH, Protein
+                #     tuples.append(
+                #         (
+                #             URIRef(f"{PURLBASE}/{drug_term}"),
+                #             URIRef(f"{RDFSBASE}#MOLECULARLY_INTERACTS_WITH"),
+                #             URIRef(f"{PURLBASE}/{protein_a_term}"),
+                #         )
+                #     )
 
             # == Gene to Interaction edge annotations
 

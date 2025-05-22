@@ -95,15 +95,13 @@ public class PhenotypeGraphBuilder {
         );
         queryStrings.add(
                 queryPrefix
-                + "FOR v, e, p IN 4 ANY cs GRAPH @graphName "
+                + "FOR v, e, p IN 3 ANY cs GRAPH @graphName "
                 + "FILTER "
                 + "IS_SAME_COLLECTION('CL', p.vertices[1]) "
                 + "AND "
                 + "IS_SAME_COLLECTION('GS', p.vertices[2]) "
                 + "AND "
-                + "IS_SAME_COLLECTION('PR', p.vertices[3]) "
-                + "AND "
-                + "IS_SAME_COLLECTION('CHEMBL', p.vertices[4]) "
+                + "IS_SAME_COLLECTION('CHEMBL', p.vertices[3]) "
                 + "RETURN p"
         );
         //@formatter:on
