@@ -1,3 +1,4 @@
+from glob import glob
 import json
 from pathlib import Path
 
@@ -749,11 +750,12 @@ def main(summarize=False):
     -------
     None
     """
-    for author in ["guo", "li", "sikkema"]:
-        opentargets_path = (
-            NSFOREST_DIRPATH
-            / f"cell-kn-mvp-nsforest-results-{author}-2023-2025-02-22-opentargets.json"
-        ).resolve()
+    nsforest_paths = [
+        Path(p).resolve()
+        for p in glob(str(NSFOREST_DIRPATH / "cell-kn-mvp-nsforest-results-*.csv"))
+    ]
+    for nsforest_path in nsforest_paths:
+        opentargets_path = Path(str(nsforest_path).replace(".csv", "-opentargets.json"))
 
         print(f"Creating tuples from {opentargets_path}")
         opentargets_tuples, opentargets_results = create_tuples_from_opentargets(
@@ -768,7 +770,13 @@ def main(summarize=False):
             output_dirpath = TUPLES_DIRPATH / "summaries"
         else:
             output_dirpath = TUPLES_DIRPATH
-        with open(output_dirpath / f"ExternalApiResultsLoader-{author}.json", "w") as f:
+        with open(
+            output_dirpath
+            / nsforest_path.name.replace("nsforest-results", "external-api").replace(
+                ".csv", ".json"
+            ),
+            "w",
+        ) as f:
             data = {}
             if summarize:
                 data["opentargets"] = opentargets_results

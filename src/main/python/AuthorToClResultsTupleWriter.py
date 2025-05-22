@@ -1,6 +1,8 @@
 import ast
+from glob import glob
 import json
 from pathlib import Path
+import re
 
 from rdflib.term import Literal, URIRef
 
@@ -260,13 +262,13 @@ def main(summarize=False):
     -------
     None
     """
-    for author in ["guo", "li", "sikkema"]:
+    nsforest_paths = [
+        Path(p).resolve()
+        for p in glob(str(NSFOREST_DIRPATH / "cell-kn-mvp-nsforest-results-*.csv"))
+    ]
+    for nsforest_path in nsforest_paths:
 
         # Load NSForest results
-        nsforest_path = (
-            NSFOREST_DIRPATH
-            / f"cell-kn-mvp-nsforest-results-{author}-2023-2025-02-22.csv"
-        ).resolve()
         nsforest_results = load_results(nsforest_path).sort_values(
             "clusterName", ignore_index=True
         )
@@ -277,18 +279,12 @@ def main(summarize=False):
         # CL term mapping filename, then load mapping results,
         # dropping "uuid" column in order to merge "uuid" column from
         # NSForest results
-        if author == "li":
-            author_to_cl_path = Path(
-                str(nsforest_path)
-                .replace("nsforest-results", "map-author-to-cl")
-                .replace("2023-2025-02-22", "2023-data-v0.7")
-            )
-        else:
-            author_to_cl_path = Path(
-                str(nsforest_path)
-                .replace("nsforest-results", "map-author-to-cl")
-                .replace("2023-2025-02-22", "2023-data-v0.4")
-            )
+        author = re.search("results-([a-zA-Z]*)", nsforest_path.name).group(1)
+        author_to_cl_path = Path(
+            glob(
+                str(NSFOREST_DIRPATH / f"cell-kn-mvp-map-author-to-cl-{author}-*.csv")
+            )[-1]
+        ).resolve()
         author_to_cl_results = (
             load_results(author_to_cl_path)
             .sort_values("author_cell_set", ignore_index=True)
@@ -311,7 +307,10 @@ def main(summarize=False):
             output_dirpath = TUPLES_DIRPATH / "summaries"
         else:
             output_dirpath = TUPLES_DIRPATH
-        with open(output_dirpath / f"AuthorToClResultsLoader-{author}.json", "w") as f:
+        with open(
+            output_dirpath / author_to_cl_path.name.replace(".csv", ".json"),
+            "w",
+        ) as f:
             data = {}
             if summarize:
                 data["results"] = author_to_cl_results.to_dict()

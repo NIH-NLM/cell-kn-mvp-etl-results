@@ -1,4 +1,5 @@
 import ast
+from glob import glob
 import json
 from pathlib import Path
 
@@ -224,13 +225,13 @@ def main(summarize=False):
     -------
     None
     """
-    for author in ["guo", "li", "sikkema"]:
+    nsforest_paths = [
+        Path(p).resolve()
+        for p in glob(str(NSFOREST_DIRPATH / "cell-kn-mvp-nsforest-results-*.csv"))
+    ]
+    for nsforest_path in nsforest_paths:
 
         # Load NSForest results
-        nsforest_path = (
-            NSFOREST_DIRPATH
-            / f"cell-kn-mvp-nsforest-results-{author}-2023-2025-02-22.csv"
-        ).resolve()
         nsforest_results = load_results(nsforest_path).sort_values(
             "clusterName", ignore_index=True
         )
@@ -243,7 +244,9 @@ def main(summarize=False):
             output_dirpath = TUPLES_DIRPATH / "summaries"
         else:
             output_dirpath = TUPLES_DIRPATH
-        with open(output_dirpath / f"NSForestResultsLoader-{author}.json", "w") as f:
+        with open(
+            output_dirpath / nsforest_path.name.replace(".csv", ".json"), "w"
+        ) as f:
             data = {}
             if summarize:
                 data["results"] = nsforest_results.to_dict()
