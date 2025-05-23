@@ -1,4 +1,5 @@
 import ast
+from glob import glob
 import json
 from pathlib import Path
 
@@ -51,10 +52,11 @@ def create_tuples_from_nsforest(results):
         # Gene_Class, PART_OF, Biomarker_combination_Ind
         # SO:0000704, BFO:0000050, SO:0001260
         for gene in nsforest_markers:
-            gene_term = f"GS_{gene}"
+            # TODO: Use gs_term?
+            gs_term = f"GS_{gene}"
             tuples.append(
                 (
-                    URIRef(f"{PURLBASE}/{gene_term}"),
+                    URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{PURLBASE}/BFO_0000050"),
                     URIRef(f"{PURLBASE}/{bmc_term}"),
                 )
@@ -224,13 +226,13 @@ def main(summarize=False):
     -------
     None
     """
-    for author in ["guo", "li", "sikkema"]:
+    nsforest_paths = [
+        Path(p).resolve()
+        for p in glob(str(NSFOREST_DIRPATH / "cell-kn-mvp-nsforest-results-*.csv"))
+    ]
+    for nsforest_path in nsforest_paths:
 
         # Load NSForest results
-        nsforest_path = (
-            NSFOREST_DIRPATH
-            / f"cell-kn-mvp-nsforest-results-{author}-2023-2025-02-22.csv"
-        ).resolve()
         nsforest_results = load_results(nsforest_path).sort_values(
             "clusterName", ignore_index=True
         )
@@ -243,7 +245,9 @@ def main(summarize=False):
             output_dirpath = TUPLES_DIRPATH / "summaries"
         else:
             output_dirpath = TUPLES_DIRPATH
-        with open(output_dirpath / f"NSForestResultsLoader-{author}.json", "w") as f:
+        with open(
+            output_dirpath / nsforest_path.name.replace(".csv", ".json"), "w"
+        ) as f:
             data = {}
             if summarize:
                 data["results"] = nsforest_results.to_dict()

@@ -1,3 +1,4 @@
+from glob import glob
 import json
 from pathlib import Path
 
@@ -144,7 +145,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
         gene_symbol = map_gene_id_to_names(gene_id, gid2nms)[0]
 
         # Follow term naming convention for parsing
-        gene_term = f"GS_{gene_symbol}"  # gene_id.replace("ENSG", "GS_")
+        gs_term = f"GS_{gene_symbol}"  # gene_id.replace("ENSG", "GS_")
 
         # == Gene relations
 
@@ -162,7 +163,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
             # Gene, IS_GENETIC_BASIS_FOR_CONDITION, Disease
             tuples.append(
                 (
-                    URIRef(f"{PURLBASE}/{gene_term}"),
+                    URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{RDFSBASE}#GENETIC_BASIS_FOR"),
                     URIRef(f"{PURLBASE}/{disease['id']}"),
                 )
@@ -189,7 +190,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
 
             tuples.append(
                 (
-                    URIRef(f"{PURLBASE}/{gene_term}"),
+                    URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{PURLBASE}/{disease['id']}"),
                     URIRef(f"{RDFSBASE}#Score"),
                     Literal(str(disease["score"])),
@@ -202,23 +203,14 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                 continue
 
             # Follow term naming convention for parsing
-            drug_term = drug["id"].replace("CHEMBL", "CHEMBL_")
+            chembl_term = drug["id"].replace("CHEMBL", "CHEMBL_")
 
             # == Drug_product relations
-
-            # Gene, MOLECULARLY_INTERACTS_WITH, Drug_product
-            tuples.append(
-                (
-                    URIRef(f"{PURLBASE}/{gene_term}"),
-                    URIRef(f"{RDFSBASE}#MOLECULARLY_INTERACTS_WITH"),
-                    URIRef(f"{PURLBASE}/{drug_term}"),
-                )
-            )
 
             # Drug_product, IS_SUBSTANCE_THAT_TREATS, Disease
             tuples.append(
                 (
-                    URIRef(f"{PURLBASE}/{drug_term}"),
+                    URIRef(f"{PURLBASE}/{chembl_term}"),
                     URIRef(f"{RDFSBASE}#IS_SUBSTANCE_THAT_TREATS"),
                     URIRef(f"{PURLBASE}/{drug['disease_id']}"),
                 )
@@ -227,16 +219,16 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
             for drug_trial_id in drug["trial_ids"]:
 
                 # Follow term naming convention for parsing
-                drug_trial_term = drug_trial_id.replace("NCT", "NCT_")
+                nct_term = drug_trial_id.replace("NCT", "NCT_")
 
                 # == Clinical_trial relations
 
                 # Drug_product, EVALUATED_IN, Clinical_trial
                 tuples.append(
                     (
-                        URIRef(f"{PURLBASE}/{drug_term}"),
+                        URIRef(f"{PURLBASE}/{chembl_term}"),
                         URIRef(f"{RDFSBASE}#EVALUATED_IN"),
-                        URIRef(f"{PURLBASE}/{drug_trial_term}"),
+                        URIRef(f"{PURLBASE}/{nct_term}"),
                     )
                 )
 
@@ -245,53 +237,54 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                 tuples.extend(
                     [
                         (
-                            URIRef(f"{PURLBASE}/{drug_trial_term}"),
+                            URIRef(f"{PURLBASE}/{nct_term}"),
                             URIRef(f"{RDFSBASE}#Phase"),
                             Literal(str(drug["trial_phase"])),
                         ),
                         (
-                            URIRef(f"{PURLBASE}/{drug_trial_term}"),
+                            URIRef(f"{PURLBASE}/{nct_term}"),
                             URIRef(f"{RDFSBASE}#Status"),
                             Literal(str(drug["trial_status"])),
                         ),
                     ]
                 )
+
                 # == Drug_product annotations
 
                 tuples.extend(
                     [
                         (
-                            URIRef(f"{PURLBASE}/{drug_term}"),
+                            URIRef(f"{PURLBASE}/{chembl_term}"),
                             URIRef(f"{RDFSBASE}#Name"),
                             Literal(str(drug["name"])),
                         ),
                         (
-                            URIRef(f"{PURLBASE}/{drug_term}"),
+                            URIRef(f"{PURLBASE}/{chembl_term}"),
                             URIRef(f"{RDFSBASE}#Type"),
                             Literal(str(drug["type"])),
                         ),
                         (
-                            URIRef(f"{PURLBASE}/{drug_term}"),
+                            URIRef(f"{PURLBASE}/{chembl_term}"),
                             URIRef(f"{RDFSBASE}#Mechanism_of_action"),
                             Literal(str(drug["action_mechanism"])),
                         ),
                         (
-                            URIRef(f"{PURLBASE}/{drug_term}"),
+                            URIRef(f"{PURLBASE}/{chembl_term}"),
                             URIRef(f"{RDFSBASE}#Description"),
                             Literal(str(drug["description"])),
                         ),
                         (
-                            URIRef(f"{PURLBASE}/{drug_term}"),
+                            URIRef(f"{PURLBASE}/{chembl_term}"),
                             URIRef(f"{RDFSBASE}#Synonyms"),
                             Literal(str(drug["synonyms"])),
                         ),
                         (
-                            URIRef(f"{PURLBASE}/{drug_term}"),
+                            URIRef(f"{PURLBASE}/{chembl_term}"),
                             URIRef(f"{RDFSBASE}#Trade_names"),
                             Literal(str(drug["trade_names"])),
                         ),
                         (
-                            URIRef(f"{PURLBASE}/{drug_term}"),
+                            URIRef(f"{PURLBASE}/{chembl_term}"),
                             URIRef(f"{RDFSBASE}#Approved"),
                             Literal(str(drug["approved"])),
                         ),
@@ -314,75 +307,85 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
             gene_b_symbol = map_gene_id_to_names(gene_b_id, gid2nms)[0]
 
             # Follow term naming convention for parsing
-            gene_b_term = (
+            gs_b_term = (
                 f"GS_{gene_b_symbol}"  # interaction["gene_b_id"].replace("ENSG", "GS_")
             )
+
+            # == Interaction relations
 
             # Gene, GENETICALLY_INTERACTS_WITH, Gene
             tuples.append(
                 (
-                    URIRef(f"{PURLBASE}/{gene_term}"),
+                    URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{RDFSBASE}#GENETICALLY_INTERACTS_WITH"),
-                    URIRef(f"{PURLBASE}/{gene_b_term}"),
+                    URIRef(f"{PURLBASE}/{gs_b_term}"),
                 )
             )
 
             # Get protein terms, handling Ensembl ids and the term
             # naming convention for parsing
             protein_a_id = interaction["protein_a_id"]
-            protein_a_term = get_protein_term(protein_a_id, ensp2accn)
+            pr_a_term = get_protein_term(protein_a_id, ensp2accn)
             protein_b_id = interaction["protein_b_id"]
-            protein_b_term = get_protein_term(protein_b_id, ensp2accn)
+            pr_b_term = get_protein_term(protein_b_id, ensp2accn)
 
             # Gene, PRODUCES, Protein
-            if protein_a_term is not None:
+            if pr_a_term is not None:
                 tuples.append(
                     (
-                        URIRef(f"{PURLBASE}/{gene_term}"),
+                        URIRef(f"{PURLBASE}/{gs_term}"),
                         URIRef(f"{RDFSBASE}#PRODUCES"),
-                        URIRef(f"{PURLBASE}/{protein_a_term}"),
+                        URIRef(f"{PURLBASE}/{pr_a_term}"),
                     )
                 )
-            if protein_b_term is not None:
-                tuples.append(
-                    (
-                        URIRef(f"{PURLBASE}/{gene_term}"),
-                        URIRef(f"{RDFSBASE}#PRODUCES"),
-                        URIRef(f"{PURLBASE}/{protein_b_term}"),
+
+                for drug in results[gene_id]["drugs"]:
+                    if "EFO" in drug["disease_id"]:
+                        # Skip EFO terms
+                        continue
+
+                    # == Drug_product relations
+
+                    # Drug_product, MOLECULARLY_INTERACTS_WITH, Protein
+                    tuples.append(
+                        (
+                            URIRef(f"{PURLBASE}/{chembl_term}"),
+                            URIRef(f"{RDFSBASE}#MOLECULARLY_INTERACTS_WITH"),
+                            URIRef(f"{PURLBASE}/{pr_a_term}"),
+                        )
                     )
-                )
 
             # == Gene to Interaction edge annotations
 
             tuples.extend(
                 [
                     (
-                        URIRef(f"{PURLBASE}/{gene_term}"),
-                        URIRef(f"{PURLBASE}/{gene_b_term}"),
+                        URIRef(f"{PURLBASE}/{gs_term}"),
+                        URIRef(f"{PURLBASE}/{gs_b_term}"),
                         URIRef(f"{RDFSBASE}#Evidence_score"),
                         Literal(str(interaction["evidence_score"])),
                     ),
                     (
-                        URIRef(f"{PURLBASE}/{gene_term}"),
-                        URIRef(f"{PURLBASE}/{gene_b_term}"),
+                        URIRef(f"{PURLBASE}/{gs_term}"),
+                        URIRef(f"{PURLBASE}/{gs_b_term}"),
                         URIRef(f"{RDFSBASE}#Evidence_count"),
                         Literal(str(interaction["evidence_count"])),
                     ),
                     (
-                        URIRef(f"{PURLBASE}/{gene_term}"),
-                        URIRef(f"{PURLBASE}/{gene_b_term}"),
+                        URIRef(f"{PURLBASE}/{gs_term}"),
+                        URIRef(f"{PURLBASE}/{gs_b_term}"),
                         URIRef(f"{RDFSBASE}#Source_db"),
                         Literal(str(interaction["source_db"])),
                     ),
                     (
-                        URIRef(f"{PURLBASE}/{gene_term}"),
-                        URIRef(f"{PURLBASE}/{gene_b_term}"),
+                        URIRef(f"{PURLBASE}/{gs_term}"),
+                        URIRef(f"{PURLBASE}/{gs_b_term}"),
                         URIRef(f"{RDFSBASE}#Protein_a"),
                         Literal(str(protein_a_id)),
                     ),
                     (
-                        URIRef(f"{PURLBASE}/{gene_term}"),
-                        URIRef(f"{PURLBASE}/{gene_b_term}"),
+                        URIRef(f"{PURLBASE}/{gs_term}"),
+                        URIRef(f"{PURLBASE}/{gs_b_term}"),
                         URIRef(f"{RDFSBASE}#Protein_b"),
                         Literal(str(protein_b_id)),
                     ),
@@ -396,16 +399,14 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
 
             # Follow term naming convention for parsing
             rs_term = pharmacogenetic["rs_id"].replace("rs", "RS_")
-            variant_consequence_term = pharmacogenetic[
-                "variant_consequence_id"
-            ].replace("SO:", "SO_")
+            so_term = pharmacogenetic["variant_consequence_id"].replace("SO:", "SO_")
 
             # == Pharmacogenetic relations
 
             # Gene, HAS_QUALITY, Mutation
             tuples.append(
                 (
-                    URIRef(f"{PURLBASE}/{gene_term}"),
+                    URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{RDFSBASE}#HAS_QUALITY"),
                     URIRef(f"{PURLBASE}/{rs_term}"),
                 )
@@ -416,7 +417,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                 (
                     URIRef(f"{PURLBASE}/{rs_term}"),
                     URIRef(f"{RDFSBASE}#INVOLVED_IN"),
-                    URIRef(f"{PURLBASE}/{variant_consequence_term}"),
+                    URIRef(f"{PURLBASE}/{so_term}"),
                 )
             )
 
@@ -426,7 +427,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                     continue
 
                 # Follow term naming convention for parsing
-                pharmacogenetic_drug_term = pharmacogenetic_drug["id"].replace(
+                pharmacogenetic_chembl_term = pharmacogenetic_drug["id"].replace(
                     "CHEMBL", "CHEMBL_"
                 )
 
@@ -435,7 +436,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                     (
                         URIRef(f"{PURLBASE}/{rs_term}"),
                         URIRef(f"{RDFSBASE}#HAS_PHARMACOLOGICAL_EFFECT"),
-                        URIRef(f"{PURLBASE}/{pharmacogenetic_drug_term}"),
+                        URIRef(f"{PURLBASE}/{pharmacogenetic_chembl_term}"),
                     )
                 )
 
@@ -490,7 +491,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
 
             tuples.append(
                 (
-                    URIRef(f"{PURLBASE}/{variant_consequence_term}"),
+                    URIRef(f"{PURLBASE}/{so_term}"),
                     URIRef(f"{RDFSBASE}#Variant_consequence_label"),
                     Literal(str(pharmacogenetic["variant_consequence_label"])),
                 )
@@ -504,7 +505,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
 
         tuples.append(
             (
-                URIRef(f"{PURLBASE}/{gene_term}"),
+                URIRef(f"{PURLBASE}/{gs_term}"),
                 URIRef(f"{RDFSBASE}#Symbol"),
                 Literal(str(gene_symbol)),
             )
@@ -517,12 +518,12 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
             tuples.extend(
                 [
                     (
-                        URIRef(f"{PURLBASE}/{gene_term}"),
+                        URIRef(f"{PURLBASE}/{gs_term}"),
                         URIRef(f"{RDFSBASE}#Label"),
                         Literal(str(tractability["label"])),
                     ),
                     (
-                        URIRef(f"{PURLBASE}/{gene_term}"),
+                        URIRef(f"{PURLBASE}/{gs_term}"),
                         URIRef(f"{RDFSBASE}#Modality"),
                         Literal(str(tractability["modality"])),
                     ),
@@ -539,7 +540,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
             # Gene, EXPRESSED_IN, Anatomical_structure
             tuples.append(
                 (
-                    URIRef(f"{PURLBASE}/{gene_term}"),
+                    URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{RDFSBASE}#EXPRESSED_IN"),
                     URIRef(f"{PURLBASE}/{expression['tissue_id']}"),
                 )
@@ -550,25 +551,25 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
             tuples.extend(
                 [
                     (
-                        URIRef(f"{PURLBASE}/{gene_term}"),
+                        URIRef(f"{PURLBASE}/{gs_term}"),
                         URIRef(f"{PURLBASE}/{expression['tissue_id']}"),
                         URIRef(f"{RDFSBASE}#RNA_zscore"),
                         Literal(str(expression["rna_zscore"])),
                     ),
                     (
-                        URIRef(f"{PURLBASE}/{gene_term}"),
+                        URIRef(f"{PURLBASE}/{gs_term}"),
                         URIRef(f"{PURLBASE}/{expression['tissue_id']}"),
                         URIRef(f"{RDFSBASE}#RNA_value"),
                         Literal(str(expression["rna_value"])),
                     ),
                     (
-                        URIRef(f"{PURLBASE}/{gene_term}"),
+                        URIRef(f"{PURLBASE}/{gs_term}"),
                         URIRef(f"{PURLBASE}/{expression['tissue_id']}"),
                         URIRef(f"{RDFSBASE}#RNA_unit"),
                         Literal(str(expression["rna_unit"])),
                     ),
                     (
-                        URIRef(f"{PURLBASE}/{gene_term}"),
+                        URIRef(f"{PURLBASE}/{gs_term}"),
                         URIRef(f"{PURLBASE}/{expression['tissue_id']}"),
                         URIRef(f"{RDFSBASE}#RNA_level"),
                         Literal(str(expression["rna_level"])),
@@ -618,7 +619,9 @@ def create_tuples_from_uniprot(opentargets_path, summarize=False):
         protein_ids = [protein_id]
         results = {}
         results[protein_id] = uniprot_results[protein_id]
-        results[protein_id]["accession"] = get_protein_term(protein_id, ensp2accn).replace("PR_", "")
+        results[protein_id]["accession"] = get_protein_term(
+            protein_id, ensp2accn
+        ).replace("PR_", "")
     else:
 
         # Consider all protein ids
@@ -634,15 +637,15 @@ def create_tuples_from_uniprot(opentargets_path, summarize=False):
 
         # Get protein term, handling Ensembl ids and the term naming
         # convention for parsing
-        protein_term = get_protein_term(protein_id, ensp2accn)
-        if protein_term is None:
+        pr_term = get_protein_term(protein_id, ensp2accn)
+        if pr_term is None:
             # Skip unmappable protein ids
             continue
         if "proteinDescription" in results[protein_id]:
             if "recommendedName" in results[protein_id]["proteinDescription"]:
                 tuples.append(
                     (
-                        URIRef(f"{PURLBASE}/{protein_term}"),
+                        URIRef(f"{PURLBASE}/{pr_term}"),
                         URIRef(f"{RDFSBASE}#Recommended_name"),
                         Literal(
                             str(
@@ -656,7 +659,7 @@ def create_tuples_from_uniprot(opentargets_path, summarize=False):
             if "alternativeNames" in results[protein_id]["proteinDescription"]:
                 tuples.append(
                     (
-                        URIRef(f"{PURLBASE}/{protein_term}"),
+                        URIRef(f"{PURLBASE}/{pr_term}"),
                         URIRef(f"{RDFSBASE}#Alternative_name"),
                         Literal(
                             str(
@@ -670,7 +673,7 @@ def create_tuples_from_uniprot(opentargets_path, summarize=False):
             if "submissionNames" in results[protein_id]["proteinDescription"]:
                 tuples.append(
                     (
-                        URIRef(f"{PURLBASE}/{protein_term}"),
+                        URIRef(f"{PURLBASE}/{pr_term}"),
                         URIRef(f"{RDFSBASE}#Submission_name"),
                         Literal(
                             str(
@@ -684,7 +687,7 @@ def create_tuples_from_uniprot(opentargets_path, summarize=False):
             if "cdAntigenNames" in results[protein_id]["proteinDescription"]:
                 tuples.append(
                     (
-                        URIRef(f"{PURLBASE}/{protein_term}"),
+                        URIRef(f"{PURLBASE}/{pr_term}"),
                         URIRef(f"{RDFSBASE}#CD_antigen_name"),
                         Literal(
                             str(
@@ -699,7 +702,7 @@ def create_tuples_from_uniprot(opentargets_path, summarize=False):
             if results[protein_id]["comments"] != []:
                 tuples.append(
                     (
-                        URIRef(f"{PURLBASE}/{protein_term}"),
+                        URIRef(f"{PURLBASE}/{pr_term}"),
                         URIRef(f"{RDFSBASE}#Comment"),
                         Literal(
                             str(results[protein_id]["comments"][0]["texts"][0]["value"])
@@ -745,11 +748,12 @@ def main(summarize=False):
     -------
     None
     """
-    for author in ["guo", "li", "sikkema"]:
-        opentargets_path = (
-            NSFOREST_DIRPATH
-            / f"cell-kn-mvp-nsforest-results-{author}-2023-2025-02-22-opentargets.json"
-        ).resolve()
+    nsforest_paths = [
+        Path(p).resolve()
+        for p in glob(str(NSFOREST_DIRPATH / "cell-kn-mvp-nsforest-results-*.csv"))
+    ]
+    for nsforest_path in nsforest_paths:
+        opentargets_path = Path(str(nsforest_path).replace(".csv", "-opentargets.json"))
 
         print(f"Creating tuples from {opentargets_path}")
         opentargets_tuples, opentargets_results = create_tuples_from_opentargets(
@@ -764,7 +768,13 @@ def main(summarize=False):
             output_dirpath = TUPLES_DIRPATH / "summaries"
         else:
             output_dirpath = TUPLES_DIRPATH
-        with open(output_dirpath / f"ExternalApiResultsLoader-{author}.json", "w") as f:
+        with open(
+            output_dirpath
+            / nsforest_path.name.replace("nsforest-results", "external-api").replace(
+                ".csv", ".json"
+            ),
+            "w",
+        ) as f:
             data = {}
             if summarize:
                 data["opentargets"] = opentargets_results

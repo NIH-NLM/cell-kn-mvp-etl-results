@@ -1,6 +1,8 @@
 import ast
+from glob import glob
 import json
 from pathlib import Path
+import re
 
 from rdflib.term import Literal, URIRef
 
@@ -193,13 +195,13 @@ def create_tuples_from_author_to_cl(results):
         # Nodes for each cell type and marker gene
         marker_genes = ast.literal_eval(row["NSForest_markers"])
         for gene in marker_genes:
-            gene_term = f"GS_{gene}"
+            gs_term = f"GS_{gene}"
 
             # Gene_Class, IS_MARKER_FOR, Cell_type_Class
             # SO:0000704, RO:0002607, CL:0000000
             tuples.append(
                 (
-                    URIRef(f"{PURLBASE}/{gene_term}"),
+                    URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{PURLBASE}/RO_0002607"),
                     URIRef(f"{cl_term}"),
                 )
@@ -208,7 +210,7 @@ def create_tuples_from_author_to_cl(results):
         # Nodes for each cell type, and marker and binary gene
         binary_genes = ast.literal_eval(row["binary_genes"])
         for gene in marker_genes + binary_genes:
-            gene_term = f"GS_{gene}"
+            gs_term = f"GS_{gene}"
 
             # Cell_type_Class, EXPRESSES, Gene_Class
             # CL:0000000, RO:0002292, SO:0000704
@@ -216,7 +218,7 @@ def create_tuples_from_author_to_cl(results):
                 (
                     URIRef(f"{cl_term}"),
                     URIRef(f"{PURLBASE}/RO_0002292"),
-                    URIRef(f"{PURLBASE}/{gene_term}"),
+                    URIRef(f"{PURLBASE}/{gs_term}"),
                 )
             )
 
@@ -224,7 +226,7 @@ def create_tuples_from_author_to_cl(results):
             # SO:0000704, BFO:0000050, CL:0000000
             tuples.append(
                 (
-                    URIRef(f"{PURLBASE}/{gene_term}"),
+                    URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{PURLBASE}/BFO_0000050"),
                     URIRef(f"{cl_term}"),
                 )
@@ -234,7 +236,7 @@ def create_tuples_from_author_to_cl(results):
             # SO:0000704, RO:0002206, UBERON:0001062
             tuples.append(
                 (
-                    URIRef(f"{PURLBASE}/{gene_term}"),
+                    URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{PURLBASE}/RO_0002206"),
                     URIRef(f"{uberon_term}"),
                 )
@@ -260,13 +262,13 @@ def main(summarize=False):
     -------
     None
     """
-    for author in ["guo", "li", "sikkema"]:
+    nsforest_paths = [
+        Path(p).resolve()
+        for p in glob(str(NSFOREST_DIRPATH / "cell-kn-mvp-nsforest-results-*.csv"))
+    ]
+    for nsforest_path in nsforest_paths:
 
         # Load NSForest results
-        nsforest_path = (
-            NSFOREST_DIRPATH
-            / f"cell-kn-mvp-nsforest-results-{author}-2023-2025-02-22.csv"
-        ).resolve()
         nsforest_results = load_results(nsforest_path).sort_values(
             "clusterName", ignore_index=True
         )
@@ -277,18 +279,12 @@ def main(summarize=False):
         # CL term mapping filename, then load mapping results,
         # dropping "uuid" column in order to merge "uuid" column from
         # NSForest results
-        if author == "li":
-            author_to_cl_path = Path(
-                str(nsforest_path)
-                .replace("nsforest-results", "map-author-to-cl")
-                .replace("2023-2025-02-22", "2023-data-v0.7")
-            )
-        else:
-            author_to_cl_path = Path(
-                str(nsforest_path)
-                .replace("nsforest-results", "map-author-to-cl")
-                .replace("2023-2025-02-22", "2023-data-v0.4")
-            )
+        author = re.search("results-([a-zA-Z]*)", nsforest_path.name).group(1)
+        author_to_cl_path = Path(
+            glob(
+                str(NSFOREST_DIRPATH / f"cell-kn-mvp-map-author-to-cl-{author}-*.csv")
+            )[-1]
+        ).resolve()
         author_to_cl_results = (
             load_results(author_to_cl_path)
             .sort_values("author_cell_set", ignore_index=True)
@@ -311,7 +307,10 @@ def main(summarize=False):
             output_dirpath = TUPLES_DIRPATH / "summaries"
         else:
             output_dirpath = TUPLES_DIRPATH
-        with open(output_dirpath / f"AuthorToClResultsLoader-{author}.json", "w") as f:
+        with open(
+            output_dirpath / author_to_cl_path.name.replace(".csv", ".json"),
+            "w",
+        ) as f:
             data = {}
             if summarize:
                 data["results"] = author_to_cl_results.to_dict()

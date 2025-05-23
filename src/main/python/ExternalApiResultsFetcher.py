@@ -1,3 +1,4 @@
+from glob import glob
 import json
 from pathlib import Path
 
@@ -799,12 +800,12 @@ def main():
     uniprot_results : dict
         Dictionary containg UniProt results keyed by protein id
     """
-    for author in ["guo", "li", "sikkema"]:
+    nsforest_paths = [
+        Path(p).resolve()
+        for p in glob(str(NSFOREST_DIRPATH / "cell-kn-mvp-nsforest-results-*.csv"))
+    ]
+    for nsforest_path in nsforest_paths:
 
-        nsforest_path = (
-            NSFOREST_DIRPATH
-            / f"cell-kn-mvp-nsforest-results-{author}-2023-2025-02-22.csv"
-        ).resolve()
         print(f"Fetching results for {nsforest_path}")
 
         opentargets_path, _opentargets_results = get_opentargets_results(nsforest_path)
