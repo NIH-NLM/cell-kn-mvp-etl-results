@@ -38,12 +38,15 @@ build/
 .DS_Store
 
 ### Dev ###
+*~
 *.json
 *.notes
 *.out
 *.tern-port
 *.txt
+*.xml
 .DS_Store
+.built
 .poetry
 .pybiomart.sqlite
 .venv
