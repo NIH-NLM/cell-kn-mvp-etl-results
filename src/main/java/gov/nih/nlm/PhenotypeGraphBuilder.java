@@ -286,5 +286,8 @@ public class PhenotypeGraphBuilder {
         // subgraph
         insertVertexDocuments(vertexDocuments, phenotypeGraph);
         insertEdgeDocuments(edgeDocuments, phenotypeGraph);
+
+        // Disconnect from a local ArangoDB server instance
+        arangoDbUtilities.arangoDB.shutdown();
     }
 }

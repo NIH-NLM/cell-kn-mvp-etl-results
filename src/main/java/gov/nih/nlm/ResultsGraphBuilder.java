@@ -455,5 +455,8 @@ public class ResultsGraphBuilder {
         // TODO: Remove after testing Python version
         // Load the schema tuples file
         // loadSchemaTuples(cellKnGraph, ontologyElementMaps);
+
+        // Disconnect from a local ArangoDB server instance
+        arangoDbUtilities.arangoDB.shutdown();
     }
 }
