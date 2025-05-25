@@ -96,7 +96,7 @@ def get_gene_names_and_ids():
 
 
 def get_gene_name_to_ids_map():
-    """Map gene name to ids.
+    """Get gene name to ids map.
 
     Parameters
     ----------
@@ -392,3 +392,47 @@ def collect_unique_gene_ids(gene_symbols, gnm2ids):
     )
 
     return list(gene_ids)
+
+
+def get_efo_to_mondo_map():
+    """Get EFO to MONDO term map.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    efo2mondo : pd.DataFrame
+        DataFrame indexed by EFO containing MONDO term
+    """
+    print("Creating EFO to MONDO term map")
+    mondo_efo_mappings_name = (
+        "../../../cell-kn-etl-ontologies/data/mondo_efo_mappings.tsv"
+    )
+    efo2mondo = pd.read_csv(mondo_efo_mappings_name)
+    efo2mondo = efo2mondo.set_index("EFO")
+    return efo2mondo
+
+
+def map_efo_to_mondo(efo, efo2mondo):
+    """Map EFO to MONDO term.
+
+    Parameters
+    ----------
+    efo : str
+        EFO term
+    efo2mondo : pd.DataFrame
+        DataFrame indexed by EFO containing MONDO term
+
+    Returns
+    -------
+    str
+        MONDO term
+    """
+    if efo in efo2mondo.index:
+        mondo = efo2mondo.loc[efo, "MONDO"]
+    else:
+        print(f"Could not find MONDO for EFO term: {efo}")
+        return None
+    return mondo

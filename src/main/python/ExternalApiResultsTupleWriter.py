@@ -12,9 +12,11 @@ from ExternalApiResultsFetcher import (
 from LoaderUtilities import (
     PURLBASE,
     RDFSBASE,
+    get_efo_to_mondo_map,
     get_gene_id_to_names_map,
-    map_protein_id_to_accession,
+    map_efo_to_mondo,
     map_gene_id_to_names,
+    map_protein_id_to_accession,
 )
 
 NSFOREST_DIRPATH = Path("../../../data/results")
@@ -83,8 +85,11 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
     _uniprot_path, uniprot_results = get_uniprot_results(opentargets_path)
     ensp2accn = uniprot_results["ensp2accn"]
 
-    # Assign gene ids to consider
+    # Load mappings
     gid2nms = get_gene_id_to_names_map()
+    efo2mondo = get_efo_to_mondo_map()
+
+    # Assign gene ids to consider
     if summarize:
 
         # Find a gene id with all resources, and a valid disease and interaction
@@ -151,8 +156,12 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
 
         for disease in results[gene_id]["diseases"]:
             if "EFO" in disease["id"]:
-                # Skip EFO terms
-                continue
+                mondo_term = map_efo_to_mondo(disease["id"], efo2mondo)
+                if mondo_term is None:
+                    # Skip EFO terms that do not map to MONDO terms
+                    continue
+            else:
+                mondo_term = disease["id"]
 
             if disease["score"] < 0.5:
                 # Skip diseases with low evidence scores
@@ -165,7 +174,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{RDFSBASE}#GENETIC_BASIS_FOR"),
-                    URIRef(f"{PURLBASE}/{disease['id']}"),
+                    URIRef(f"{PURLBASE}/{mondo_term}"),
                 )
             )
 
@@ -174,12 +183,12 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
             tuples.extend(
                 [
                     (
-                        URIRef(f"{PURLBASE}/{disease['id']}"),
+                        URIRef(f"{PURLBASE}/{mondo_term}"),
                         URIRef(f"{RDFSBASE}#Name"),
                         Literal(str(disease["name"])),
                     ),
                     (
-                        URIRef(f"{PURLBASE}/{disease['id']}"),
+                        URIRef(f"{PURLBASE}/{mondo_term}"),
                         URIRef(f"{RDFSBASE}#Description"),
                         Literal(str(disease["description"])),
                     ),
@@ -191,7 +200,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
             tuples.append(
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
-                    URIRef(f"{PURLBASE}/{disease['id']}"),
+                    URIRef(f"{PURLBASE}/{mondo_term}"),
                     URIRef(f"{RDFSBASE}#Score"),
                     Literal(str(disease["score"])),
                 )
@@ -199,8 +208,12 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
 
         for drug in results[gene_id]["drugs"]:
             if "EFO" in drug["disease_id"]:
-                # Skip EFO terms
-                continue
+                mondo_term = map_efo_to_mondo(drug["disease_id"], efo2mondo)
+                if mondo_term is None:
+                    # Skip EFO terms that do not map to MONDO terms
+                    continue
+            else:
+                mondo_term = drug["disease_id"]
 
             # Follow term naming convention for parsing
             chembl_term = drug["id"].replace("CHEMBL", "CHEMBL_")
@@ -212,7 +225,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                 (
                     URIRef(f"{PURLBASE}/{chembl_term}"),
                     URIRef(f"{RDFSBASE}#IS_SUBSTANCE_THAT_TREATS"),
-                    URIRef(f"{PURLBASE}/{drug['disease_id']}"),
+                    URIRef(f"{PURLBASE}/{mondo_term}"),
                 )
             )
 
@@ -341,8 +354,12 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
 
                 for drug in results[gene_id]["drugs"]:
                     if "EFO" in drug["disease_id"]:
-                        # Skip EFO terms
-                        continue
+                        mondo_term = map_efo_to_mondo(drug["disease_id"], efo2mondo)
+                        if mondo_term is None:
+                            # Skip EFO terms that do not map to MONDO terms
+                            continue
+                    else:
+                        mondo_term = drug["disease_id"]
 
                     # == Drug_product relations
 
