@@ -107,6 +107,7 @@ def create_tuples_from_author_to_cl(results):
         uberon_term = row["uberon_entity_id"]
         author_cell_set = hyphenate(row["author_cell_set"])
         cs_term = f"CS_{author_cell_set}-{uuid}"
+        bmc_term = f"BMC_{uuid}-NSF"
 
         # Cell_type_Class, PART_OF, Anatomical_structure_Class
         # CL:0000000, BFO:0000050, UBERON:0001062
@@ -158,6 +159,19 @@ def create_tuples_from_author_to_cl(results):
             )
         )
 
+        # Biomarker_combination_Ind, IS_CHARACTERIZING_MARKER_SET_FOR, Cell_type_Class
+        # TODO: Update and use RO term
+        # -, RO:0015004, CL:0000000
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{bmc_term}"),
+                URIRef(f"{PURLBASE}/IS_CHARACTERIZING_MARKER_SET_FOR"),
+                URIRef(f"{cl_term}"),
+
+
+            )
+        )
+
         # Node annotations
         tuples.append(
             (
@@ -197,12 +211,12 @@ def create_tuples_from_author_to_cl(results):
         for gene in marker_genes:
             gs_term = f"GS_{gene}"
 
-            # Gene_Class, IS_MARKER_FOR, Cell_type_Class
-            # SO:0000704, RO:0002607, CL:0000000
+            # Gene_Class, PART_OF, Cell_type_Class
+            # SO:0000704, BFO:0000050, CL:0000000
             tuples.append(
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
-                    URIRef(f"{PURLBASE}/RO_0002607"),
+                    URIRef(f"{PURLBASE}/BFO:0000050"),
                     URIRef(f"{cl_term}"),
                 )
             )
@@ -212,12 +226,13 @@ def create_tuples_from_author_to_cl(results):
         for gene in marker_genes + binary_genes:
             gs_term = f"GS_{gene}"
 
-            # Cell_type_Class, EXPRESSES, Gene_Class
+            # Cell_type_Class, SELECTIVELY EXPRESS, Gene_Class
+            # TODO: Update and use RO term
             # CL:0000000, RO:0002292, SO:0000704
             tuples.append(
                 (
                     URIRef(f"{cl_term}"),
-                    URIRef(f"{PURLBASE}/RO_0002292"),
+                    URIRef(f"{RDFSBASE}#SELECTIVELY_EXPRESS"),
                     URIRef(f"{PURLBASE}/{gs_term}"),
                 )
             )

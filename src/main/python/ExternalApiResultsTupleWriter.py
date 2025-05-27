@@ -169,6 +169,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
 
             # == Disease relations
 
+            # TODO: Add condition
             # Gene, IS_GENETIC_BASIS_FOR_CONDITION, Disease
             tuples.append(
                 (
