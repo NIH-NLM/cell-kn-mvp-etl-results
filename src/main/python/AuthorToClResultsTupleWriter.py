@@ -131,6 +131,7 @@ def create_tuples_from_author_to_cl(results):
 
         # Cell_set_Ind, DERIVES_FROM, Anatomical_structure_Ind
         # -, RO:0001000, UBERON:0001062
+        # TODO: Add Anatomical_structure_Ind annotations, remove, or replace?
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
