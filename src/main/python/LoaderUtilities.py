@@ -433,6 +433,6 @@ def map_efo_to_mondo(efo, efo2mondo):
     if efo in efo2mondo.index:
         mondo = efo2mondo.loc[efo, "MONDO"]
     else:
-        print(f"Could not find MONDO for EFO term: {efo}")
+        # print(f"Could not find MONDO for EFO term: {efo}")
         return None
     return mondo

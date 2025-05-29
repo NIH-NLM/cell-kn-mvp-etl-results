@@ -53,58 +53,69 @@ public class PhenotypeGraphBuilder {
         ArrayList<String> queryStrings = new ArrayList<>();
         queryStrings.add(
                 queryPrefix
-                + "FOR v, e, p IN 2 ANY cs GRAPH @graphName "
-                + "FILTER "
-                + "IS_SAME_COLLECTION('BMC', p.vertices[1]) "
-                + "AND "
-                + "IS_SAME_COLLECTION('GS', p.vertices[2]) "
-                + "RETURN p"
+                        + "FOR v, e, p IN 2 ANY cs GRAPH @graphName "
+                        + "FILTER "
+                        + "IS_SAME_COLLECTION('BMC', p.vertices[1]) "
+                        + "AND "
+                        + "IS_SAME_COLLECTION('GS', p.vertices[2]) "
+                        + "RETURN p"
         );
         queryStrings.add(
                 queryPrefix
-                + "FOR v, e, p IN 3 ANY cs GRAPH @graphName "
-                + "FILTER "
-                + "IS_SAME_COLLECTION('CL', p.vertices[1]) "
-                + "AND "
-                + "IS_SAME_COLLECTION('UBERON', p.vertices[2]) "
-                + "AND "
-                + "IS_SAME_COLLECTION('NCBITaxon', p.vertices[3]) "
-                + "RETURN p"
+                        + "FOR v, e, p IN 2 ANY cs GRAPH @graphName "
+                        + "FILTER "
+                        + "IS_SAME_COLLECTION('BMC', p.vertices[1]) "
+                        + "AND "
+                        + "IS_SAME_COLLECTION('CL', p.vertices[2]) "
+                        + "RETURN p"
         );
         queryStrings.add(
                 queryPrefix
-                + "FOR v, e, p IN 3 ANY cs GRAPH @graphName "
-                + "FILTER "
-                + "IS_SAME_COLLECTION('CL', p.vertices[1]) "
-                + "AND "
-                + "IS_SAME_COLLECTION('CSD', p.vertices[2]) "
-                + "AND "
-                + "IS_SAME_COLLECTION('PUB', p.vertices[3]) "
-                + "RETURN p"
+                        + "FOR v, e, p IN 3 ANY cs GRAPH @graphName "
+                        + "FILTER "
+                        + "IS_SAME_COLLECTION('CL', p.vertices[1]) "
+                        + "AND "
+                        + "IS_SAME_COLLECTION('UBERON', p.vertices[2]) "
+                        + "AND "
+                        + "IS_SAME_COLLECTION('NCBITaxon', p.vertices[3]) "
+                        + "RETURN p"
         );
         queryStrings.add(
                 queryPrefix
-                + "FOR v, e, p IN 3 ANY cs GRAPH @graphName "
-                + "FILTER "
-                + "IS_SAME_COLLECTION('CL', p.vertices[1]) "
-                + "AND "
-                + "IS_SAME_COLLECTION('GS', p.vertices[2]) "
-                + "AND "
-                + "IS_SAME_COLLECTION('MONDO', p.vertices[3]) "
-                + "RETURN p"
+                        + "FOR v, e, p IN 3 ANY cs GRAPH @graphName "
+                        + "FILTER "
+                        + "IS_SAME_COLLECTION('CL', p.vertices[1]) "
+                        + "AND "
+                        + "IS_SAME_COLLECTION('CSD', p.vertices[2]) "
+                        + "AND "
+                        + "IS_SAME_COLLECTION('PUB', p.vertices[3]) "
+                        + "RETURN p"
         );
         queryStrings.add(
                 queryPrefix
-                + "FOR v, e, p IN 4 ANY cs GRAPH @graphName "
-                + "FILTER "
-                + "IS_SAME_COLLECTION('CL', p.vertices[1]) "
-                + "AND "
-                + "IS_SAME_COLLECTION('GS', p.vertices[2]) "
-                + "AND "
-                + "IS_SAME_COLLECTION('PR', p.vertices[3]) "
-                + "AND "
-                + "IS_SAME_COLLECTION('CHEMBL', p.vertices[4]) "
-                + "RETURN p"
+                        + "FOR v, e, p IN 3 ANY cs GRAPH @graphName "
+                        + "FILTER "
+                        + "IS_SAME_COLLECTION('CL', p.vertices[1]) "
+                        + "AND "
+                        + "IS_SAME_COLLECTION('GS', p.vertices[2]) "
+                        + "AND "
+                        + "IS_SAME_COLLECTION('MONDO', p.vertices[3]) "
+                        + "RETURN p"
+        );
+        queryStrings.add(
+                queryPrefix
+                        + "FOR v, e, p IN 5 ANY cs GRAPH @graphName "
+                        + "FILTER "
+                        + "IS_SAME_COLLECTION('CL', p.vertices[1]) "
+                        + "AND "
+                        + "IS_SAME_COLLECTION('GS', p.vertices[2]) "
+                        + "AND "
+                        + "IS_SAME_COLLECTION('PR', p.vertices[3]) "
+                        + "AND "
+                        + "IS_SAME_COLLECTION('CHEMBL', p.vertices[4]) "
+                        + "AND "
+                        + "IS_SAME_COLLECTION('MONDO', p.vertices[5]) "
+                        + "RETURN p"
         );
         //@formatter:on
 
@@ -279,8 +290,9 @@ public class PhenotypeGraphBuilder {
         List<BaseDocument> vertexDocuments = getVertexDocuments(paths);
         List<BaseEdgeDocument> edgeDocuments = getEdgeDocuments(paths);
 
+        // TODO: Remove
         // Add all CHEMBL-MONDO edges in the ontology database and fully populated graph corresponding to vertices in the phenotype database and subgraph
-        edgeDocuments.addAll(collectChemblMondoEdgeDocuments(vertexDocuments, ontologyGraph));
+        // edgeDocuments.addAll(collectChemblMondoEdgeDocuments(vertexDocuments, ontologyGraph));
 
         // Insert unique vertex and edge documents in the phenotype database and
         // subgraph
