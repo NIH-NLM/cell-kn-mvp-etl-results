@@ -53,6 +53,19 @@ def get_protein_term(protein_id, ensp2accn):
     return protein_term
 
 
+def get_mondo_term(disease_id, efo2mondo):
+    """TODO: Complete"""
+    mondo_term = None
+
+    if "MONDO" in disease_id:
+        mondo_term = disease_id
+
+    elif "EFO" in disease_id:
+        mondo_term = map_efo_to_mondo(disease_id, efo2mondo)
+
+    return mondo_term
+
+
 def create_tuples_from_opentargets(opentargets_path, summarize=False):
     """Creates tuples from the result of using the gget opentargets
     command to obtain resources for each unique gene id mapped from
@@ -155,14 +168,9 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
         # == Gene relations
 
         for disease in results[gene_id]["diseases"]:
-            if "EFO" in disease["id"]:
-                mondo_term = map_efo_to_mondo(disease["id"], efo2mondo)
-                if mondo_term is None:
-                    # Skip EFO terms that do not map to MONDO terms
-                    continue
-            else:
-                mondo_term = disease["id"]
-
+            mondo_term = get_mondo_term(disease["id"], efo2mondo)
+            if mondo_term is None:
+                continue
             if disease["score"] < 0.5:
                 # Skip diseases with low evidence scores
                 continue
@@ -208,13 +216,10 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
             )
 
         for drug in results[gene_id]["drugs"]:
-            if "EFO" in drug["disease_id"]:
-                mondo_term = map_efo_to_mondo(drug["disease_id"], efo2mondo)
-                if mondo_term is None:
-                    # Skip EFO terms that do not map to MONDO terms
-                    continue
-            else:
-                mondo_term = drug["disease_id"]
+            mondo_term = get_mondo_term(drug["disease_id"], efo2mondo)
+            if mondo_term is None:
+                continue
+            # TODO: Test disease score
 
             # Follow term naming convention for parsing
             chembl_term = drug["id"].replace("CHEMBL", "CHEMBL_")
@@ -354,13 +359,13 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                 )
 
                 for drug in results[gene_id]["drugs"]:
-                    if "EFO" in drug["disease_id"]:
-                        mondo_term = map_efo_to_mondo(drug["disease_id"], efo2mondo)
-                        if mondo_term is None:
-                            # Skip EFO terms that do not map to MONDO terms
-                            continue
-                    else:
-                        mondo_term = drug["disease_id"]
+                    mondo_term = get_mondo_term(drug["disease_id"], efo2mondo)
+                    if mondo_term is None:
+                        continue
+                    # TODO: Test disease score
+
+                    # Follow term naming convention for parsing
+                    chembl_term = drug["id"].replace("CHEMBL", "CHEMBL_")
 
                     # == Drug_product relations
 
