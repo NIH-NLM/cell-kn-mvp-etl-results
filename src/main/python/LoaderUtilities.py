@@ -478,9 +478,8 @@ def get_mesh_to_mondo_map(obo_dir, obo_fnm):
         for hasDbXref_element in class_element.iter(f"{OBO_IN_OWL_NS}hasDbXref"):
             if hasDbXref_element is None:
                 continue
-            tokens = hasDbXref_element.text.split(":")
-            if len(tokens) == 2 and tokens[0] == "MESH":
-                mesh_term = tokens[1]
+            mesh_term = hasDbXref_element.text
+            if "MESH" in mesh_term:
                 mesh2mondo[mesh_term] = mondo_term
                 break
 
