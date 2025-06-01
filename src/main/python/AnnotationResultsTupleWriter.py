@@ -195,17 +195,15 @@ def create_tuples_from_annotation(annotation_results):
     )
     tuples = []
     for annotation in annotation_results:
-        tuples.append(
-            (
-                URIRef(
-                    f"{PURLBASE}/{normalize_term(annotation, 'subject', mesh2mondo)}"
-                ),
-                URIRef(f"{RDFSBASE}#{annotation['relation']}"),
-                URIRef(
-                    f"{PURLBASE}/{normalize_term(annotation, 'object', mesh2mondo)}"
-                ),
-            ),
-        )
+        subject = normalize_term(annotation, 'subject', mesh2mondo)
+        predicate = annotation['relation']
+        object = normalize_term(annotation, 'object', mesh2mondo)
+        if subject is None or object is None:
+            continue
+        s = URIRef(f"{PURLBASE}/{subject}")
+        p = URIRef(f"{RDFSBASE}#{predicate}")
+        o = URIRef(f"{PURLBASE}/{object}")
+        tuples.append((s, p, o))
     return tuples
 
 
