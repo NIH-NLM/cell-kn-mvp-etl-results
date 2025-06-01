@@ -175,6 +175,40 @@ def normalize_term(annotation, term, mesh2mondo):
             return None
 
 
+def create_tuples_from_annotation(annotation_results):
+    """Create tuples from manual annotation of selected articles
+    consistent with schema v0.7.
+
+    Parameters
+    ----------
+    annotation_results : dict
+        Dictionary of manual annotation results in semantic triple
+        form
+
+    Returns
+    -------
+    tuples : list(tuple(str))
+        List of tuples (triples only) created
+    """
+    mesh2mondo = get_mesh_to_mondo_map(
+        "../../../cell-kn-etl-ontologies/data/obo", "mondo-simple.owl"
+    )
+    tuples = []
+    for annotation in annotation_results:
+        tuples.append(
+            (
+                URIRef(
+                    f"{PURLBASE}/{normalize_term(annotation, 'subject', mesh2mondo)}"
+                ),
+                URIRef(f"{RDFSBASE}#{annotation['relation']}"),
+                URIRef(
+                    f"{PURLBASE}/{normalize_term(annotation, 'object', mesh2mondo)}"
+                ),
+            ),
+        )
+    return tuples
+
+
 def main(summarize=False):
     """Load schema, and annotation results to determine unique
     annotation subject, predicate, and object types, and unique
@@ -200,37 +234,25 @@ def main(summarize=False):
     annotation_path = Path(
         "../../../data/results/cell-kn-mvp-annotation-results-2025-03-14.json"
     )
-    with open(annotation_path, "r") as f:
-        annotation_results = json.load(f)
+    with open(annotation_path, "r") as fp:
+        annotation_results = json.load(fp)
 
     print(f"Determining components from {annotation_path}")
     components_path = Path(str(annotation_path).replace(".json", ".out"))
     write_triple_components(annotation_results, terms, components_path)
 
     print(f"Creating tuples from {annotation_path}")
-    mesh2mondo = get_mesh_to_mondo_map(
-        "../../../cell-kn-etl-ontologies/data/obo", "mondo-simple.owl"
-    )
     if summarize:
         annotation_results = [annotation_results[0]]
+    annotation_tuples = create_tuples_from_annotation(annotation_results)
+    if summarize:
         output_dirpath = TUPLES_DIRPATH / "summaries"
     else:
         output_dirpath = TUPLES_DIRPATH
-    tuples = []
-    for annotation in annotation_results:
-        tuples.append(
-            (
-                URIRef(
-                    f"{PURLBASE}/{normalize_term(annotation, 'subject', mesh2mondo)}"
-                ),
-                URIRef(f"{RDFSBASE}#{annotation['relation']}"),
-                URIRef(
-                    f"{PURLBASE}/{normalize_term(annotation, 'object', mesh2mondo)}"
-                ),
-            ),
-        )
     data = {}
-    data["tuples"] = tuples
+    if summarize:
+        data["results"] = annotation_results
+    data["tuples"] = annotation_tuples
     with open(
         output_dirpath / annotation_path.name.replace(".csv", ".json"),
         "w",
@@ -239,4 +261,5 @@ def main(summarize=False):
 
 
 if __name__ == "__main__":
+    main(summarize=True)
     main()
