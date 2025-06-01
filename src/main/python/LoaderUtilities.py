@@ -483,6 +483,22 @@ def get_mesh_to_mondo_map(obo_dir, obo_fnm):
                 mesh2mondo[mesh_term] = mondo_term
                 break
 
+    # https://meshb.nlm.nih.gov/record/ui?ui=D000077192
+    # http://purl.obolibrary.org/obo/MONDO_0004991
+    mesh2mondo["MESH:D000077192"] = "MONDO_0004991"
+
+    # https://meshb.nlm.nih.gov/record/ui?ui=D000086382
+    # http://purl.obolibrary.org/obo/MONDO_0100096
+    mesh2mondo["MESH:D000086382"] = "MONDO_0100096"
+
+    # https://meshb.nlm.nih.gov/record/ui?ui=D003643
+    # http://purl.obolibrary.org/obo/UBERON_0000071
+    mesh2mondo["MESH:D003643"] = "UBERON_0000071"
+
+    # https://meshb.nlm.nih.gov/record/ui?ui=D005355
+    # http://purl.obolibrary.org/obo/MONDO_0002771
+    mesh2mondo["MESH:D005355"] = "MONDO_0002771"
+
     return mesh2mondo
 
 
