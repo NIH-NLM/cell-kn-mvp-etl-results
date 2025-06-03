@@ -206,9 +206,9 @@ def create_tuples_from_annotation(annotation_results):
     )
     tuples = []
     for annotation in annotation_results:
-        subject = normalize_term(annotation, 'subject', mesh2mondo)
-        predicate = annotation['relation']
-        object = normalize_term(annotation, 'object', mesh2mondo)
+        subject = normalize_term(annotation, "subject", mesh2mondo)
+        predicate = annotation["relation"]
+        object = normalize_term(annotation, "object", mesh2mondo)
         if subject is None or object is None:
             continue
         s = URIRef(f"{PURLBASE}/{subject}")
