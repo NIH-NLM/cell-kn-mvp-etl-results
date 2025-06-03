@@ -110,6 +110,17 @@ def normalize_term(annotation, term, mesh2mondo):
     str
         The normalized term
     """
+    # Replace unicode characters
+    if annotation[f"{term}_name"] is not None:
+        annotation[f"{term}_name"] = annotation[f"{term}_name"].replace(
+            "\u03b3\u03b4", "gamma-delta"
+        )
+        annotation[f"{term}_name"] = annotation[f"{term}_name"].replace("\u2212", "-")
+    if annotation[f"{term}_identifier"] is not None:
+        annotation[f"{term}_identifier"] = annotation[f"{term}_identifier"].replace(
+            "\u2212", "-"
+        )
+
     # Normalize by annotation type
     atype = annotation[f"{term}_type"]
     if atype == "Anatomical_structure":
