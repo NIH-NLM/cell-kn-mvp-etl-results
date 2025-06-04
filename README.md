@@ -134,6 +134,7 @@ $ python ExternalApiResultsFetcher.py
 $ python NSForestResultsTupleWriter.py
 $ python AuthorToClResultsTupleWriter.py
 $ python ExternalApiResultsTupleWriter.py
+$ python AnnotationResultsTupleWriter.py
 $ python CellKnSchemaTupleWriter.py
 ```
 Note that quadruples are also created which represent edge
@@ -146,5 +147,5 @@ $ export ARANGO_DB_HOST=127.0.0.1
 $ export ARANGO_DB_PORT=8529
 $ export ARANGO_DB_HOME="<some-path>/arangodb"
 $ export ARANGO_DB_PASSWORD="<some-password>"
-$ java -cp target/cell-kn-etl-ontologies-1.0.jar gov.nih.nlm.ResultsGraphBuilder
+$ java -cp target/cell-kn-etl-ontologies-1.0.jar:cell-kn-etl-ontologies/target/cell-kn-etl-ontologies-1.0.jar gov.nih.nlm.ResultsGraphBuilder
 ```

@@ -1,9 +1,13 @@
 import ast
+from pathlib import Path
 import random
 import string
 
+from lxml import etree
 import pandas as pd
 import scanpy as sc
+
+from OntologyParserLoader import parse_term
 
 from UniProtIdMapper import (
     submit_id_mapping,
@@ -15,6 +19,10 @@ from UniProtIdMapper import (
 ALPHABET = string.ascii_lowercase + string.digits
 PURLBASE = "http://purl.obolibrary.org/obo"
 RDFSBASE = "http://www.w3.org/1999/02/22-rdf-syntax-ns"
+
+OWL_NS = "{http://www.w3.org/2002/07/owl#}"
+OBO_IN_OWL_NS = "{http://www.geneontology.org/formats/oboInOwl#}"
+RDF_NS = "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}"
 
 
 def get_uuid():
@@ -435,4 +443,83 @@ def map_efo_to_mondo(efo, efo2mondo):
     else:
         # print(f"Could not find MONDO for EFO term: {efo}")
         return None
+    return mondo
+
+
+def get_mesh_to_mondo_map(obo_dir, obo_fnm):
+    """Parse MONDO ontology XML downloaded from the OBO Foundry to
+    create a mapping from MeSH term to MONDO term.
+
+    Parameters
+    ----------
+    obo_dir : str | Path
+        Name of directory containing downloaded MONDO ontology XML
+    obo_fnm : str
+        Name of downloaded MONDO ontology XML file
+
+    Returns
+    -------
+    mesh2mondo : dict
+        Dictionary mapping MeSH term to MONDO term
+    """
+    mesh2mondo = {}
+    root = etree.parse(Path(obo_dir) / obo_fnm)
+    for class_element in root.iter(f"{OWL_NS}Class"):
+
+        # Look for an about attribute
+        uriref = class_element.get(f"{RDF_NS}about")
+        if uriref is None:
+            continue
+
+        id, number, mondo_term, _, _ = parse_term(uriref)
+        if id is None:
+            continue
+
+        for hasDbXref_element in class_element.iter(f"{OBO_IN_OWL_NS}hasDbXref"):
+            if hasDbXref_element is None:
+                continue
+            mesh_term = hasDbXref_element.text
+            if "MESH" in mesh_term:
+                mesh2mondo[mesh_term] = mondo_term
+                break
+
+    # https://meshb.nlm.nih.gov/record/ui?ui=D000077192
+    # http://purl.obolibrary.org/obo/MONDO_0004991
+    mesh2mondo["MESH:D000077192"] = "MONDO_0004991"
+
+    # https://meshb.nlm.nih.gov/record/ui?ui=D000086382
+    # http://purl.obolibrary.org/obo/MONDO_0100096
+    mesh2mondo["MESH:D000086382"] = "MONDO_0100096"
+
+    # https://meshb.nlm.nih.gov/record/ui?ui=D003643
+    # http://purl.obolibrary.org/obo/UBERON_0000071
+    mesh2mondo["MESH:D003643"] = "UBERON_0000071"
+
+    # https://meshb.nlm.nih.gov/record/ui?ui=D005355
+    # http://purl.obolibrary.org/obo/MONDO_0002771
+    mesh2mondo["MESH:D005355"] = "MONDO_0002771"
+
+    return mesh2mondo
+
+
+def map_mesh_to_mondo(mesh, mesh2mondo):
+    """Map MeSH term to MONDO term.
+
+    Parameters
+    ----------
+    mesh : str
+        MeSH term
+    mesh2mondo : dict
+        Dictionary mapping MeSH term to MONDO term
+
+    Returns
+    -------
+    mondo : str
+        MONDO term
+    """
+    mondo = None
+
+    if mesh in mesh2mondo:
+        mondo = mesh2mondo[mesh]
+
     return mondo
