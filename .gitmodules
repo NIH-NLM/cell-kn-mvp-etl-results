@@ -1,0 +1,3 @@
+[submodule "cell-kn-mvp-etl-ontologies"]
+	path = cell-kn-mvp-etl-ontologies
+	url = git@github.com:NIH-NLM/cell-kn-mvp-etl-ontologies.git
