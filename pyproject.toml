@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "cell-kn-etl-results"
+name = "cell-kn-mvp-etl-results"
 version = "0.1.0"
 description = "Load results into an ArangoDB instance"
 authors = ["Raymond LeClair <raymond.leclair@springbok.io>"]
