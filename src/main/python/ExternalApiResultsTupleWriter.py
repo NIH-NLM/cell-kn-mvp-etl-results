@@ -347,7 +347,11 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
 
             # Map id to name
             gene_b_id = interaction["gene_b_id"]
-            gene_b_symbol = map_gene_id_to_names(gene_b_id, gid2nms)[0]
+            gene_b_symbol = map_gene_id_to_names(gene_b_id, gid2nms)
+            if len(gene_b_symbol) == 0:
+                # Skip interactions with no second gene symbol
+                continue
+            gene_b_symbol = gene_b_symbol[0]
 
             # Follow term naming convention for parsing
             gs_b_term = (
