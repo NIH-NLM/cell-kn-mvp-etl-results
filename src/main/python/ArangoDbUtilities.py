@@ -1,1 +1,1 @@
-../../../cell-kn-etl-ontologies/src/main/python/ArangoDbUtilities.py
+../../../cell-kn-mvp-etl-ontologies/src/main/python/ArangoDbUtilities.py

@@ -413,7 +413,7 @@ def main():
         adb.create_analyzer(database_name)
         adb.create_view(
             database_name,
-            collection_maps_name="../../../cell-kn-etl-ontologies/data/cell-kn-mvp-collection-maps-2025-04-23.json",
+            collection_maps_name="../../../cell-kn-mvp-etl-ontologies/data/cell-kn-mvp-collection-maps-2025-04-23.json",
         )
 
 
