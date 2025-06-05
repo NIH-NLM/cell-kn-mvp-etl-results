@@ -42,6 +42,14 @@ def create_tuples_from_author_to_cl(results):
             URIRef(f"{PURLBASE}/{pub_term}"),
         )
     )
+    tuples.append(
+        (
+            URIRef(f"{PURLBASE}/{csd_term}"),
+            URIRef(f"{PURLBASE}/{pub_term}"),
+            URIRef(f"{RDFSBASE}#Source"),
+            Literal("Manual Mapping"),
+        )
+    )
 
     # Cell_set_dataset_Ind, INSTANCE_OF, Cell_set_dataset_Class
     # IAO:0000100, rdf:type, IAO:0000100
@@ -50,6 +58,14 @@ def create_tuples_from_author_to_cl(results):
             URIRef(f"{PURLBASE}/CSD_{results['dataset_id'][0]}"),
             URIRef(f"{RDFSBASE}/rdf#type"),
             URIRef(f"{PURLBASE}/DS_{results['dataset_source'][0]}"),
+        )
+    )
+    tuples.append(
+        (
+            URIRef(f"{PURLBASE}/CSD_{results['dataset_id'][0]}"),
+            URIRef(f"{PURLBASE}/DS_{results['dataset_source'][0]}"),
+            URIRef(f"{RDFSBASE}#Source"),
+            Literal("Manual Mapping"),
         )
     )
 
@@ -118,6 +134,14 @@ def create_tuples_from_author_to_cl(results):
                 URIRef(f"{uberon_term}"),
             )
         )
+        tuples.append(
+            (
+                URIRef(f"{cl_term}"),
+                URIRef(f"{uberon_term}"),
+                URIRef(f"{RDFSBASE}#Source"),
+                Literal("Manual Mapping"),
+            )
+        )
 
         # Cell_type_Class, HAS_EXEMPLAR_DATA, Cell_set_dataset_Ind
         # CL:0000000, RO:0015001, IAO:0000100
@@ -126,6 +150,14 @@ def create_tuples_from_author_to_cl(results):
                 URIRef(f"{cl_term}"),
                 URIRef(f"{PURLBASE}/RO_0015001"),
                 URIRef(f"{PURLBASE}/{csd_term}"),
+            )
+        )
+        tuples.append(
+            (
+                URIRef(f"{cl_term}"),
+                URIRef(f"{PURLBASE}/{csd_term}"),
+                URIRef(f"{RDFSBASE}#Source"),
+                Literal("Manual Mapping"),
             )
         )
 
@@ -139,6 +171,14 @@ def create_tuples_from_author_to_cl(results):
                 URIRef(f"{uberon_term}-{uuid_0}"),
             )
         )
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{cs_term}"),
+                URIRef(f"{uberon_term}-{uuid_0}"),
+                URIRef(f"{RDFSBASE}#Source"),
+                Literal("Manual Mapping"),
+            )
+        )
 
         # Cell_set_Ind, SOURCE, Cell_set_dataset_Ind
         # -, dc:source, IAO:0000100
@@ -147,6 +187,14 @@ def create_tuples_from_author_to_cl(results):
                 URIRef(f"{PURLBASE}/{cs_term}"),
                 URIRef(f"{RDFSBASE}/dc#source"),
                 URIRef(f"{PURLBASE}/{csd_term}"),
+            )
+        )
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{cs_term}"),
+                URIRef(f"{PURLBASE}/{csd_term}"),
+                URIRef(f"{RDFSBASE}#Source"),
+                Literal("Manual Mapping"),
             )
         )
 
@@ -159,6 +207,14 @@ def create_tuples_from_author_to_cl(results):
                 URIRef(f"{cl_term}"),
             )
         )
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{cs_term}"),
+                URIRef(f"{cl_term}"),
+                URIRef(f"{RDFSBASE}#Source"),
+                Literal("Manual Mapping"),
+            )
+        )
 
         # Biomarker_combination_Ind, IS_CHARACTERIZING_MARKER_SET_FOR, Cell_type_Class
         # TODO: Update and use RO term
@@ -168,8 +224,14 @@ def create_tuples_from_author_to_cl(results):
                 URIRef(f"{PURLBASE}/{bmc_term}"),
                 URIRef(f"{PURLBASE}/IS_CHARACTERIZING_MARKER_SET_FOR"),
                 URIRef(f"{cl_term}"),
-
-
+            )
+        )
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{bmc_term}"),
+                URIRef(f"{cl_term}"),
+                URIRef(f"{RDFSBASE}#Source"),
+                Literal("Manual Mapping"),
             )
         )
 
@@ -221,6 +283,14 @@ def create_tuples_from_author_to_cl(results):
                     URIRef(f"{cl_term}"),
                 )
             )
+            tuples.append(
+                (
+                    URIRef(f"{PURLBASE}/{gs_term}"),
+                    URIRef(f"{cl_term}"),
+                    URIRef(f"{RDFSBASE}#Source"),
+                    Literal("Manual Mapping"),
+                )
+            )
 
         # Nodes for each cell type, and marker and binary gene
         binary_genes = ast.literal_eval(row["binary_genes"])
@@ -237,6 +307,14 @@ def create_tuples_from_author_to_cl(results):
                     URIRef(f"{PURLBASE}/{gs_term}"),
                 )
             )
+            tuples.append(
+                (
+                    URIRef(f"{cl_term}"),
+                    URIRef(f"{PURLBASE}/{gs_term}"),
+                    URIRef(f"{RDFSBASE}#Source"),
+                    Literal("Manual Mapping"),
+                )
+            )
 
             # Gene_Class, PART_OF, Cell_type_Class
             # SO:0000704, BFO:0000050, CL:0000000
@@ -247,6 +325,14 @@ def create_tuples_from_author_to_cl(results):
                     URIRef(f"{cl_term}"),
                 )
             )
+            tuples.append(
+                (
+                    URIRef(f"{PURLBASE}/{gs_term}"),
+                    URIRef(f"{cl_term}"),
+                    URIRef(f"{RDFSBASE}#Source"),
+                    Literal("Manual Mapping"),
+                )
+            )
 
             # Gene_Class, EXPRESSED_IN, Anatomical_structure_Class
             # SO:0000704, RO:0002206, UBERON:0001062
@@ -255,6 +341,14 @@ def create_tuples_from_author_to_cl(results):
                     URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{PURLBASE}/RO_0002206"),
                     URIRef(f"{uberon_term}"),
+                )
+            )
+            tuples.append(
+                (
+                    URIRef(f"{PURLBASE}/{gs_term}"),
+                    URIRef(f"{uberon_term}"),
+                    URIRef(f"{RDFSBASE}#Source"),
+                    Literal("Manual Mapping"),
                 )
             )
 

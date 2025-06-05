@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from pprint import pprint
 
-from rdflib.term import URIRef
+from rdflib.term import URIRef, Literal
 
 from CellKnSchemaUtilities import read_schema
 from LoaderUtilities import (
@@ -211,10 +211,16 @@ def create_tuples_from_annotation(annotation_results):
         object = normalize_term(annotation, "object", mesh2mondo)
         if subject is None or object is None:
             continue
+
         s = URIRef(f"{PURLBASE}/{subject}")
         p = URIRef(f"{RDFSBASE}#{predicate}")
         o = URIRef(f"{PURLBASE}/{object}")
         tuples.append((s, p, o))
+
+        p = URIRef(f"{RDFSBASE}#Source")
+        l = Literal("Manual Annotation")
+        tuples.append((s, o, p, l))
+
     return tuples
 
 
