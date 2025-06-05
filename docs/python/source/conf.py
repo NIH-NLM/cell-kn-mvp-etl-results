@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'cell-kn-etl-results'
+project = 'cell-kn-mvp-etl-results'
 copyright = '2025, Raymond LeClair'
 author = 'Raymond LeClair'
 release = '0.1.0'
