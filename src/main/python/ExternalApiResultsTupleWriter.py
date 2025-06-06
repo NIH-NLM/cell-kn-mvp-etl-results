@@ -225,7 +225,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
 
         for drug in results[gene_id]["drugs"]:
             mondo_term = get_mondo_term(drug["disease_id"], efo2mondo)
-            if mondo_term is None or drug["trial_phase"] != 4:
+            if mondo_term is None or drug["trial_phase"] < 3 or not drug["approved"]:
                 continue
             # TODO: Test disease score
 
@@ -397,14 +397,18 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                     (
                         URIRef(f"{PURLBASE}/{gs_term}"),
                         URIRef(f"{PURLBASE}/{pr_a_term}"),
-                        URIRef(f"{RDFSBASE}#Source"),
+                        URIRef(f"{RDFSBASE}#source"),
                         Literal("Open Targets"),
                     )
                 )
 
                 for drug in results[gene_id]["drugs"]:
                     mondo_term = get_mondo_term(drug["disease_id"], efo2mondo)
-                    if mondo_term is None or drug["trial_phase"] != 4:
+                    if (
+                        mondo_term is None
+                        or drug["trial_phase"] < 3
+                        or not drug["approved"]
+                    ):
                         continue
                     # TODO: Test disease score
 
