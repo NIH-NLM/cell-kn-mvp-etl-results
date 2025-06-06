@@ -46,7 +46,7 @@ def create_tuples_from_author_to_cl(results):
         (
             URIRef(f"{PURLBASE}/{csd_term}"),
             URIRef(f"{PURLBASE}/{pub_term}"),
-            URIRef(f"{RDFSBASE}#Source"),
+            URIRef(f"{RDFSBASE}#source"),
             Literal("Manual Mapping"),
         )
     )
@@ -64,7 +64,7 @@ def create_tuples_from_author_to_cl(results):
         (
             URIRef(f"{PURLBASE}/CSD_{results['dataset_id'][0]}"),
             URIRef(f"{PURLBASE}/DS_{results['dataset_source'][0]}"),
-            URIRef(f"{RDFSBASE}#Source"),
+            URIRef(f"{RDFSBASE}#source"),
             Literal("Manual Mapping"),
         )
     )
@@ -138,7 +138,7 @@ def create_tuples_from_author_to_cl(results):
             (
                 URIRef(f"{cl_term}"),
                 URIRef(f"{uberon_term}"),
-                URIRef(f"{RDFSBASE}#Source"),
+                URIRef(f"{RDFSBASE}#source"),
                 Literal("Manual Mapping"),
             )
         )
@@ -156,7 +156,7 @@ def create_tuples_from_author_to_cl(results):
             (
                 URIRef(f"{cl_term}"),
                 URIRef(f"{PURLBASE}/{csd_term}"),
-                URIRef(f"{RDFSBASE}#Source"),
+                URIRef(f"{RDFSBASE}#source"),
                 Literal("Manual Mapping"),
             )
         )
@@ -175,7 +175,7 @@ def create_tuples_from_author_to_cl(results):
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
                 URIRef(f"{uberon_term}-{uuid_0}"),
-                URIRef(f"{RDFSBASE}#Source"),
+                URIRef(f"{RDFSBASE}#source"),
                 Literal("Manual Mapping"),
             )
         )
@@ -193,7 +193,7 @@ def create_tuples_from_author_to_cl(results):
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
                 URIRef(f"{PURLBASE}/{csd_term}"),
-                URIRef(f"{RDFSBASE}#Source"),
+                URIRef(f"{RDFSBASE}#source"),
                 Literal("Manual Mapping"),
             )
         )
@@ -211,7 +211,7 @@ def create_tuples_from_author_to_cl(results):
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
                 URIRef(f"{cl_term}"),
-                URIRef(f"{RDFSBASE}#Source"),
+                URIRef(f"{RDFSBASE}#source"),
                 Literal("Manual Mapping"),
             )
         )
@@ -230,7 +230,7 @@ def create_tuples_from_author_to_cl(results):
             (
                 URIRef(f"{PURLBASE}/{bmc_term}"),
                 URIRef(f"{cl_term}"),
-                URIRef(f"{RDFSBASE}#Source"),
+                URIRef(f"{RDFSBASE}#source"),
                 Literal("Manual Mapping"),
             )
         )
@@ -287,7 +287,7 @@ def create_tuples_from_author_to_cl(results):
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{cl_term}"),
-                    URIRef(f"{RDFSBASE}#Source"),
+                    URIRef(f"{RDFSBASE}#source"),
                     Literal("Manual Mapping"),
                 )
             )
@@ -311,7 +311,7 @@ def create_tuples_from_author_to_cl(results):
                 (
                     URIRef(f"{cl_term}"),
                     URIRef(f"{PURLBASE}/{gs_term}"),
-                    URIRef(f"{RDFSBASE}#Source"),
+                    URIRef(f"{RDFSBASE}#source"),
                     Literal("Manual Mapping"),
                 )
             )
@@ -329,7 +329,7 @@ def create_tuples_from_author_to_cl(results):
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{cl_term}"),
-                    URIRef(f"{RDFSBASE}#Source"),
+                    URIRef(f"{RDFSBASE}#source"),
                     Literal("Manual Mapping"),
                 )
             )
@@ -347,7 +347,7 @@ def create_tuples_from_author_to_cl(results):
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{uberon_term}"),
-                    URIRef(f"{RDFSBASE}#Source"),
+                    URIRef(f"{RDFSBASE}#source"),
                     Literal("Manual Mapping"),
                 )
             )

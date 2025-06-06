@@ -190,7 +190,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{PURLBASE}/{mondo_term}"),
-                    URIRef(f"{RDFSBASE}#Source"),
+                    URIRef(f"{RDFSBASE}#source"),
                     Literal("Open Targets"),
                 )
             )
@@ -246,7 +246,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                 (
                     URIRef(f"{PURLBASE}/{chembl_term}"),
                     URIRef(f"{PURLBASE}/{mondo_term}"),
-                    URIRef(f"{RDFSBASE}#Source"),
+                    URIRef(f"{RDFSBASE}#source"),
                     Literal("Open Targets"),
                 )
             )
@@ -270,7 +270,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                     (
                         URIRef(f"{PURLBASE}/{chembl_term}"),
                         URIRef(f"{PURLBASE}/{nct_term}"),
-                        URIRef(f"{RDFSBASE}#Source"),
+                        URIRef(f"{RDFSBASE}#source"),
                         Literal("Open Targets"),
                     )
                 )
@@ -372,7 +372,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{PURLBASE}/{gs_b_term}"),
-                    URIRef(f"{RDFSBASE}#Source"),
+                    URIRef(f"{RDFSBASE}#source"),
                     Literal("Open Targets"),
                 )
             )
@@ -425,7 +425,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                         (
                             URIRef(f"{PURLBASE}/{chembl_term}"),
                             URIRef(f"{PURLBASE}/{pr_a_term}"),
-                            URIRef(f"{RDFSBASE}#Source"),
+                            URIRef(f"{RDFSBASE}#source"),
                             Literal("Open Targets"),
                         )
                     )
@@ -449,7 +449,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                     (
                         URIRef(f"{PURLBASE}/{gs_term}"),
                         URIRef(f"{PURLBASE}/{gs_b_term}"),
-                        URIRef(f"{RDFSBASE}#Source_db"),
+                        URIRef(f"{RDFSBASE}#source_db"),
                         Literal(str(interaction["source_db"])),
                     ),
                     (
@@ -490,7 +490,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{PURLBASE}/{rs_term}"),
-                    URIRef(f"{RDFSBASE}#Source"),
+                    URIRef(f"{RDFSBASE}#source"),
                     Literal("Open Targets"),
                 )
             )
@@ -507,7 +507,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                 (
                     URIRef(f"{PURLBASE}/{rs_term}"),
                     URIRef(f"{PURLBASE}/{so_term}"),
-                    URIRef(f"{RDFSBASE}#Source"),
+                    URIRef(f"{RDFSBASE}#source"),
                     Literal("Open Targets"),
                 )
             )
@@ -535,7 +535,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                     (
                         URIRef(f"{PURLBASE}/{rs_term}"),
                         URIRef(f"{PURLBASE}/{pharmacogenetic_chembl_term}"),
-                        URIRef(f"{RDFSBASE}#Source"),
+                        URIRef(f"{RDFSBASE}#source"),
                         Literal("Open Targets"),
                     )
                 )
@@ -576,7 +576,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                     ),
                     (
                         URIRef(f"{PURLBASE}/{rs_term}"),
-                        URIRef(f"{RDFSBASE}#Source"),
+                        URIRef(f"{RDFSBASE}#source"),
                         Literal(str(pharmacogenetic["source"])),
                     ),
                     (
@@ -649,7 +649,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{PURLBASE}/{expression['tissue_id']}"),
-                    URIRef(f"{RDFSBASE}#Source"),
+                    URIRef(f"{RDFSBASE}#source"),
                     Literal("Open Targets"),
                 )
             )
