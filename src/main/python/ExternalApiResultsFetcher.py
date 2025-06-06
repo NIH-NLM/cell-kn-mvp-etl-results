@@ -31,7 +31,6 @@ RESOURCES = [
 ]
 
 NSFOREST_DIRPATH = Path("../../../data/results")
-
 HUBMAP_DIRPATH = Path("../../../data/hubmap")
 HUBMAP_LATEST_URLS = [
     "https://lod.humanatlas.io/asct-b/allen-brain/latest/",
@@ -876,8 +875,8 @@ def download_hubmap_data_tables():
 
 def main():
     """Load NSForest results from processing datasets corresponding to
-    the Guo et al. 2023, Li et al. 2023, and Sikkema, et al. 2023
-    publications, then
+    the Guo et al. 2023, Jorstad et al. 2023, Li et al. 2023, and
+    Sikkema, et al. 2023, publications, then
 
     - Use the gget opentargets command to obtain the diseases, drugs,
       interactions, pharmacogenetics, tractability, expression, and
@@ -896,6 +895,9 @@ def main():
       opentargets results to obtain other protein ids, descriptions,
       and comments
 
+    Download specified latest HuBMAP data table JSON files, archiving
+    any earlier versions.
+
     Parameters
     ----------
     None
@@ -912,8 +914,8 @@ def main():
     uniprot_results : dict
         Dictionary containg UniProt results keyed by protein id
     """
+    # Load NSForest results and fetch external API results
     parser = argparse.ArgumentParser(description="Fetch External API Results")
-
     parser.add_argument(
         "--force-opentargets",
         action="store_true",
@@ -944,7 +946,6 @@ def main():
         action="store_true",
         help="force fetching of uniprot results",
     )
-
     args = parser.parse_args()
 
     nsforest_paths = [
@@ -955,11 +956,17 @@ def main():
 
         print(f"Fetching results for {nsforest_path}")
 
-        opentargets_path, _opentargets_results = get_opentargets_results(nsforest_path, force=args.force_opentargets)
+        opentargets_path, _opentargets_results = get_opentargets_results(
+            nsforest_path, force=args.force_opentargets
+        )
 
-        _ebi_path, _ebi_results = get_ebi_results(opentargets_path, force=args.force_ebi)
+        _ebi_path, _ebi_results = get_ebi_results(
+            opentargets_path, force=args.force_ebi
+        )
 
-        _rxnav_path, _rxnav_results = get_rxnav_results(opentargets_path, force=args.force_rxnav)
+        _rxnav_path, _rxnav_results = get_rxnav_results(
+            opentargets_path, force=args.force_rxnav
+        )
 
         # TODO: Restore if API becomes available
         # drugbank_path, drugbank_results = get_drugbank_results(rxnav_path, force=args.force_drugbank)
@@ -967,7 +974,12 @@ def main():
         # TODO: Restore if API becomes available
         # ncats_path, ncats_results = get_ncats_results(rxnav_path, force=args.force_ncats)
 
-        _uniprot_path, _uniprot_results = get_uniprot_results(opentargets_path, force=args.force_uniprot)
+        _uniprot_path, _uniprot_results = get_uniprot_results(
+            opentargets_path, force=args.force_uniprot
+        )
+
+    # Download specified latest HuBMAP data table JSON files
+    download_hubmap_data_tables()
 
 
 if __name__ == "__main__":
