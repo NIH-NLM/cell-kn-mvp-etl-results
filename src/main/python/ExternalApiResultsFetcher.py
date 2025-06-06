@@ -1,7 +1,10 @@
 import argparse
 from glob import glob
 import json
+import os
 from pathlib import Path
+import re
+import shutil
 
 import gget
 import requests
@@ -28,6 +31,14 @@ RESOURCES = [
 ]
 
 NSFOREST_DIRPATH = Path("../../../data/results")
+
+HUBMAP_DIRPATH = Path("../../../data/hubmap")
+HUBMAP_LATEST_URLS = [
+    "https://lod.humanatlas.io/asct-b/allen-brain/latest/",
+    "https://lod.humanatlas.io/asct-b/eye/latest/",
+    "https://lod.humanatlas.io/asct-b/kidney/latest/",
+    "https://lod.humanatlas.io/asct-b/lung/latest/",
+]
 
 # TODO: Refactor to reduce massive redundancy
 
@@ -773,6 +784,94 @@ def get_uniprot_results(opentargets_path, resources=RESOURCES, force=False):
                 json.dump(uniprot_results, fp, indent=4)
 
     return uniprot_path, uniprot_results
+
+
+def get_hubmap_json_urls():
+    """Get the URL to specified HuBMAP data table JSON files.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    json_urls : list(tuple(str, float, str))
+       List of tuples with the organ, version, and URL
+    """
+    json_urls = []
+
+    # Get each HuBMAP data table latest version URL
+    p_org = re.compile(r"asct-b\/(.*)\/latest")
+    p_url = re.compile(r"https:\/\/.*\/v(\d\.\d)\/graph.json")
+    for latest_url in HUBMAP_LATEST_URLS:
+        m_org = p_org.search(latest_url)
+        if m_org is not None:
+            org = m_org.group(1)
+
+        else:
+            # Should never happen
+            raise Exception("No organ in HuBMAP URL")
+        response = requests.get(latest_url)
+        if response.status_code == 200:
+
+            # Parse the response to find version and JSON file URL
+            m_url = p_url.search(response.text)
+            if m_url is not None:
+                json_url = m_url.group(0)
+                json_ver = float(m_url.group(1))
+                json_urls.append((org, json_ver, json_url))
+
+            else:
+                raise Exception("Could not find HuBMAP JSON URL or version")
+
+        else:
+            raise Exception("Could not get HuBMAP latest URL")
+
+    return json_urls
+
+
+def download_hubmap_data_tables():
+    """Download specified latest HuBMAP data table JSON files,
+    archiving any earlier versions.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    None
+    """
+    # Get the URL to all HuBMAP data table JSON files
+    json_urls = get_hubmap_json_urls()
+    for org, ver, url in json_urls:
+
+        # Skip the current JSON file if it exists, otherwise, archive
+        # any earlier versions
+        hubmap_filepath = HUBMAP_DIRPATH / f"{org}-v{ver}.json"
+        if hubmap_filepath.exists():
+            print(f"HuBMAP data table {hubmap_filepath} already exists")
+            continue
+
+        else:
+            for pathname in glob(str(HUBMAP_DIRPATH / f"{org}-v*.json")):
+                try:
+                    shutil.move(Path(pathname), HUBMAP_DIRPATH / ".archive")
+                    print(f"Archived HuBMAP data table {pathname}")
+                except Exception as exc:
+                    # Since already archived, though should never happen
+                    os.remove(pathname)
+                    print(f"Removed HuBMAP data table {pathname}")
+
+        # Download the JSON file
+        response = requests.get(url)
+        if response.status_code == 200:
+            with open(hubmap_filepath, "w") as fp:
+                fp.write(response.text)
+            print(f"Downloaded HuBMAP data table {hubmap_filepath}")
+
+        else:
+            print(f"Could not download HuBMAP data table {hubmap_filepath}")
 
 
 def main():
