@@ -405,12 +405,12 @@ def main():
         except Exception as ex:
             print(f"No view in {database_name} to delete")
         try:
-            adb.delete_analyzer(database_name)
+            adb.delete_analyzers(database_name)
         except Exception as ex:
-            print(f"No analyzer in {database_name} to delete")
+            print(f"No analyzers in {database_name} to delete")
 
         # Then create
-        adb.create_analyzer(database_name)
+        adb.create_analyzers(database_name)
         adb.create_view(
             database_name,
             collection_maps_name="../../../cell-kn-mvp-etl-ontologies/data/cell-kn-mvp-collection-maps-2025-04-23.json",
