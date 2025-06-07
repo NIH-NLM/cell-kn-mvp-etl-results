@@ -202,7 +202,7 @@ def create_tuples_from_annotation(annotation_results):
         List of tuples (triples only) created
     """
     mesh2mondo = get_mesh_to_mondo_map(
-        "../../../cell-kn-etl-ontologies/data/obo", "mondo-simple.owl"
+        "../../../cell-kn-mvp-etl-ontologies/data/obo", "mondo-simple.owl"
     )
     tuples = []
     for annotation in annotation_results:

@@ -2,6 +2,6 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/cell-kn-etl-ontologies" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cell-kn-mvp-etl-ontologies" vcs="Git" />
   </component>
 </project>

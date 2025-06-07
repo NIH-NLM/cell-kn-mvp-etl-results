@@ -3,11 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>gov.nih.nlm</groupId>
-  <artifactId>cell-kn-etl-results</artifactId>
+  <artifactId>cell-kn-mvp-etl-results</artifactId>
   <version>1.0</version>
   <packaging>jar</packaging>
 
-  <name>cell-kn-etl-results</name>
+  <name>cell-kn-mvp-etl-results</name>
   <url>http://maven.apache.org</url>
 
   <properties>
@@ -33,10 +33,10 @@
     </dependency>
     <dependency>
       <groupId>gov.nih.nlm</groupId>
-      <artifactId>cell-kn-etl-ontologies</artifactId>
+      <artifactId>cell-kn-mvp-etl-ontologies</artifactId>
       <version>1.0</version>
       <scope>system</scope>
-      <systemPath>${basedir}/cell-kn-etl-ontologies/target/cell-kn-etl-ontologies-1.0.jar</systemPath>
+      <systemPath>${basedir}/cell-kn-mvp-etl-ontologies/target/cell-kn-mvp-etl-ontologies-1.0.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>junit</groupId>

@@ -28,7 +28,7 @@ interaction with the ArangoDB developers, and use in production.
 
 ## Purpose
 
-The `cell-kn-etl-results` repository provides Python modules for
+The `cell-kn-mvp-etl-results` repository provides Python modules for
 fetching data from external sources, and creating semantic triples
 from NSForest results, their manual mapping to the CL, and external
 data and NLP results. Note that these triples are created consistent
@@ -59,9 +59,9 @@ Data can be fetched from the following external sources:
 
 ### Submodule
 
-The `cell-kn-etl-results` repository includes the
+The `cell-kn-mvp-etl-results` repository includes the
 `cell-kn-etl-ontologies` repository as a submodule. After cloning
-`cell-kn-etl-results`, initialize and update the submodule as follows:
+`cell-kn-mvp-etl-results`, initialize and update the submodule as follows:
 ```
 git submodule init
 git submodule update
@@ -127,7 +127,7 @@ $ ./start-arangodb.sh
 
 Run the Python modules for fetching data from external sources, and
 creating semantic triples from NSForest results, their manual mapping
-to the CL, external data and NLP results, and the Cell KN schema as follows
+to the CL, external data, and NLP results as follows:
 ```
 $ cd src/main/python
 $ python ExternalApiResultsFetcher.py
@@ -135,7 +135,6 @@ $ python NSForestResultsTupleWriter.py
 $ python AuthorToClResultsTupleWriter.py
 $ python ExternalApiResultsTupleWriter.py
 $ python AnnotationResultsTupleWriter.py
-$ python CellKnSchemaTupleWriter.py
 ```
 Note that quadruples are also created which represent edge
 annotations.
@@ -147,5 +146,15 @@ $ export ARANGO_DB_HOST=127.0.0.1
 $ export ARANGO_DB_PORT=8529
 $ export ARANGO_DB_HOME="<some-path>/arangodb"
 $ export ARANGO_DB_PASSWORD="<some-password>"
-$ java -cp target/cell-kn-etl-ontologies-1.0.jar:cell-kn-etl-ontologies/target/cell-kn-etl-ontologies-1.0.jar gov.nih.nlm.ResultsGraphBuilder
+$ export CP_RESULTS="target/cell-kn-mvp-etl-results-1.0.jar"
+$ export CP_ONTOLOGIES="cell-kn-mvp-etl-ontologies/target/cell-kn-mvp-etl-ontologies-1.0.jar"
+$ java -cp $CP_RESULTS:$CP_ONTOLOGIES gov.nih.nlm.ResultsGraphBuilder
+$ java -cp $CP_RESULTS:$CP_ONTOLOGIES gov.nih.nlm.PhenotypeGraphBuilder
+```
+
+Run the Python modules for creating semantic triples from the Cell KN
+schema, and create ArangoDB analyzers and views as follows:
+```
+$ cd src/main/python
+$ python CellKnSchemaTupleWriter.py
 ```

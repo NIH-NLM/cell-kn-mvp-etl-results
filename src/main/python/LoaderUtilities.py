@@ -416,7 +416,7 @@ def get_efo_to_mondo_map():
     """
     print("Creating EFO to MONDO term map")
     mondo_efo_mappings_name = (
-        "../../../cell-kn-etl-ontologies/data/mondo_efo_mappings.tsv"
+        "../../../cell-kn-mvp-etl-ontologies/data/mondo_efo_mappings.tsv"
     )
     efo2mondo = pd.read_csv(mondo_efo_mappings_name)
     efo2mondo = efo2mondo.set_index("EFO")
