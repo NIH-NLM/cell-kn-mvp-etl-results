@@ -1,3 +1,4 @@
+import argparse
 from glob import glob
 import json
 from pathlib import Path
@@ -31,7 +32,7 @@ NSFOREST_DIRPATH = Path("../../../data/results")
 # TODO: Refactor to reduce massive redundancy
 
 
-def get_opentargets_results(nsforest_path, resources=RESOURCES):
+def get_opentargets_results(nsforest_path, resources=RESOURCES, force=False):
     """Use the gget opentargets command to obtain the specified
     resources for each unique gene id mapped from each gene symbol in
     the NSForest results loaded from the specified path. The
@@ -45,6 +46,8 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES):
     resources : list(str)
         List of resource names to use with the gget opentargets
         command
+    force : bool
+        Flag to force fetching, or not
 
     Returns
     -------
@@ -56,7 +59,7 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES):
     """
     # Create, or load opentargets results
     opentargets_path = Path(str(nsforest_path).replace(".csv", "-opentargets.json"))
-    if not opentargets_path.exists():
+    if not opentargets_path.exists() or force:
 
         # Initialize results, and collect unique gene symbols and ids
 
@@ -158,7 +161,7 @@ def collect_unique_drug_names(opentargets_results):
     return list(drug_names)
 
 
-def get_ebi_results(opentargets_path, resources=RESOURCES):
+def get_ebi_results(opentargets_path, resources=RESOURCES, force=False):
     """Use an EBI API endpoint for each unique drug name in the
     opentargets results loaded from the specified path. The EBI
     results are written out in batches to enable restarting.
@@ -170,6 +173,8 @@ def get_ebi_results(opentargets_path, resources=RESOURCES):
     resources : list(str)
         List of resource names to use with the gget opentargets
         command
+    force : bool
+        Flag to force fetching, or not
 
     Returns
     -------
@@ -180,7 +185,7 @@ def get_ebi_results(opentargets_path, resources=RESOURCES):
     """
     # Create, or load EBI results
     ebi_path = Path(str(opentargets_path).replace("opentargets", "ebi"))
-    if not ebi_path.exists():
+    if not ebi_path.exists() or force:
 
         # Initialize results, and collect unique drug names
 
@@ -248,7 +253,7 @@ def get_ebi_results(opentargets_path, resources=RESOURCES):
     return ebi_path, ebi_results
 
 
-def get_rxnav_results(opentargets_path, resources=RESOURCES):
+def get_rxnav_results(opentargets_path, resources=RESOURCES, force=False):
     """Use an RxNav API endpoint for each unique drug name in the
     opentargets results loaded from the specified path. The RxNav
     results are written out in batches to enable restarting.
@@ -260,6 +265,8 @@ def get_rxnav_results(opentargets_path, resources=RESOURCES):
     resources : list(str)
         List of resource names to use with the gget opentargets
         command
+    force : bool
+        Flag to force fetching, or not
 
     Returns
     -------
@@ -270,7 +277,7 @@ def get_rxnav_results(opentargets_path, resources=RESOURCES):
     """
     # Create, or load RxNav results
     rxnav_path = Path(str(opentargets_path).replace("opentargets", "rxnav"))
-    if not rxnav_path.exists():
+    if not rxnav_path.exists() or force:
 
         # Initialize results, and collect unique drug names
 
@@ -408,7 +415,7 @@ def get_prop_for_drug(rxnav_results, drug_name, prop_name):
     return prop_value
 
 
-def get_drugbank_results(rxnav_path, resources=RESOURCES):
+def get_drugbank_results(rxnav_path, resources=RESOURCES, force=False):
     """Use the DrugBank website for each unique drug name in the
     opentargets results loaded from the path corresponding to the
     specified RxNav path. The DrugBank results are written out in
@@ -422,6 +429,8 @@ def get_drugbank_results(rxnav_path, resources=RESOURCES):
     resources : list(str)
         List of resource names to use with the gget opentargets
         command
+    force : bool
+        Flag to force fetching, or not
 
     Returns
     -------
@@ -438,7 +447,7 @@ def get_drugbank_results(rxnav_path, resources=RESOURCES):
     """
     # Create, or load RxNav results
     drugbank_path = Path(str(rxnav_path).replace("rxnav", "drugbank"))
-    if not drugbank_path.exists():
+    if not drugbank_path.exists() or force:
 
         # Initialize results, and collect unique drug names
 
@@ -513,7 +522,7 @@ def get_drugbank_results(rxnav_path, resources=RESOURCES):
     return drugbank_path, drugbank_results
 
 
-def get_ncats_results(rxnav_path, resources=RESOURCES):
+def get_ncats_results(rxnav_path, resources=RESOURCES, force=False):
     """Use the NCATS website for each unique drug name in the
     opentargets results loaded from the path corresponding to the
     specified RxNav path. The NCATS results are written out in batches
@@ -526,6 +535,8 @@ def get_ncats_results(rxnav_path, resources=RESOURCES):
     resources : list
         List of resource names to use with the gget opentargets
         command
+    force : bool
+        Flag to force fetching, or not
 
     Returns
     -------
@@ -542,7 +553,7 @@ def get_ncats_results(rxnav_path, resources=RESOURCES):
     """
     # Create, or load NCATS results
     ncats_path = Path(str(rxnav_path).replace("rxnav", "ncats"))
-    if not ncats_path.exists():
+    if not ncats_path.exists() or force:
 
         # Initialize results, and collect unique drug names
 
@@ -647,7 +658,7 @@ def collect_unique_protein_ids(opentargets_results):
     return list(protein_ids)
 
 
-def get_uniprot_results(opentargets_path, resources=RESOURCES):
+def get_uniprot_results(opentargets_path, resources=RESOURCES, force=False):
     """Use a UniProt API endpoint for each protein id in the
     opentargets results loaded from the specified path. The UniProt
     results are written out in batches to enable restarting.
@@ -659,6 +670,8 @@ def get_uniprot_results(opentargets_path, resources=RESOURCES):
     resources : list
         List of resource names to use with the gget opentargets
         command
+    force : bool
+        Flag to force fetching, or not
 
     Returns
     -------
@@ -669,7 +682,7 @@ def get_uniprot_results(opentargets_path, resources=RESOURCES):
     """
     # Create, or load UniProt results
     uniprot_path = Path(str(opentargets_path).replace("opentargets", "uniprot"))
-    if not uniprot_path.exists():
+    if not uniprot_path.exists() or force:
 
         # Initialize results, and collect unique protein ids, and
         # their mapping to and from Ensembl protein ids and UniProg
@@ -800,6 +813,41 @@ def main():
     uniprot_results : dict
         Dictionary containg UniProt results keyed by protein id
     """
+    parser = argparse.ArgumentParser(description="Fetch External API Results")
+
+    parser.add_argument(
+        "--force-opentargets",
+        action="store_true",
+        help="force fetching of opentargets results",
+    )
+    parser.add_argument(
+        "--force-ebi",
+        action="store_true",
+        help="force fetching of ebi results",
+    )
+    parser.add_argument(
+        "--force-rxnav",
+        action="store_true",
+        help="force fetching of rxnav results",
+    )
+    parser.add_argument(
+        "--force-drugbank",
+        action="store_true",
+        help="force fetching of drugbank results",
+    )
+    parser.add_argument(
+        "--force-ncats",
+        action="store_true",
+        help="force fetching of ncats results",
+    )
+    parser.add_argument(
+        "--force-uniprot",
+        action="store_true",
+        help="force fetching of uniprot results",
+    )
+
+    args = parser.parse_args()
+
     nsforest_paths = [
         Path(p).resolve()
         for p in glob(str(NSFOREST_DIRPATH / "cell-kn-mvp-nsforest-results-*.csv"))
@@ -808,19 +856,19 @@ def main():
 
         print(f"Fetching results for {nsforest_path}")
 
-        opentargets_path, _opentargets_results = get_opentargets_results(nsforest_path)
+        opentargets_path, _opentargets_results = get_opentargets_results(nsforest_path, force=args.force_opentargets)
 
-        _ebi_path, _ebi_results = get_ebi_results(opentargets_path)
+        _ebi_path, _ebi_results = get_ebi_results(opentargets_path, force=args.force_ebi)
 
-        _rxnav_path, _rxnav_results = get_rxnav_results(opentargets_path)
-
-        # TODO: Restore if API becomes available
-        # drugbank_path, drugbank_results = get_drugbank_results(rxnav_path)
+        _rxnav_path, _rxnav_results = get_rxnav_results(opentargets_path, force=args.force_rxnav)
 
         # TODO: Restore if API becomes available
-        # ncats_path, ncats_results = get_ncats_results(rxnav_path)
+        # drugbank_path, drugbank_results = get_drugbank_results(rxnav_path, force=args.force_drugbank)
 
-        _uniprot_path, _uniprot_results = get_uniprot_results(opentargets_path)
+        # TODO: Restore if API becomes available
+        # ncats_path, ncats_results = get_ncats_results(rxnav_path, force=args.force_ncats)
+
+        _uniprot_path, _uniprot_results = get_uniprot_results(opentargets_path, force=args.force_uniprot)
 
 
 if __name__ == "__main__":

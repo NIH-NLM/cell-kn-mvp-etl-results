@@ -48,6 +48,14 @@ def create_tuples_from_nsforest(results):
                 URIRef(f"{PURLBASE}/SO_0001260"),
             )
         )
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{bmc_term}"),
+                URIRef(f"{PURLBASE}/SO_0001260"),
+                URIRef(f"{RDFSBASE}#source"),
+                Literal("NSForest"),
+            )
+        )
 
         # Gene_Class, PART_OF, Biomarker_combination_Ind
         # SO:0000704, BFO:0000050, SO:0001260
@@ -61,6 +69,14 @@ def create_tuples_from_nsforest(results):
                     URIRef(f"{PURLBASE}/{bmc_term}"),
                 )
             )
+            tuples.append(
+                (
+                    URIRef(f"{PURLBASE}/{gs_term}"),
+                    URIRef(f"{PURLBASE}/{bmc_term}"),
+                    URIRef(f"{RDFSBASE}#source"),
+                    Literal("NSForest"),
+                )
+            )
 
         # Cell_set_Ind, HAS_CHARACTERIZING_MARKER_SET, Biomarker_combination_Ind
         # ---, RO:0015004, SO:0001260
@@ -71,6 +87,14 @@ def create_tuples_from_nsforest(results):
                 URIRef(f"{PURLBASE}/{bmc_term}"),
             )
         )
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{cs_term}"),
+                URIRef(f"{PURLBASE}/{bmc_term}"),
+                URIRef(f"{RDFSBASE}#source"),
+                Literal("NSForest"),
+            )
+        )
 
         # Biomarker_combination_Ind, SUBCLUSTER_OF, Binary_gene_combination_Ind
         # SO:0001260, RO:0015003, SO:0001260
@@ -79,6 +103,14 @@ def create_tuples_from_nsforest(results):
                 URIRef(f"{PURLBASE}/{bmc_term}"),
                 URIRef(f"{PURLBASE}/RO_0015003"),
                 URIRef(f"{PURLBASE}/{bgc_term}"),
+            )
+        )
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{bmc_term}"),
+                URIRef(f"{PURLBASE}/{bgc_term}"),
+                URIRef(f"{RDFSBASE}#source"),
+                Literal("NSForest"),
             )
         )
 
@@ -135,7 +167,7 @@ def create_tuples_from_nsforest(results):
                 (
                     URIRef(f"{PURLBASE}/{cs_term}"),
                     URIRef(f"{PURLBASE}/{bmc_term}"),
-                    URIRef(f"{PURLBASE}/#Source_algorithm"),  # [IAO_0000064]
+                    URIRef(f"{PURLBASE}/#source_algorithm"),  # [IAO_0000064]
                     Literal("NSForest-v4.0_dev"),
                 ),
                 (
