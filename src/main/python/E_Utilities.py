@@ -1,9 +1,10 @@
 import json
 import os
+from pathlib import Path
 from time import sleep
 from urllib import parse
 
-from bs4 import BeautifulSoup
+import bs4
 import requests
 
 EUTILS_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
@@ -12,9 +13,9 @@ NCBI_API_KEY = os.environ.get("NCBI_API_KEY")
 NCBI_API_SLEEP = 1
 
 
-def find_names_or_none(soup, names):
-    """Find the text in the last named tag, if all previously named
-    tags are found.
+def find_names_or_none(soup, names, attribute=None):
+    """Find the text, or specified attribute, in the last named tag,
+    if all previously named tags are found.
 
     Parameters
     ----------
@@ -22,18 +23,23 @@ def find_names_or_none(soup, names):
         Any soup returned by BeautifulSoup
     names : list(str)
         List of tag names to find in order
+    attribute : str
+        Attribute of the last named tag
 
     Returns
     -------
     str
-        text in the last named tag, or None
+        text, or attribute, in the last named tag, or None
     """
     soup = soup.find(names[0])
     for name in names[1:]:
         if soup:
             soup = soup.find(name)
     if soup:
-        return soup.text
+        if attribute:
+            return soup.get(attribute)
+        else:
+            return soup.text
     else:
         return soup
 
@@ -75,10 +81,10 @@ def get_data_for_pmid(pmid, do_write=False):
         xml_data = response.text
         if do_write:
             with open(f"{pmid}.xml", "w") as fp:
-                fp.write(BeautifulSoup(xml_data, "xml").prettify())
+                fp.write(bs4.BeautifulSoup(xml_data, "xml").prettify())
 
         # Got the page, so parse it, and search for the title
-        soup = BeautifulSoup(xml_data, "xml").find("Article")
+        soup = bs4.BeautifulSoup(xml_data, "xml").find("Article")
         if soup:
             data["author"] = find_names_or_none(
                 soup, ["AuthorList", "Author", "LastName"]
@@ -143,33 +149,28 @@ def find_gene_id_for_gene_name(name, do_write=False):
     return gene_id
 
 
-def get_data_for_gene_id(gene_id, is_summary=False, do_write=False):
-    """Fetch from Gene using a gene id to get the full, or summary,
-    record.
+def get_data_for_gene_id(gene_id, do_write=False):
+    """Fetch from Gene using a gene id to get the full record and find
+    required values.
 
     Parameters
     ----------
     gene_id : str
         The Gene identifier to use in the fetch
-    is_summary : bool
-        Flag to fetch summary, rather than full, data (default: False)
     do_write : bool
         Flag to write fetched results, or not (default: False)
 
     Returns
     -------
     data : dict
-       Dictionary containing the full record
+       Dictionary containing the required values of the full record
     """
     # Need a default return value
     data = {}
 
     # Fetch from Gene
     print(f"Getting data for gene id: '{gene_id}'")
-    if is_summary:
-        fetch_url = EUTILS_URL + "esummary.fcgi"
-    else:
-        fetch_url = EUTILS_URL + "efetch.fcgi"
+    fetch_url = EUTILS_URL + "efetch.fcgi"
     params = {
         "db": "gene",
         "id": gene_id,
@@ -183,21 +184,75 @@ def get_data_for_gene_id(gene_id, is_summary=False, do_write=False):
         xml_data = response.text
         if do_write:
             with open(f"{gene_id}.xml", "w") as fp:
-                fp.write(BeautifulSoup(xml_data, "xml").prettify())
+                fp.write(bs4.BeautifulSoup(xml_data, "xml").prettify())
 
-        # Got the page, so parse it, and search for the title
-        breakpoint()
-        soup = BeautifulSoup(xml_data, "xml").find("Article")
-        if soup:
-            data["author"] = find_names_or_none(
-                soup, ["AuthorList", "Author", "LastName"]
-            )  # First author
-            if len(find_names_or_none(soup, ["AuthorList"])) > 1:
-                data["author"] += " et al."
-            data["journal"] = find_names_or_none(soup, ["Journal", "ISOAbbreviation"])
-            data["title"] = find_names_or_none(soup, ["ArticleTitle"])
-            data["year"] = find_names_or_none(soup, ["ArticleDate", "Year"])
-            data["citation"] = f"{data['author']} ({data['year']}) {data['journal']}"
+        # Got the page, so parse it, and search for the required values
+        tags = bs4.BeautifulSoup(xml_data, "xml").find_all("Entrezgene")
+        if len(tags) > 1:
+            raise Exception("Expect a single Entrezgene element")
+        root = tags[0]
+        data["Official Symbol"] = find_names_or_none(
+            root,
+            [
+                "Entrezgene_gene",
+                "Gene-ref",
+                "Gene-ref_formal-name",
+                "Gene-nomenclature_symbol",
+            ],
+        )
+        data["Official Full Name"] = find_names_or_none(
+            root,
+            [
+                "Entrezgene_gene",
+                "Gene-ref",
+                "Gene-ref_formal-name",
+                "Gene-nomenclature_name",
+            ],
+        )
+        data["Gene Type"] = find_names_or_none(
+            root, ["Entrezgene_type"], attribute="value"
+        )
+        for child in root.find_all("Other-source_url"):
+            if "www.uniprot.org" in child.text:
+                data["Hyperlink to Uniprot ID"] = child.text
+        data["Organism"] = find_names_or_none(
+            root,
+            [
+                "Entrezgene_source",
+                "BioSource",
+                "BioSource_org",
+                "Org-ref",
+                "Org-ref_taxname",
+            ],
+        )
+        for child in root.find_all("Gene-commentary_accession"):
+            if "NG_" in child.text:
+                data["RefSeq Gene ID"] = child.text
+        data["Also Known As"] = []
+        for child in root.find_all("Gene-ref_syn_E"):
+            data["Also Known As"].append(child.text)
+        data["Summary"] = find_names_or_none(root, ["Entrezgene_summary"])
+        pr_desc = find_names_or_none(root, ["Entrezgene_prot", "Prot-ref_desc"])
+        data["Uniprot Name"] = Path(
+            parse.urlparse(data["Hyperlink to Uniprot ID"]).path
+        ).stem
+        for product in root.find_all("Gene-commentary_products"):
+            if find_names_or_none(product, ["Gene-commentary_type"], "value") == "mRNA":
+                nm_id = None
+                np_id = None
+                for accession in product.find_all("Gene-commentary_accession"):
+                    if "NM_" in accession.text:
+                        nm_id = accession.text
+                    elif "NP_" in accession.text:
+                        np_id = accession.text
+                if nm_id and np_id and pr_desc:
+                    data["mRNA (NM) and Protein (NP) sequences"] = (
+                        f"{nm_id} -> {np_id}, {pr_desc}"
+                    )
+                break
+
+        return data
+
     else:
         print(f"Encountered error in fetching from Gene: {response.status_code}")
 
@@ -206,6 +261,7 @@ def get_data_for_gene_id(gene_id, is_summary=False, do_write=False):
 
 def main():
     print(get_data_for_pmid("37291214"))
+    print(get_data_for_gene_id("1080"))
 
 
 if __name__ == "__main__":
