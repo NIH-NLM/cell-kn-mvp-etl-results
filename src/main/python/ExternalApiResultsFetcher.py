@@ -6,14 +6,17 @@ from pathlib import Path
 import gget
 import requests
 
+from E_Utilities import get_data_for_gene_id, find_gene_id_for_gene_name
 from LoaderUtilities import (
     load_results,
-    collect_unique_gene_ids,
+    collect_unique_gene_ensembl_ids,
+    collect_unique_gene_entrez_ids,
     collect_unique_gene_symbols,
-    get_accession_to_protein_id_map,
-    get_gene_name_to_ids_map,
-    get_protein_id_to_accession_map,
-    map_protein_id_to_accession,
+    get_accession_to_protein_ensembl_id_map,
+    get_gene_name_to_and_from_ensembl_id_maps,
+    get_gene_name_to_ensembl_ids_map,
+    get_protein_ensembl_id_to_accession_map,
+    map_protein_ensembl_id_to_accession,
 )
 
 
@@ -34,9 +37,9 @@ NSFOREST_DIRPATH = Path("../../../data/results")
 
 def get_opentargets_results(nsforest_path, resources=RESOURCES, force=False):
     """Use the gget opentargets command to obtain the specified
-    resources for each unique gene id mapped from each gene symbol in
-    the NSForest results loaded from the specified path. The
-    opentarget results are written out in batches to enable
+    resources for each unique Ensembl gene id mapped from each gene
+    symbol in the NSForest results loaded from the specified path. The
+    opentargets results are written out in batches to enable
     restarting.
 
     Parameters
@@ -54,14 +57,14 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES, force=False):
     opentargets_path : Path
         Path to opentargets results
     opentargets_results : dict
-        Dictionary containg opentargets results keyed by gene id, then
+        Dictionary containg opentargets results keyed by gene Ensembl id, then
         by resource
     """
     # Create, or load opentargets results
     opentargets_path = Path(str(nsforest_path).replace(".csv", "-opentargets.json"))
     if not opentargets_path.exists() or force:
 
-        # Initialize results, and collect unique gene symbols and ids
+        # Initialize results, and collect unique gene symbols and Ensembl ids
 
         opentargets_results = {}
 
@@ -71,8 +74,8 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES, force=False):
         )
 
         gene_symbols = collect_unique_gene_symbols(nsforest_results)
-        gnm2ids = get_gene_name_to_ids_map()
-        gene_ids = collect_unique_gene_ids(gene_symbols, gnm2ids)
+        gnm2ids = get_gene_name_to_ensembl_ids_map()
+        gene_ensembl_ids = collect_unique_gene_ensembl_ids(gene_symbols, gnm2ids)
 
     else:
 
@@ -83,51 +86,53 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES, force=False):
             opentargets_results = json.load(fp)
 
         gene_symbols = opentargets_results["gene_symbols"]
-        gene_ids = opentargets_results["gene_ids"]
+        gene_ensembl_ids = opentargets_results["gene_ensembl_ids"]
 
     # Consider each gene id, and setup to dump the results in
     # batches, and enable restarting
-    total_size = len(gene_ids)
+    total_size = len(gene_ensembl_ids)
     n_so_far = 0
     do_dump = False
     batch_size = 25
     n_in_batch = 0
-    for gene_id in gene_ids:
+    for gene_ensembl_id in gene_ensembl_ids:
         n_in_batch += 1
         n_so_far += 1
-        if gene_id not in opentargets_results:
+        if gene_ensembl_id not in opentargets_results:
             print(
                 f"Fetched {n_in_batch}/{batch_size} in batch - {n_so_far}/{total_size} so far"
             )
             do_dump = True
 
-            opentargets_results[gene_id] = {}
+            opentargets_results[gene_ensembl_id] = {}
 
             for resource in resources:
                 try:
-                    opentargets_results[gene_id][resource] = gget.opentargets(
-                        gene_id, resource=resource, json=True, verbose=True
+                    opentargets_results[gene_ensembl_id][resource] = gget.opentargets(
+                        gene_ensembl_id, resource=resource, json=True, verbose=True
                     )
                     print(
-                        f"Assigned gget opentargets resource {resource} for gene id {gene_id}"
+                        f"Assigned gget opentargets resource {resource} for gene Ensembl id {gene_ensembl_id}"
                     )
                 except Exception as exc:
                     print(
-                        f"Could not assign gget opentargets resource {resource} for gene id {gene_id}"
+                        f"Could not assign gget opentargets resource {resource} for gene Ensembl id {gene_ensembl_id}"
                     )
-                    opentargets_results[gene_id][resource] = {}
+                    opentargets_results[gene_ensembl_id][resource] = {}
 
         else:
-            # print(f"Already assigned gget opentargets resources for gene id {gene_id}")
-            if gene_id != gene_ids[-1]:
+            # print(f"Already assigned gget opentargets resources for gene Ensembl id {gene_ensembl_id}")
+            if gene_ensembl_id != gene_ensembl_ids[-1]:
                 continue
 
-        if do_dump and (n_in_batch >= batch_size or gene_id == gene_ids[-1]):
+        if do_dump and (
+            n_in_batch >= batch_size or gene_ensembl_id == gene_ensembl_ids[-1]
+        ):
             do_dump = False
             n_in_batch = 0
 
             opentargets_results["gene_symbols"] = gene_symbols
-            opentargets_results["gene_ids"] = gene_ids
+            opentargets_results["gene_ensembl_ids"] = gene_ensembl_ids
 
             print(f"Dumping opentargets results to {opentargets_path}")
             with open(opentargets_path, "w") as fp:
@@ -142,8 +147,8 @@ def collect_unique_drug_names(opentargets_results):
     Parameters
     ----------
     opentargets_results : dict
-        Dictionary containg opentargets results keyed by gene id, then
-        by resource
+        Dictionary containg opentargets results keyed by gene Ensembl
+        id, then by resource
 
     Returns
     -------
@@ -152,8 +157,8 @@ def collect_unique_drug_names(opentargets_results):
     """
     drug_names = set()
 
-    for gene_id, resources in opentargets_results.items():
-        if gene_id in ["gene_ids", "gene_symbols"]:
+    for gene_ensembl_id, resources in opentargets_results.items():
+        if gene_ensembl_id in ["gene_ensembl_ids", "gene_symbols"]:
             continue
         for drug in resources["drugs"]:
             drug_names.add(drug["name"])
@@ -634,8 +639,8 @@ def collect_unique_protein_ids(opentargets_results):
     Parameters
     ----------
     opentargets_results : dict
-        Dictionary containg opentargets results keyed by gene id, then
-        by resource
+        Dictionary containg opentargets results keyed by gene Ensembl
+        id, then by resource
 
     Returns
     -------
@@ -648,8 +653,8 @@ def collect_unique_protein_ids(opentargets_results):
     """
     protein_ids = set()
 
-    for gene_id, resources in opentargets_results.items():
-        if gene_id in ["gene_ids", "gene_symbols"]:
+    for gene_ensembl_id, resources in opentargets_results.items():
+        if gene_ensembl_id in ["gene_ensembl_ids", "gene_symbols"]:
             continue
         for interaction in resources["interactions"]:
             for key in ["protein_a_id", "protein_b_id"]:
@@ -697,13 +702,13 @@ def get_uniprot_results(opentargets_path, resources=RESOURCES, force=False):
         )
 
         protein_ids = collect_unique_protein_ids(opentargets_results)
-        ensp2accn = get_protein_id_to_accession_map(protein_ids)
-        accn2ensp = get_accession_to_protein_id_map(protein_ids)
+        ensp2accn = get_protein_ensembl_id_to_accession_map(protein_ids)
+        accn2ensp = get_accession_to_protein_ensembl_id_map(protein_ids)
 
     else:
 
         # Load results, and assign unique protein ids, and their
-        # mapping to and from Ensembl protein ids and UniProg
+        # mapping to and from Ensembl protein ids and UniProt
         # accessions
 
         print(f"Loading uniprot results from {uniprot_path}")
@@ -733,7 +738,7 @@ def get_uniprot_results(opentargets_path, resources=RESOURCES, force=False):
             if "ENSP" in protein_id:
 
                 # Map Ensembl id to UniProt accession
-                accession = map_protein_id_to_accession(protein_id, ensp2accn)
+                accession = map_protein_ensembl_id_to_accession(protein_id, ensp2accn)
                 if accession is None:
                     uniprot_results[protein_id] = {}
                     continue
@@ -773,6 +778,94 @@ def get_uniprot_results(opentargets_path, resources=RESOURCES, force=False):
                 json.dump(uniprot_results, fp, indent=4)
 
     return uniprot_path, uniprot_results
+
+
+def get_gene_results(nsforest_path, force=False):
+    """Use the E-Utilities to fetch Gene data for each gene symbol in
+    the NSForest results loaded from the specified path. The gene
+    results are written out in batches to enable restarting.
+
+    Parameters
+    ----------
+    nsforest_path : Path
+        Path to NSForest results
+    force : bool
+        Flag to force fetching, or not
+
+    Returns
+    -------
+    gene_path : Path
+        Path to gene results
+    gene_results : dict
+        Dictionary containg gene results keyed by gene name
+    """
+    # Create, or load gene results
+    gene_path = Path(str(nsforest_path).replace(".csv", "-gene.json"))
+    if not gene_path.exists() or force:
+
+        # Initialize results, and collect unique gene symbols and Entrez ids
+
+        gene_results = {}
+
+        print(f"Loading NSForest results from {nsforest_path}")
+        nsforest_results = load_results(nsforest_path).sort_values(
+            "clusterName", ignore_index=True
+        )
+
+        gene_symbols = collect_unique_gene_symbols(nsforest_results)
+        gnm2id, gid2nm = get_gene_name_to_and_from_ensembl_id_maps(gene_symbols)
+        gene_entrez_ids = collect_unique_gene_entrez_ids(gene_symbols, gnm2id)
+
+    else:
+
+        # Load results, and assign unique gene symbols
+
+        print(f"Loading gene results from {gene_path}")
+        with open(gene_path, "r") as fp:
+            gene_results = json.load(fp)
+
+        gene_symbols = gene_results["gene_symbols"]
+        gene_entrez_ids = gene_results["gene_entrez_ids"]
+
+    # Consider each gene symbol, and setup to dump the results in
+    # batches, and enable restarting
+    total_size = len(gene_symbols)
+    n_so_far = 0
+    do_dump = False
+    batch_size = 25
+    n_in_batch = 0
+    for gene_symbol in gene_symbols:
+        n_in_batch += 1
+        n_so_far += 1
+        if gene_symbol not in gene_results:
+            print(
+                f"Fetched {n_in_batch}/{batch_size} in batch - {n_so_far}/{total_size} so far"
+            )
+            do_dump = True
+            try:
+                gene_results[gene_symbol] = get_data_for_gene_id(gnm2id[gene_symbol])
+                print(f"Assigned gene data for gene symbol {gene_symbol}")
+            except Exception as exc:
+                print(f"Could not assign gene data for gene symbol {gene_symbol}")
+                gene_results[gene_symbol] = {}
+
+        else:
+            # print(f"Already assigned gene data for gene symbol {gene_symbol}")
+            if gene_symbol != gene_symbols[-1]:
+                continue
+
+        if do_dump and (n_in_batch >= batch_size or gene_symbol == gene_symbols[-1]):
+            do_dump = False
+            n_in_batch = 0
+
+            gene_results["gene_symbols"] = gene_symbols
+            gene_results["gene_entrez_ids"] = gene_entrez_ids
+
+            print(f"Dumping gene results to {gene_path}")
+            with open(gene_path, "w") as fp:
+                json.dump(gene_results, fp, indent=4)
+
+    return gene_path, gene_results
 
 
 def main():
@@ -856,11 +949,17 @@ def main():
 
         print(f"Fetching results for {nsforest_path}")
 
-        opentargets_path, _opentargets_results = get_opentargets_results(nsforest_path, force=args.force_opentargets)
+        opentargets_path, _opentargets_results = get_opentargets_results(
+            nsforest_path, force=args.force_opentargets
+        )
 
-        _ebi_path, _ebi_results = get_ebi_results(opentargets_path, force=args.force_ebi)
+        _ebi_path, _ebi_results = get_ebi_results(
+            opentargets_path, force=args.force_ebi
+        )
 
-        _rxnav_path, _rxnav_results = get_rxnav_results(opentargets_path, force=args.force_rxnav)
+        _rxnav_path, _rxnav_results = get_rxnav_results(
+            opentargets_path, force=args.force_rxnav
+        )
 
         # TODO: Restore if API becomes available
         # drugbank_path, drugbank_results = get_drugbank_results(rxnav_path, force=args.force_drugbank)
@@ -868,7 +967,9 @@ def main():
         # TODO: Restore if API becomes available
         # ncats_path, ncats_results = get_ncats_results(rxnav_path, force=args.force_ncats)
 
-        _uniprot_path, _uniprot_results = get_uniprot_results(opentargets_path, force=args.force_uniprot)
+        _uniprot_path, _uniprot_results = get_uniprot_results(
+            opentargets_path, force=args.force_uniprot
+        )
 
 
 if __name__ == "__main__":
