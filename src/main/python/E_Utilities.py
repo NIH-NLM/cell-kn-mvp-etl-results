@@ -84,16 +84,16 @@ def get_data_for_pmid(pmid, do_write=False):
                 fp.write(bs4.BeautifulSoup(xml_data, "xml").prettify())
 
         # Got the page, so parse it, and search for the title
-        soup = bs4.BeautifulSoup(xml_data, "xml").find("Article")
-        if soup:
+        root = bs4.BeautifulSoup(xml_data, "xml").find("Article")
+        if root:
             data["author"] = find_names_or_none(
-                soup, ["AuthorList", "Author", "LastName"]
+                root, ["AuthorList", "Author", "LastName"]
             )  # First author
-            if len(find_names_or_none(soup, ["AuthorList"])) > 1:
+            if len(find_names_or_none(root, ["AuthorList"])) > 1:
                 data["author"] += " et al."
-            data["journal"] = find_names_or_none(soup, ["Journal", "ISOAbbreviation"])
-            data["title"] = find_names_or_none(soup, ["ArticleTitle"])
-            data["year"] = find_names_or_none(soup, ["ArticleDate", "Year"])
+            data["journal"] = find_names_or_none(root, ["Journal", "ISOAbbreviation"])
+            data["title"] = find_names_or_none(root, ["ArticleTitle"])
+            data["year"] = find_names_or_none(root, ["ArticleDate", "Year"])
             data["citation"] = f"{data['author']} ({data['year']}) {data['journal']}"
     else:
         print(f"Encountered error in fetching from PubMed: {response.status_code}")
