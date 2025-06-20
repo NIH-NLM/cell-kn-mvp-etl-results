@@ -141,7 +141,8 @@ def find_gene_id_for_gene_name(name, do_write=False):
                 json.dump(json_data, fp, indent=4)
 
         # Got the response, so assign the gene id
-        gene_id = json_data["esearchresult"]["idlist"][0]
+        if len(json_data["esearchresult"]["idlist"]) > 0:
+            gene_id = json_data["esearchresult"]["idlist"][0]
 
     else:
         print(f"Encountered error in searching Gene: {response.status_code}")
