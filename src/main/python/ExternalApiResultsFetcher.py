@@ -8,6 +8,7 @@ import gget
 import requests
 
 from E_Utilities import get_data_for_gene_id, find_gene_id_for_gene_name
+from OpenTargetsGGetQueries import gget_queries
 from LoaderUtilities import (
     load_results,
     collect_unique_gene_ensembl_ids,
@@ -32,6 +33,7 @@ RESOURCES = [
     "expression",
     "depmap",
 ]
+BASE_URL = "https://api.platform.opentargets.org/api/v4/graphql"
 
 NSFOREST_DIRPATH = Path("../../../data/results")
 
@@ -114,9 +116,20 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES, force=False):
                     print(
                         f"Assigning gget opentargets resource {resource} for gene Ensembl id {gene_ensembl_id}"
                     )
-                    opentargets_results[gene_ensembl_id][resource] = gget.opentargets(
-                        gene_ensembl_id, resource=resource, json=True, verbose=True
+                    query = gget_queries[resource]
+                    query["variables"]["ensemblId"] = gene_ensembl_id
+                    response = requests.post(
+                        BASE_URL,
+                        json={
+                            "query": query["query_string"],
+                            "variables": query["variables"],
+                        },
                     )
+                    response.raise_for_status()
+                    opentargets_results[gene_ensembl_id][resource] = json.loads(
+                        response.text
+                    )["data"]
+
                 except Exception as exc:
                     print(
                         f"Could not assign gget opentargets resource {resource} for gene Ensembl id {gene_ensembl_id}"
