@@ -221,6 +221,11 @@ def create_tuples_from_annotation(annotation_results):
         l = Literal("Manual Annotation")
         tuples.append((s, o, p, l))
 
+        if annotation["subject_type"] == "Cell_set":
+            p = URIRef(f"{RDFSBASE}#Label")
+            l = Literal(annotation["subject_name"])
+            tuples.append((s, p, l))
+
     return tuples
 
 

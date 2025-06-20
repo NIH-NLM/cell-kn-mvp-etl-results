@@ -292,47 +292,47 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                     ]
                 )
 
-                # == Drug_product annotations
+            # == Drug_product annotations
 
-                tuples.extend(
-                    [
-                        (
-                            URIRef(f"{PURLBASE}/{chembl_term}"),
-                            URIRef(f"{RDFSBASE}#Name"),
-                            Literal(str(drug["name"])),
-                        ),
-                        (
-                            URIRef(f"{PURLBASE}/{chembl_term}"),
-                            URIRef(f"{RDFSBASE}#Type"),
-                            Literal(str(drug["type"])),
-                        ),
-                        (
-                            URIRef(f"{PURLBASE}/{chembl_term}"),
-                            URIRef(f"{RDFSBASE}#Mechanism_of_action"),
-                            Literal(str(drug["action_mechanism"])),
-                        ),
-                        (
-                            URIRef(f"{PURLBASE}/{chembl_term}"),
-                            URIRef(f"{RDFSBASE}#Description"),
-                            Literal(str(drug["description"])),
-                        ),
-                        (
-                            URIRef(f"{PURLBASE}/{chembl_term}"),
-                            URIRef(f"{RDFSBASE}#Synonyms"),
-                            Literal(str(drug["synonyms"])),
-                        ),
-                        (
-                            URIRef(f"{PURLBASE}/{chembl_term}"),
-                            URIRef(f"{RDFSBASE}#Trade_names"),
-                            Literal(str(drug["trade_names"])),
-                        ),
-                        (
-                            URIRef(f"{PURLBASE}/{chembl_term}"),
-                            URIRef(f"{RDFSBASE}#Approved"),
-                            Literal(str(drug["approved"])),
-                        ),
-                    ]
-                )
+            tuples.extend(
+                [
+                    (
+                        URIRef(f"{PURLBASE}/{chembl_term}"),
+                        URIRef(f"{RDFSBASE}#Name"),
+                        Literal(str(drug["name"])),
+                    ),
+                    (
+                        URIRef(f"{PURLBASE}/{chembl_term}"),
+                        URIRef(f"{RDFSBASE}#Type"),
+                        Literal(str(drug["type"])),
+                    ),
+                    (
+                        URIRef(f"{PURLBASE}/{chembl_term}"),
+                        URIRef(f"{RDFSBASE}#Mechanism_of_action"),
+                        Literal(str(drug["action_mechanism"])),
+                    ),
+                    (
+                        URIRef(f"{PURLBASE}/{chembl_term}"),
+                        URIRef(f"{RDFSBASE}#Description"),
+                        Literal(str(drug["description"])),
+                    ),
+                    (
+                        URIRef(f"{PURLBASE}/{chembl_term}"),
+                        URIRef(f"{RDFSBASE}#Synonyms"),
+                        Literal(str(drug["synonyms"])),
+                    ),
+                    (
+                        URIRef(f"{PURLBASE}/{chembl_term}"),
+                        URIRef(f"{RDFSBASE}#Trade_names"),
+                        Literal(str(drug["trade_names"])),
+                    ),
+                    (
+                        URIRef(f"{PURLBASE}/{chembl_term}"),
+                        URIRef(f"{RDFSBASE}#Approved"),
+                        Literal(str(drug["approved"])),
+                    ),
+                ]
+            )
 
         for interaction in results[gene_id]["interactions"]:
             if interaction["gene_b_id"] is None:
