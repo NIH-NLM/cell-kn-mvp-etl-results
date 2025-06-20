@@ -614,3 +614,50 @@ def map_mesh_to_mondo(mesh, mesh2mondo):
         mondo = mesh2mondo[mesh]
 
     return mondo
+
+
+def get_value_or_none(data, keys):
+    """Return the value in the data corresponding to the last key, or
+    None, if any key is not in the data.
+
+    Parameters
+    ----------
+    data : dict
+        Dictionary which may or may not contain the keys
+    keys : list(str)
+        List of keys to access the dictionary in order
+    """
+    value = None
+    for key in keys:
+        try:
+            if value is None:
+                value = data[key]
+            else:
+                value = value[key]
+        except:
+            return None
+    return value
+
+
+def get_values_or_none(data, list_key, value_keys):
+    """Collect and return the values for each list item in the data
+    corresponding to the list key, and last value key.
+
+    Parameters
+    ----------
+    data : dict
+        Dictionary which may or may not contain the keys
+    list_key : str
+        Key of the list of items
+    value_keys : list(str)
+        List of keys to access each item in order
+    """
+    values = ""
+    if list_key in data:
+        for item in data[list_key]:
+            value = get_value_or_none(item, value_keys)
+            if values == "":
+                values = value
+            else:
+                values += ", " + value
+    return values
