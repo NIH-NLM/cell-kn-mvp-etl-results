@@ -1079,6 +1079,11 @@ def main():
         action="store_true",
         help="force fetching of uniprot results",
     )
+    parser.add_argument(
+        "--force-gene",
+        action="store_true",
+        help="force fetching of gene results",
+    )
 
     args = parser.parse_args()
 
@@ -1110,6 +1115,10 @@ def main():
 
         _uniprot_path, _uniprot_results = get_uniprot_results(
             opentargets_path, force=args.force_uniprot
+        )
+
+        _gene_path, _gene_results = get_gene_results(
+            nsforest_path, force=args.force_gene
         )
 
 
