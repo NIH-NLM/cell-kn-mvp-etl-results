@@ -2,6 +2,7 @@ import argparse
 from glob import glob
 import json
 from pathlib import Path
+import re
 
 import gget
 import requests
@@ -16,6 +17,8 @@ from LoaderUtilities import (
     get_gene_name_to_and_from_entrez_id_maps,
     get_gene_name_to_ensembl_ids_map,
     get_protein_ensembl_id_to_accession_map,
+    get_value_or_none,
+    get_values_or_none,
     map_protein_ensembl_id_to_accession,
 )
 
@@ -139,6 +142,95 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES, force=False):
                 json.dump(opentargets_results, fp, indent=4)
 
     return opentargets_path, opentargets_results
+
+
+def get_cellxgene_metadata(author_to_cl_path, force=False):
+    """Use the CELLxGENE curation API to fetch the metadata for the
+    collection and dataset corresponding to the manual author cell set
+    to CL term mapping results loaded from the specified path.
+
+    Parameters
+    ----------
+    author_to_cl_path : Path
+        Path to author to CL results
+    force : bool
+        Flag to force fetching, or not
+
+    Returns
+    -------
+    cellxgene_path : Path
+        Path to cellxgene results
+    cellxgene_results : dict
+        Dictionary containing cellxgene results
+    """
+    # Create, or load cellxgene results
+    cellxgene_path = Path(str(author_to_cl_path).replace(".csv", "-cellxgene.json"))
+    if not cellxgene_path.exists() or force:
+
+        # Create results
+
+        print(f"Loading author to CL results from {author_to_cl_path}")
+        author_to_cl_results = load_results(author_to_cl_path)
+        collection_id = author_to_cl_results["collection_id"][0]
+        dataset_id = author_to_cl_results["dataset_id"][0]
+        dataset_version_id = author_to_cl_results["dataset_version_id"][0]
+
+        cellxgene_results = {}
+        base_url = "https://api.cellxgene.cziscience.com/curation/v1"
+        dataset_url = f"{base_url}/collections/{collection_id}/datasets/{dataset_id}"
+        response = requests.get(dataset_url)
+        if response.status_code == 200:
+            response_json = response.json()
+
+            print(
+                f"Assigning cellxgene metadata for collection_id {collection_id} and dataset_id {dataset_id}"
+            )
+            cellxgene_results["Publication"] = None
+            cellxgene_results["Link to CELLxGENE Collection"] = None
+            citation = get_value_or_none(response_json, ["citation"])
+            if citation:
+                m = re.search(r"Publication:\s*(\S*)\s*Dataset Version:", citation)
+                if m:
+                    cellxgene_results["Publication"] = m.group(1)
+                m = re.search(r"Collection:\s*(\S*)$", citation)
+                if m:
+                    cellxgene_results["Link to CELLxGENE Collection"] = m.group(1)
+            cellxgene_results["Zenodo/Nextflow Workflow/Notebook"] = "TBC"
+            cellxgene_results["Cell Type"] = "TBC"
+            cellxgene_results["Tissue"] = get_values_or_none(
+                response_json, "tissue", ["label"]
+            )
+            cellxgene_results["Organism"] = get_values_or_none(
+                response_json, "organism", ["label"]
+            )
+            cellxgene_results["Disease Status"] = get_values_or_none(
+                response_json, "disease", ["label"]
+            )
+            cellxgene_results["Dataset Name"] = get_value_or_none(
+                response_json, ["title"]
+            )
+            cellxgene_results["Collection Metadata"] = "TBC"
+            cellxgene_results["Dataset ID"] = dataset_id
+            cellxgene_results["Dataset Version ID"] = dataset_version_id
+
+        else:
+            print(
+                f"Could not assign cellxgene metadata for collection_id {collection_id} and dataset_id {dataset_id}"
+            )
+
+        print(f"Dumping cellxgene results to {cellxgene_path}")
+        with open(cellxgene_path, "w") as fp:
+            json.dump(cellxgene_results, fp, indent=4)
+
+    else:
+
+        # Load results
+
+        print(f"Loading cellxgene results from {cellxgene_path}")
+        with open(cellxgene_path, "r") as fp:
+            cellxgene_results = json.load(fp)
+
+    return cellxgene_path, cellxgene_results
 
 
 def collect_unique_drug_names(opentargets_results):
