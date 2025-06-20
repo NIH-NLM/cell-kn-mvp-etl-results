@@ -60,8 +60,8 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES, force=False):
     opentargets_path : Path
         Path to opentargets results
     opentargets_results : dict
-        Dictionary containg opentargets results keyed by gene Ensembl id, then
-        by resource
+        Dictionary containing opentargets results keyed by gene
+        Ensembl id, then by resource
     """
     # Create, or load opentargets results
     opentargets_path = Path(str(nsforest_path).replace(".csv", "-opentargets.json"))
@@ -111,11 +111,11 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES, force=False):
 
             for resource in resources:
                 try:
+                    print(
+                        f"Assigning gget opentargets resource {resource} for gene Ensembl id {gene_ensembl_id}"
+                    )
                     opentargets_results[gene_ensembl_id][resource] = gget.opentargets(
                         gene_ensembl_id, resource=resource, json=True, verbose=True
-                    )
-                    print(
-                        f"Assigned gget opentargets resource {resource} for gene Ensembl id {gene_ensembl_id}"
                     )
                 except Exception as exc:
                     print(
@@ -239,8 +239,8 @@ def collect_unique_drug_names(opentargets_results):
     Parameters
     ----------
     opentargets_results : dict
-        Dictionary containg opentargets results keyed by gene Ensembl
-        id, then by resource
+        Dictionary containingg opentargets results keyed by gene
+        Ensembl id, then by resource
 
     Returns
     -------
@@ -278,7 +278,7 @@ def get_ebi_results(opentargets_path, resources=RESOURCES, force=False):
     ebi_path : Path
         Path to EBI results
     ebi_results : dict
-        Dictionary containg EBI results keyed by drug name
+        Dictionary containing EBI results keyed by drug name
     """
     # Create, or load EBI results
     ebi_path = Path(str(opentargets_path).replace("opentargets", "ebi"))
@@ -325,7 +325,7 @@ def get_ebi_results(opentargets_path, resources=RESOURCES, force=False):
                 f"https://www.ebi.ac.uk/ols/api/search?q={drug_name}&ontology=dron"
             )
             if response.status_code == 200:
-                print(f"Assigned EBI results for drug name {drug_name}")
+                print(f"Assigning EBI results for drug name {drug_name}")
                 ebi_results[drug_name] = response.json()
 
             else:
@@ -370,7 +370,7 @@ def get_rxnav_results(opentargets_path, resources=RESOURCES, force=False):
     rxnav_path : Path
         Path to rxnav results
     rxnav_results : dict
-        Dictionary containg rxnav results keyed by drug name
+        Dictionary containing rxnav results keyed by drug name
     """
     # Create, or load RxNav results
     rxnav_path = Path(str(opentargets_path).replace("opentargets", "rxnav"))
@@ -427,7 +427,9 @@ def get_rxnav_results(opentargets_path, resources=RESOURCES, force=False):
                 response = requests.get(url)
                 if response.status_code == 200:
                     content = url.split("/")[-1].split("?")[0].replace(".json", "")
-                    print(f"Assigned RxNav {content} results for drug name {drug_name}")
+                    print(
+                        f"Assigning RxNav {content} results for drug name {drug_name}"
+                    )
                     rxnav_results[drug_name].update(response.json())
 
                 else:
@@ -449,7 +451,7 @@ def get_rxnav_results(opentargets_path, resources=RESOURCES, force=False):
                     if response.status_code == 200:
                         content = url.split("/")[-1].split("?")[0].replace(".json", "")
                         print(
-                            f"Assigned RxNav {content} results for drug name {drug_name}"
+                            f"Assigning RxNav {content} results for drug name {drug_name}"
                         )
                         rxnav_results[drug_name].update(response.json())
 
@@ -483,7 +485,7 @@ def get_prop_for_drug(rxnav_results, drug_name, prop_name):
     Parameters
     ----------
     rxnav_results : dict
-        Dictionary containg rxnav results keyed by drug name
+        Dictionary containing rxnav results keyed by drug name
     drug_name : str
         Drug name key, currently only "DRUGBANK" or "UNII_CODE"
         expected
@@ -534,7 +536,7 @@ def get_drugbank_results(rxnav_path, resources=RESOURCES, force=False):
     durgbank_path : Path
         Path to DrugBank results
     drugbank_results : dict
-        Dictionary containg RxNav results keyed by drug name
+        Dictionary containing RxNav results keyed by drug name
 
     Notes
     -----
@@ -595,7 +597,7 @@ def get_drugbank_results(rxnav_path, resources=RESOURCES, force=False):
 
             response = requests.get(f"https://go.drugbank.com/drugs/{drugbank_id}")
             if response.status_code == 200:
-                print(f"Assigned DrugBank results for drug name {drug_name}")
+                print(f"Assigning DrugBank results for drug name {drug_name}")
                 drugbank_results[drug_name].update(response.json())
 
             else:
@@ -640,7 +642,7 @@ def get_ncats_results(rxnav_path, resources=RESOURCES, force=False):
     ncats_path : Path
         Path to NCATS results
     ncats_results : dict
-        Dictionary containg NCATS results keyed by drug name
+        Dictionary containing NCATS results keyed by drug name
 
     Notes
     -----
@@ -701,7 +703,7 @@ def get_ncats_results(rxnav_path, resources=RESOURCES, force=False):
 
             response = requests.get(f"https://drugs.ncats.io/drug/{unii_code}")
             if response.status_code == 200:
-                print(f"Assigned Ncats results for drug name {drug_name}")
+                print(f"Assigning Ncats results for drug name {drug_name}")
                 ncats_results[drug_name].update(response.json())
 
             else:
@@ -731,8 +733,8 @@ def collect_unique_protein_ids(opentargets_results):
     Parameters
     ----------
     opentargets_results : dict
-        Dictionary containg opentargets results keyed by gene Ensembl
-        id, then by resource
+        Dictionary containing opentargets results keyed by gene
+        Ensembl id, then by resource
 
     Returns
     -------
@@ -775,7 +777,7 @@ def get_uniprot_results(opentargets_path, resources=RESOURCES, force=False):
     uniprot_path : Path
         Path to UniProt results
     uniprot_results : dict
-        Dictionary containg UniProt results keyed by protein id
+        Dictionary containing UniProt results keyed by protein id
     """
     # Create, or load UniProt results
     uniprot_path = Path(str(opentargets_path).replace("opentargets", "uniprot"))
@@ -938,7 +940,7 @@ def get_gene_results(nsforest_path, force=False):
     gene_path : Path
         Path to gene results
     gene_results : dict
-        Dictionary containg gene results keyed by gene name
+        Dictionary containing gene results keyed by gene name
     """
     # Create, or load gene results
     gene_path = Path(str(nsforest_path).replace(".csv", "-gene.json"))
@@ -954,7 +956,7 @@ def get_gene_results(nsforest_path, force=False):
         )
 
         gene_symbols = collect_unique_gene_symbols(nsforest_results)
-        gnm2id, gid2nm = get_gene_name_to_and_from_ensembl_id_maps(gene_symbols)
+        gnm2id, gid2nm = get_gene_name_to_and_from_entrez_id_maps(gene_symbols)
         gene_entrez_ids = collect_unique_gene_entrez_ids(gene_symbols, gnm2id)
 
     else:
@@ -984,8 +986,9 @@ def get_gene_results(nsforest_path, force=False):
             )
             do_dump = True
             try:
+                print(f"Assigning gene data for gene symbol {gene_symbol}")
                 gene_results[gene_symbol] = get_data_for_gene_id(gnm2id[gene_symbol])
-                print(f"Assigned gene data for gene symbol {gene_symbol}")
+
             except Exception as exc:
                 print(f"Could not assign gene data for gene symbol {gene_symbol}")
                 gene_results[gene_symbol] = {}
@@ -1038,14 +1041,14 @@ def main():
     Returns
     -------
     opentargets_results : dict
-        Dictionary containg opentargets results keyed by gene id, then
-        by resource
+        Dictionary containing opentargets results keyed by gene id,
+        then by resource
     ebi_results : dict
-        Dictionary containg EBI results keyed by drug name
+        Dictionary containing EBI results keyed by drug name
     rxnav_results : dict
-        Dictionary containg rxnav results keyed by drug name
+        Dictionary containing rxnav results keyed by drug name
     uniprot_results : dict
-        Dictionary containg UniProt results keyed by protein id
+        Dictionary containing UniProt results keyed by protein id
     """
     parser = argparse.ArgumentParser(description="Fetch External API Results")
 
