@@ -1,4 +1,6 @@
 import ast
+import hashlib
+import json
 from pathlib import Path
 import random
 import string
@@ -376,7 +378,8 @@ def collect_unique_gene_symbols(nsforest_results):
 
 
 def get_gene_name_to_and_from_entrez_id_maps(gene_symbols):
-    """Get gene name to Entrez id map, and its reverse.
+    """Get gene name to Entrez id map, and its reverse. Cache results
+    after each success to prevent duplicate requests on restart.
 
     Parameters
     ----------
@@ -393,12 +396,41 @@ def get_gene_name_to_and_from_entrez_id_maps(gene_symbols):
     gnm2id = {}
     gid2nm = {}
 
+    # Initialize a cache to prevent duplicate requests on restart
+    hasher = hashlib.sha256()
+    gene_symbols = sorted(set(gene_symbols))
+    hasher.update(":".join(gene_symbols).encode("utf-8"))
+    cache_path = Path(f".cache/{hasher.hexdigest()}.json")
+    if cache_path.exists():
+        with open(cache_path, "r") as fp:
+            cache = json.load(fp)
+        gnm2id = cache["gnm2id"]
+        gid2nm = cache["gid2nm"]
+
+    else:
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        cache = {}
+        cache["gnm2id"] = gnm2id
+        cache["gid2nm"] = gid2nm
+        with open(cache_path, "w") as fp:
+            json.dump(cache, fp, indent=4)
+
     print("Creating gene name to and from Entrez id maps")
-    gene_symbols = set(gene_symbols)
     for gene_symbol in gene_symbols:
+
+        # Skip cached results
+        if gene_symbol in gnm2id:
+            continue
+
         gene_id = find_gene_id_for_gene_name(gene_symbol)
         gnm2id[gene_symbol] = gene_id
         gid2nm[gene_id] = gene_symbol
+
+        # Cache current results
+        cache["gnm2id"] = gnm2id
+        cache["gid2nm"] = gid2nm
+        with open(cache_path, "w") as fp:
+            json.dump(cache, fp, indent=4)
 
     return gnm2id, gid2nm
 
@@ -453,7 +485,7 @@ def collect_unique_gene_entrez_ids(gene_symbols, gnm2id):
     for gene_symbol in gene_symbols:
         gene_id = gnm2id[gene_symbol]
         if gene_id:
-            gene_ids |= gene_id
+            gene_ids.add(gene_id)
     print(
         f"Collected {len(gene_ids)} unique Entrez gene ids for {len(gene_symbols)} unique gene symbols"
     )
