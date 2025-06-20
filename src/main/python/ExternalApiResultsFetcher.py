@@ -13,7 +13,7 @@ from LoaderUtilities import (
     collect_unique_gene_entrez_ids,
     collect_unique_gene_symbols,
     get_accession_to_protein_ensembl_id_map,
-    get_gene_name_to_and_from_ensembl_id_maps,
+    get_gene_name_to_and_from_entrez_id_maps,
     get_gene_name_to_ensembl_ids_map,
     get_protein_ensembl_id_to_accession_map,
     map_protein_ensembl_id_to_accession,
@@ -749,12 +749,61 @@ def get_uniprot_results(opentargets_path, resources=RESOURCES, force=False):
                 # Assume protein id is a UniProt accession
                 accession = protein_id
 
-            response = requests.get(
-                f"https://rest.uniprot.org/uniprotkb/{accession}?fields=accession,protein_name,cc_function,ft_binding"
-            )
+            response = requests.get(f"https://rest.uniprot.org/uniprotkb/{accession}")
             if response.status_code == 200:
-                print(f"Assigned UniProt results for protein id {protein_id}")
-                uniprot_results[protein_id] = response.json()
+                print(f"Assigning UniProt results for protein id {protein_id}")
+                response_json = response.json()
+                data = {}
+                data["Protein Name"] = get_value_or_none(
+                    response_json,
+                    [
+                        "proteinDescription",
+                        "recommendedName",
+                        "fullName",
+                        "value",
+                    ],
+                )
+                data["Uniprot ID"] = get_value_or_none(
+                    response_json, ["primaryAccession"]
+                )
+                data["Gene Name"] = None
+                if "genes" in response_json and len(response_json["genes"]) > 0:
+                    data["Gene Name"] = get_value_or_none(
+                        response_json["genes"][0],
+                        [
+                            "geneName",
+                            "value",
+                        ],
+                    )
+                data["Number of Amino Acids"] = get_value_or_none(
+                    response_json,
+                    [
+                        "sequence",
+                        "length",
+                    ],
+                )
+                data["Function"] = None
+                if "comments" in response_json:
+                    for comment in response_json["comments"]:
+                        if (
+                            "commentType" in comment
+                            and comment["commentType"] == "FUNCTION"
+                        ):
+                            if "texts" in comment and len(comment["texts"]) > 0:
+                                data["Function"] = get_value_or_none(
+                                    comment["texts"][0], ["value"]
+                                )
+                data["Annotation Score"] = get_value_or_none(
+                    response_json, ["annotationScore"]
+                )
+                data["Organism"] = get_value_or_none(
+                    response_json,
+                    [
+                        "organism",
+                        "scientificName",
+                    ],
+                )
+                uniprot_results[protein_id] = data
 
             else:
                 print(f"Could not assign UniProt results for protein id {protein_id}")
