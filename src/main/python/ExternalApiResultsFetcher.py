@@ -111,29 +111,63 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES, force=False):
 
             opentargets_results[gene_ensembl_id] = {}
 
-            for resource in resources:
-                try:
-                    print(
-                        f"Assigning gget opentargets resource {resource} for gene Ensembl id {gene_ensembl_id}"
-                    )
-                    query = gget_queries[resource]
-                    query["variables"]["ensemblId"] = gene_ensembl_id
-                    response = requests.post(
-                        BASE_URL,
-                        json={
-                            "query": query["query_string"],
-                            "variables": query["variables"],
-                        },
-                    )
-                    response.raise_for_status()
-                    opentargets_results[gene_ensembl_id][resource] = json.loads(
-                        response.text
-                    )["data"]
+            try:
+                query = gget_queries["target"]
+                query["variables"]["ensemblId"] = gene_ensembl_id
+                response = requests.post(
+                    BASE_URL,
+                    json={
+                        "query": query["query_string"],
+                        "variables": query["variables"],
+                    },
+                )
+                response.raise_for_status()
+                print(
+                    f"Assigning gget opentargets resources for gene Ensembl id {gene_ensembl_id}"
+                )
+                data = json.loads(response.text)["data"]
+                opentargets_results[gene_ensembl_id]["target"] = {}
+                for key in [
+                    "id",
+                    "dbXrefs",
+                    "proteinIds",
+                    "transcriptIds",
+                    "approvedSymbol",
+                    "approvedName",
+                ]:
+                    opentargets_results[gene_ensembl_id]["target"][key] = data[
+                        "target"
+                    ][key]
+                for resource in resources:
+                    if resource == "diseases":
+                        resource_data = data["target"]["associatedDiseases"]["rows"]
 
-                except Exception as exc:
-                    print(
-                        f"Could not assign gget opentargets resource {resource} for gene Ensembl id {gene_ensembl_id}"
-                    )
+                    elif resource == "drugs":
+                        resource_data = data["target"]["knownDrugs"]["rows"]
+
+                    elif resource == "interactions":
+                        resource_data = data["target"]["interactions"]["rows"]
+
+                    elif resource == "pharmacogenetics":  # Not a typo
+                        resource_data = data["target"]["pharmacogenomics"]
+
+                    elif resource == "tractability":
+                        resource_data = data["target"]["tractability"]
+
+                    elif resource == "expression":
+                        resource_data = data["target"]["expressions"]
+
+                    elif resource == "depmap":
+                        resource_data = data["target"]["depMapEssentiality"]
+
+                    opentargets_results[gene_ensembl_id][resource] = resource_data
+
+            except Exception as exc:
+                print(
+                    f"Could not assign gget opentargets resources for gene Ensembl id {gene_ensembl_id}"
+                )
+                opentargets_results[gene_ensembl_id]["target"] = {}
+                for resource in resources:
                     opentargets_results[gene_ensembl_id][resource] = {}
 
         else:
@@ -182,13 +216,14 @@ def get_cellxgene_metadata(author_to_cl_path, force=False):
 
         # Create results
 
+        cellxgene_results = {}
+
         print(f"Loading author to CL results from {author_to_cl_path}")
         author_to_cl_results = load_results(author_to_cl_path)
         collection_id = author_to_cl_results["collection_id"][0]
         dataset_id = author_to_cl_results["dataset_id"][0]
         dataset_version_id = author_to_cl_results["dataset_version_id"][0]
 
-        cellxgene_results = {}
         base_url = "https://api.cellxgene.cziscience.com/curation/v1"
         dataset_url = f"{base_url}/collections/{collection_id}/datasets/{dataset_id}"
         response = requests.get(dataset_url)
@@ -252,7 +287,7 @@ def collect_unique_drug_names(opentargets_results):
     Parameters
     ----------
     opentargets_results : dict
-        Dictionary containingg opentargets results keyed by gene
+        Dictionary containing opentargets results keyed by gene
         Ensembl id, then by resource
 
     Returns
@@ -266,7 +301,7 @@ def collect_unique_drug_names(opentargets_results):
         if gene_ensembl_id in ["gene_ensembl_ids", "gene_symbols"]:
             continue
         for drug in resources["drugs"]:
-            drug_names.add(drug["name"])
+            drug_names.add(drug["approvedName"])
 
     return list(drug_names)
 
@@ -1069,6 +1104,11 @@ def main():
         "--force-opentargets",
         action="store_true",
         help="force fetching of opentargets results",
+    )
+    parser.add_argument(
+        "--force-cellxgene",
+        action="store_true",
+        help="force fetching of cellxgene results",
     )
     parser.add_argument(
         "--force-ebi",
