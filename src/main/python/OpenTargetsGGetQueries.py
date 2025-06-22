@@ -1,4 +1,170 @@
 gget_queries = {
+    "target": {
+        "purpose": "Obtain target attributes",
+        "variables": {
+            "ensemblId": "ENSG00000169252",
+        },
+        "query_string": """
+query target($ensemblId: String!) {
+  target(ensemblId: $ensemblId) {
+    id
+    dbXrefs {
+        id
+        source
+    }
+    proteinIds {
+      id
+      source
+    }
+    transcriptIds
+    approvedSymbol
+    approvedName
+    associatedDiseases {
+      count
+      rows {
+        score
+        disease {
+          id
+          description
+          dbXRefs
+          name
+        }
+      }
+    }
+    knownDrugs {
+      count
+      rows {
+        phase
+        status
+        drugId
+        drugType
+        diseaseId
+        approvedSymbol
+        ctIds
+        approvedName
+        mechanismOfAction
+        drug {
+          id
+          description
+          maximumClinicalTrialPhase
+          isApproved
+          synonyms
+          tradeNames
+          name
+          indications {
+            count
+            rows {
+              maxPhaseForIndication
+              references {
+                source
+                ids
+              }
+            }
+          }
+        }
+      }
+    }
+    interactions {
+      count
+      rows {
+        count
+        score
+        sourceDatabase
+        targetA {
+          proteinIds {
+            id
+          }
+          id
+          approvedSymbol
+        }
+        intABiologicalRole
+        speciesA {
+          taxonId
+        }
+
+        targetB {
+          proteinIds {
+            id
+          }
+          id
+          approvedSymbol
+        }
+        intBBiologicalRole
+        speciesB {
+          taxonId
+        }
+        evidences {
+          pubmedId
+          evidenceScore
+        }
+      }
+    }
+    pharmacogenomics {
+      variantRsId
+      genotypeId
+      genotype
+      variantFunctionalConsequenceId
+      variantFunctionalConsequence {
+        label
+      }
+      drugs {
+        drugId
+        drugFromSource
+        drug {
+          name
+        }
+      }
+      phenotypeText
+      genotypeAnnotationText
+      pgxCategory
+      isDirectTarget
+      evidenceLevel
+      datasourceId
+      literature
+      haplotypeFromSourceId
+      targetFromSourceId
+      studyId
+      datatypeId
+      phenotypeFromSourceId
+      variantId
+      haplotypeId
+    }
+    tractability {
+      label
+      modality
+      value
+    }
+    expressions {
+      tissue {
+        id
+        label
+        anatomicalSystems
+        organs
+      }
+      rna {
+        zscore
+        value
+        unit
+        level
+      }
+    }
+    depMapEssentiality {
+      screens {
+        depmapId
+        expression
+        geneEffect
+        cellLineName
+        diseaseCellLineId
+        diseaseFromSource
+        mutation
+      }
+      tissueId
+      tissueName
+    }
+  }
+}
+""",
+    },
     "diseases": {
         "purpose": "Duplicate and extend gget opentagets -r diseases command",
         "variables": {
