@@ -848,6 +848,43 @@ def create_tuples_from_hubmap(hubmap_path):
     with open(hubmap_path, "r") as fp:
         hubmap_data = json.load(fp)
 
+    key_set = set(["id", "ccf_part_of"])
+    anatomical_structures = hubmap_data["data"]["anatomical_structures"]
+    for anatomical_structure in anatomical_structures:
+        if not key_set.issubset(set(anatomical_structure.keys())):
+            # Skip anatomical structure without the needed keys
+            continue
+
+        # Get the subject UBERON term
+        s_uberon_term = anatomical_structure["id"].replace(":", "_")
+        if "UBERON" not in s_uberon_term:
+            continue
+
+        # Get each object UBERON term
+        for o_uberon_term in anatomical_structure["ccf_part_of"]:
+            if "UBERON" not in o_uberon_term:
+                continue
+            o_uberon_term = o_uberon_term.replace(":", "_")
+
+            # == Anatomical structure relations
+
+            # Anatomical_structure, PART_OF, Anatomical_structure
+            tuples.append(
+                (
+                    URIRef(f"{PURLBASE}/{s_uberon_term}"),
+                    URIRef(f"{RDFSBASE}#PART_OF"),
+                    URIRef(f"{PURLBASE}/{o_uberon_term}"),
+                )
+            )
+            tuples.append(
+                (
+                    URIRef(f"{PURLBASE}/{s_uberon_term}"),
+                    URIRef(f"{PURLBASE}/{o_uberon_term}"),
+                    URIRef(f"{RDFSBASE}#source"),
+                    Literal("HuBMAP"),
+                )
+            )
+
     # Consider each cell type which has a CL term related to an UBERON
     # term
     key_set = set(["id", "ccf_located_in"])
