@@ -35,7 +35,6 @@ HUBMAP_DIRPATH = Path("../../../data/hubmap")
 HUBMAP_LATEST_URLS = [
     "https://lod.humanatlas.io/asct-b/allen-brain/latest/",
     "https://lod.humanatlas.io/asct-b/eye/latest/",
-    "https://lod.humanatlas.io/asct-b/kidney/latest/",
     "https://lod.humanatlas.io/asct-b/lung/latest/",
 ]
 
