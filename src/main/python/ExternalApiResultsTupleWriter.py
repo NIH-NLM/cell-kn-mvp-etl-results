@@ -1,11 +1,14 @@
 from glob import glob
 import json
 from pathlib import Path
+import re
 
 from rdflib.term import Literal, URIRef
 
 from ExternalApiResultsFetcher import (
     RESOURCES,
+    NSFOREST_DIRPATH,
+    HUBMAP_DIRPATH,
     get_opentargets_results,
     get_uniprot_results,
 )
@@ -14,10 +17,12 @@ from LoaderUtilities import (
     RDFSBASE,
     get_efo_to_mondo_map,
     get_gene_id_to_names_map,
+    load_results,
     map_efo_to_mondo,
     map_gene_id_to_names,
     map_protein_id_to_accession,
 )
+
 
 NSFOREST_DIRPATH = Path("../../../data/results")
 TUPLES_DIRPATH = Path("../../../data/tuples")
@@ -825,6 +830,135 @@ def create_tuples_from_uniprot(opentargets_path, summarize=False):
     return tuples, results
 
 
+def create_tuples_from_hubmap(hubmap_path, cl_terms):
+    """Creates tuples from HuBMAP data tables.
+
+    Parameters
+    ----------
+    hubmap_path : Path
+        Path to HuBMAP data table JSON file
+    cl_terms : set(str)
+        Set of all CL terms identified in all author to CL results
+
+    Returns
+    -------
+    tuples : list(tuple(str))
+        List of tuples (triples or quadruples) created
+    hubmap_data : dict
+        Dictionary containg HuBMAP data table
+    """
+    tuples = []
+
+    # Load JSON file
+    with open(hubmap_path, "r") as fp:
+        hubmap_data = json.load(fp)
+
+    key_set = set(["id", "ccf_part_of"])
+    anatomical_structures = hubmap_data["data"]["anatomical_structures"]
+    for anatomical_structure in anatomical_structures:
+        if not key_set.issubset(set(anatomical_structure.keys())):
+            # Skip anatomical structure without the needed keys
+            continue
+
+        # Get the subject UBERON term
+        s_uberon_term = anatomical_structure["id"].replace(":", "_")
+        if "UBERON" not in s_uberon_term:
+            continue
+
+        # Get each object UBERON term
+        for o_uberon_term in anatomical_structure["ccf_part_of"]:
+            if "UBERON" not in o_uberon_term:
+                continue
+            o_uberon_term = o_uberon_term.replace(":", "_")
+
+            # == Anatomical structure relations
+
+            # Anatomical_structure, PART_OF, Anatomical_structure
+            tuples.append(
+                (
+                    URIRef(f"{PURLBASE}/{s_uberon_term}"),
+                    URIRef(f"{RDFSBASE}#PART_OF"),
+                    URIRef(f"{PURLBASE}/{o_uberon_term}"),
+                )
+            )
+            tuples.append(
+                (
+                    URIRef(f"{PURLBASE}/{s_uberon_term}"),
+                    URIRef(f"{PURLBASE}/{o_uberon_term}"),
+                    URIRef(f"{RDFSBASE}#source"),
+                    Literal("HuBMAP"),
+                )
+            )
+
+    # Consider each cell type which has a CL term related to an UBERON
+    # term
+    key_set = set(["id", "ccf_located_in"])
+    cell_types = hubmap_data["data"]["cell_types"]
+    for cell_type in cell_types:
+        if not key_set.issubset(set(cell_type.keys())):
+            # Skip cell types without the needed keys
+            continue
+
+        # Get the CL term
+        cl_term = cell_type["id"].replace(":", "_")
+        if "CL" not in cl_term or "PCL" in cl_term:
+            continue
+
+        # Skip CL terms that do not exist in any author to CL mapping
+        if cl_term not in cl_terms:
+            continue
+
+        # Get each UBERON term
+        for uberon_term in cell_type["ccf_located_in"]:
+            if "UBERON" not in uberon_term:
+                continue
+            uberon_term = uberon_term.replace(":", "_")
+
+            # == Cell type relations
+
+            # Cell_type, PART_OF, Anatomical_structure
+            tuples.append(
+                (
+                    URIRef(f"{PURLBASE}/{cl_term}"),
+                    URIRef(f"{RDFSBASE}#PART_OF"),
+                    URIRef(f"{PURLBASE}/{uberon_term}"),
+                )
+            )
+            tuples.append(
+                (
+                    URIRef(f"{PURLBASE}/{cl_term}"),
+                    URIRef(f"{PURLBASE}/{uberon_term}"),
+                    URIRef(f"{RDFSBASE}#source"),
+                    Literal("HuBMAP"),
+                )
+            )
+
+    return tuples, hubmap_data
+
+
+def get_cl_terms(author_to_cl_results):
+    """Create a set of clean CL terms from the given author to CL results.
+
+    Parameters
+    ----------
+    author_cl_results : pd.DataFrame
+        DataFrame containing author to CL results
+
+    Returns
+    -------
+    set(str)
+        Set of clean CL terms
+    """
+    return set(
+        author_to_cl_results.loc[
+            author_to_cl_results["cell_ontology_id"].str.contains("CL"),
+            "cell_ontology_id",
+        ]
+        .str.replace("http://purl.obolibrary.org/obo/", "")
+        .str.replace("https://purl.obolibrary.org/obo/", "")
+    )
+
+
 def main(summarize=False):
     """Load results from
 
@@ -847,10 +981,15 @@ def main(summarize=False):
       opentargets results to obtain other protein ids, descriptions,
       and comments
 
+    Also, load data tables from HuBMAP.
+
     Then create tuples consistent with schema v0.7, and write the
-    result to a JSON file. If summarizing, retain the first gene id
+    result to JSON files. If summarizing, retain the first gene id
     opentargets results, and protein id uniprot results only, and
     include results in output.
+
+    Note that tuples created from HuBMAP data tables are not
+    summarized.
 
     Parameters
     ----------
@@ -860,11 +999,28 @@ def main(summarize=False):
     -------
     None
     """
+    # Load results from external API fetch and create tuples
+    cl_terms = None
     nsforest_paths = [
         Path(p).resolve()
         for p in glob(str(NSFOREST_DIRPATH / "cell-kn-mvp-nsforest-results-*.csv"))
     ]
     for nsforest_path in nsforest_paths:
+
+        # Collect all CL terms identified in all author to CL results
+        author = re.search("results-([a-zA-Z]*)", nsforest_path.name).group(1)
+        author_to_cl_path = Path(
+            glob(
+                str(NSFOREST_DIRPATH / f"cell-kn-mvp-map-author-to-cl-{author}-*.csv")
+            )[-1]
+        ).resolve()
+        author_to_cl_results = load_results(author_to_cl_path)
+        if cl_terms is None:
+            cl_terms = get_cl_terms(author_to_cl_results)
+
+        else:
+            cl_terms = cl_terms.union(get_cl_terms(author_to_cl_results))
+
         opentargets_path = Path(str(nsforest_path).replace(".csv", "-opentargets.json"))
 
         print(f"Creating tuples from {opentargets_path}")
@@ -896,6 +1052,19 @@ def main(summarize=False):
 
         if summarize:
             break
+
+    # Load data from HuBMAP and create tuples
+    if not summarize:
+        hubmap_paths = [Path(p).resolve() for p in glob(str(HUBMAP_DIRPATH / "*.json"))]
+        for hubmap_path in hubmap_paths:
+            print(f"Creating tuples from {hubmap_path}")
+            hubmap_tuples, _hubmap_data = create_tuples_from_hubmap(
+                hubmap_path, cl_terms
+            )
+            with open(TUPLES_DIRPATH / f"hubmap-{hubmap_path.name}", "w") as f:
+                data = {}
+                data["tuples"] = hubmap_tuples
+                json.dump(data, f, indent=4)
 
 
 if __name__ == "__main__":
