@@ -183,7 +183,6 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
 
             # == Disease relations
 
-            # TODO: Add condition
             # Gene, IS_GENETIC_BASIS_FOR_CONDITION, Disease
             tuples.append(
                 (
@@ -391,6 +390,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
             pr_b_term = get_protein_term(protein_b_id, ensp2accn)
 
             # Gene, PRODUCES, Protein
+            # TODO: Use correct protein term
             if pr_a_term is not None:
                 tuples.append(
                     (
