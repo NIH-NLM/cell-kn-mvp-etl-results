@@ -644,6 +644,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
             if expression["tissue_id"][0:7] != "UBERON_":
                 # Skip expressions for tissue not in UBERON
                 continue
+            exp_term = expression['tissue_id']
 
             # == Expression relations
 
@@ -652,13 +653,13 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{RDFSBASE}#EXPRESSED_IN"),
-                    URIRef(f"{PURLBASE}/{expression['tissue_id']}"),
+                    URIRef(f"{PURLBASE}/{exp_term}"),
                 )
             )
             tuples.append(
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
-                    URIRef(f"{PURLBASE}/{expression['tissue_id']}"),
+                    URIRef(f"{PURLBASE}/{exp_term}"),
                     URIRef(f"{RDFSBASE}#source"),
                     Literal("Open Targets"),
                 )
@@ -670,25 +671,25 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                 [
                     (
                         URIRef(f"{PURLBASE}/{gs_term}"),
-                        URIRef(f"{PURLBASE}/{expression['tissue_id']}"),
+                        URIRef(f"{PURLBASE}/{exp_term}"),
                         URIRef(f"{RDFSBASE}#RNA_zscore"),
                         Literal(str(expression["rna_zscore"])),
                     ),
                     (
                         URIRef(f"{PURLBASE}/{gs_term}"),
-                        URIRef(f"{PURLBASE}/{expression['tissue_id']}"),
+                        URIRef(f"{PURLBASE}/{exp_term}"),
                         URIRef(f"{RDFSBASE}#RNA_value"),
                         Literal(str(expression["rna_value"])),
                     ),
                     (
                         URIRef(f"{PURLBASE}/{gs_term}"),
-                        URIRef(f"{PURLBASE}/{expression['tissue_id']}"),
+                        URIRef(f"{PURLBASE}/{exp_term}"),
                         URIRef(f"{RDFSBASE}#RNA_unit"),
                         Literal(str(expression["rna_unit"])),
                     ),
                     (
                         URIRef(f"{PURLBASE}/{gs_term}"),
-                        URIRef(f"{PURLBASE}/{expression['tissue_id']}"),
+                        URIRef(f"{PURLBASE}/{exp_term}"),
                         URIRef(f"{RDFSBASE}#RNA_level"),
                         Literal(str(expression["rna_level"])),
                     ),
