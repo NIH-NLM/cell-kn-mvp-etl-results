@@ -16,11 +16,12 @@ from LoaderUtilities import (
     PURLBASE,
     RDFSBASE,
     get_efo_to_mondo_map,
+    get_gene_ensembl_id_to_names_map,
     get_gene_id_to_names_map,
     load_results,
     map_efo_to_mondo,
-    map_gene_id_to_names,
-    map_protein_id_to_accession,
+    map_gene_ensembl_id_to_names,
+    map_protein_ensembl_id_to_accession,
 )
 
 
@@ -47,7 +48,7 @@ def get_protein_term(protein_id, ensp2accn):
     protein_term = None
 
     if "ENSP" in protein_id:
-        accession = map_protein_id_to_accession(protein_id, ensp2accn)
+        accession = map_protein_ensembl_id_to_accession(protein_id, ensp2accn)
 
     else:
         accession = protein_id
@@ -104,7 +105,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
     ensp2accn = uniprot_results["ensp2accn"]
 
     # Load mappings
-    gid2nms = get_gene_id_to_names_map()
+    gid2nms = get_gene_ensembl_id_to_names_map()
     efo2mondo = get_efo_to_mondo_map()
 
     # Assign gene ids to consider
@@ -145,7 +146,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
         gene_ids = [gene_id]
         results = {}
         results[gene_id] = opentargets_results[gene_id]
-        results[gene_id]["symbol"] = map_gene_id_to_names(gene_id, gid2nms)[0]
+        results[gene_id]["symbol"] = map_gene_ensembl_id_to_names(gene_id, gid2nms)[0]
 
         # Retain only the first result for each resource
         for resource in RESOURCES:
@@ -165,7 +166,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
     for gene_id in gene_ids:
 
         # Map id to name
-        gene_symbol = map_gene_id_to_names(gene_id, gid2nms)[0]
+        gene_symbol = map_gene_ensembl_id_to_names(gene_id, gid2nms)[0]
 
         # Follow term naming convention for parsing
         gs_term = f"GS_{gene_symbol}"  # gene_id.replace("ENSG", "GS_")
@@ -182,7 +183,6 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
 
             # == Disease relations
 
-            # TODO: Add condition
             # Gene, IS_GENETIC_BASIS_FOR_CONDITION, Disease
             tuples.append(
                 (
@@ -352,7 +352,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
 
             # Map id to name
             gene_b_id = interaction["gene_b_id"]
-            gene_b_symbol = map_gene_id_to_names(gene_b_id, gid2nms)
+            gene_b_symbol = map_gene_ensembl_id_to_names(gene_b_id, gid2nms)
             if len(gene_b_symbol) == 0:
                 # Skip interactions with no second gene symbol
                 continue
@@ -390,6 +390,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
             pr_b_term = get_protein_term(protein_b_id, ensp2accn)
 
             # Gene, PRODUCES, Protein
+            # TODO: Use correct protein term
             if pr_a_term is not None:
                 tuples.append(
                     (
@@ -643,6 +644,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
             if expression["tissue_id"][0:7] != "UBERON_":
                 # Skip expressions for tissue not in UBERON
                 continue
+            exp_term = expression['tissue_id']
 
             # == Expression relations
 
@@ -651,13 +653,13 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{RDFSBASE}#EXPRESSED_IN"),
-                    URIRef(f"{PURLBASE}/{expression['tissue_id']}"),
+                    URIRef(f"{PURLBASE}/{exp_term}"),
                 )
             )
             tuples.append(
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
-                    URIRef(f"{PURLBASE}/{expression['tissue_id']}"),
+                    URIRef(f"{PURLBASE}/{exp_term}"),
                     URIRef(f"{RDFSBASE}#source"),
                     Literal("Open Targets"),
                 )
@@ -669,25 +671,25 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                 [
                     (
                         URIRef(f"{PURLBASE}/{gs_term}"),
-                        URIRef(f"{PURLBASE}/{expression['tissue_id']}"),
+                        URIRef(f"{PURLBASE}/{exp_term}"),
                         URIRef(f"{RDFSBASE}#RNA_zscore"),
                         Literal(str(expression["rna_zscore"])),
                     ),
                     (
                         URIRef(f"{PURLBASE}/{gs_term}"),
-                        URIRef(f"{PURLBASE}/{expression['tissue_id']}"),
+                        URIRef(f"{PURLBASE}/{exp_term}"),
                         URIRef(f"{RDFSBASE}#RNA_value"),
                         Literal(str(expression["rna_value"])),
                     ),
                     (
                         URIRef(f"{PURLBASE}/{gs_term}"),
-                        URIRef(f"{PURLBASE}/{expression['tissue_id']}"),
+                        URIRef(f"{PURLBASE}/{exp_term}"),
                         URIRef(f"{RDFSBASE}#RNA_unit"),
                         Literal(str(expression["rna_unit"])),
                     ),
                     (
                         URIRef(f"{PURLBASE}/{gs_term}"),
-                        URIRef(f"{PURLBASE}/{expression['tissue_id']}"),
+                        URIRef(f"{PURLBASE}/{exp_term}"),
                         URIRef(f"{RDFSBASE}#RNA_level"),
                         Literal(str(expression["rna_level"])),
                     ),
