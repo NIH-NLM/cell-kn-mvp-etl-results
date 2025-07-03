@@ -230,53 +230,57 @@ def get_cellxgene_metadata(author_to_cl_path, force=False):
         author_to_cl_results = load_results(author_to_cl_path)
         collection_id = author_to_cl_results["collection_id"][0]
         dataset_id = author_to_cl_results["dataset_id"][0]
-        dataset_version_id = author_to_cl_results["dataset_version_id"][0]
+        dataset_version_ids = author_to_cl_results["dataset_version_id"][0].split("--")
+        for dataset_version_id in dataset_version_ids:
 
-        base_url = "https://api.cellxgene.cziscience.com/curation/v1"
-        dataset_url = f"{base_url}/collections/{collection_id}/datasets/{dataset_id}"
-        response = requests.get(dataset_url)
-        if response.status_code == 200:
-            response_json = response.json()
+            cellxgene_results[dataset_version_id] = {}
 
-            print(
-                f"Assigning cellxgene metadata for collection_id {collection_id} and dataset_id {dataset_id}"
-            )
-            cellxgene_results["Publication"] = None
-            cellxgene_results["Link to CELLxGENE Collection"] = None
-            citation = get_value_or_none(response_json, ["citation"])
-            if citation:
-                m = re.search(r"Publication:\s*(\S*)\s*Dataset Version:", citation)
-                if m:
-                    cellxgene_results["Publication"] = m.group(1)
-                m = re.search(r"Collection:\s*(\S*)$", citation)
-                if m:
-                    cellxgene_results["Link to CELLxGENE Collection"] = m.group(1)
-            cellxgene_results["Zenodo/Nextflow Workflow/Notebook"] = "TBC"
-            cellxgene_results["Cell Type"] = "TBC"
-            cellxgene_results["Tissue"] = get_values_or_none(
-                response_json, "tissue", ["label"]
-            )
-            cellxgene_results["Organism"] = get_values_or_none(
-                response_json, "organism", ["label"]
-            )
-            cellxgene_results["Disease Status"] = get_values_or_none(
-                response_json, "disease", ["label"]
-            )
-            cellxgene_results["Dataset Name"] = get_value_or_none(
-                response_json, ["title"]
-            )
-            cellxgene_results["Collection Metadata"] = "TBC"
-            cellxgene_results["Dataset ID"] = dataset_id
-            cellxgene_results["Dataset Version ID"] = dataset_version_id
+            base_url = "https://api.cellxgene.cziscience.com/curation/v1"
+            # dataset_url = f"{base_url}/collections/{collection_id}/datasets/{dataset_version_id}"
+            dataset_url = f"{base_url}/dataset_versions/{dataset_version_id}"
+            response = requests.get(dataset_url)
+            if response.status_code == 200:
+                response_json = response.json()
 
-        else:
-            print(
-                f"Could not assign cellxgene metadata for collection_id {collection_id} and dataset_id {dataset_id}"
-            )
+                print(
+                    f"Assigning cellxgene metadata for collection_id {collection_id} and dataset_id {dataset_id}"
+                )
+                cellxgene_results[dataset_version_id]["Publication"] = None
+                cellxgene_results[dataset_version_id]["Link to CELLxGENE Collection"] = None
+                citation = get_value_or_none(response_json, ["citation"])
+                if citation:
+                    m = re.search(r"Publication:\s*(\S*)\s*Dataset Version:", citation)
+                    if m:
+                        cellxgene_results[dataset_version_id]["Publication"] = m.group(1)
+                    m = re.search(r"Collection:\s*(\S*)$", citation)
+                    if m:
+                        cellxgene_results[dataset_version_id]["Link to CELLxGENE Collection"] = m.group(1)
+                cellxgene_results[dataset_version_id]["Zenodo/Nextflow Workflow/Notebook"] = "TBC"
+                cellxgene_results[dataset_version_id]["Cell Type"] = "TBC"
+                cellxgene_results[dataset_version_id]["Tissue"] = get_values_or_none(
+                    response_json, "tissue", ["label"]
+                )
+                cellxgene_results[dataset_version_id]["Organism"] = get_values_or_none(
+                    response_json, "organism", ["label"]
+                )
+                cellxgene_results[dataset_version_id]["Disease Status"] = get_values_or_none(
+                    response_json, "disease", ["label"]
+                )
+                cellxgene_results[dataset_version_id]["Dataset Name"] = get_value_or_none(
+                    response_json, ["title"]
+                )
+                cellxgene_results[dataset_version_id]["Collection Metadata"] = "TBC"
+                cellxgene_results[dataset_version_id]["Dataset ID"] = dataset_id
+                cellxgene_results[dataset_version_id]["Dataset Version ID"] = dataset_version_id
 
-        print(f"Dumping cellxgene results to {cellxgene_path}")
-        with open(cellxgene_path, "w") as fp:
-            json.dump(cellxgene_results, fp, indent=4)
+            else:
+                print(
+                    f"Could not assign cellxgene metadata for collection_id {collection_id} and dataset_id {dataset_id}"
+                )
+
+            print(f"Dumping cellxgene results to {cellxgene_path}")
+            with open(cellxgene_path, "w") as fp:
+                json.dump(cellxgene_results, fp, indent=4)
 
     else:
 
@@ -807,8 +811,9 @@ def collect_unique_protein_ids(opentargets_results):
         if gene_ensembl_id in ["gene_ensembl_ids", "gene_symbols"]:
             continue
         for interaction in resources["interactions"]:
-            for key in ["protein_a_id", "protein_b_id"]:
-                protein_ids |= set([interaction[key]])
+            for key in ["targetA", "targetB"]:
+                if interaction[key]:
+                    protein_ids |= set([interaction[key]["proteinIds"][0]["id"]])
 
     return list(protein_ids)
 
@@ -1200,14 +1205,14 @@ def main():
     # Load NSForest results and fetch external API results
     parser = argparse.ArgumentParser(description="Fetch External API Results")
     parser.add_argument(
-        "--force-opentargets",
-        action="store_true",
-        help="force fetching of opentargets results",
-    )
-    parser.add_argument(
         "--force-cellxgene",
         action="store_true",
         help="force fetching of cellxgene results",
+    )
+    parser.add_argument(
+        "--force-opentargets",
+        action="store_true",
+        help="force fetching of opentargets results",
     )
     parser.add_argument(
         "--force-ebi",
@@ -1246,6 +1251,19 @@ def main():
         for p in glob(str(NSFOREST_DIRPATH / "cell-kn-mvp-nsforest-results-*.csv"))
     ]
     for nsforest_path in nsforest_paths:
+
+        # Map NSForest results filename to manual author cell set to
+        # CL term mapping filename
+        author = re.search("results-([a-zA-Z]*)", nsforest_path.name).group(1)
+        author_to_cl_path = Path(
+            glob(
+                str(NSFOREST_DIRPATH / f"cell-kn-mvp-map-author-to-cl-{author}-*.csv")
+            )[-1]
+        ).resolve()
+
+        print(f"Fetching CELLxGENE results {author_to_cl_path}")
+
+        get_cellxgene_metadata(author_to_cl_path, force=args.force_cellxgene)
 
         print(f"Fetching results for {nsforest_path}")
 
