@@ -13,14 +13,16 @@ NSFOREST_DIRPATH = Path("../../../data/results")
 TUPLES_DIRPATH = Path("../../../data/tuples")
 
 
-def create_tuples_from_author_to_cl(results):
+def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
     """Creates tuples from manual author cell set to CL term mapping
     consistent with schema v0.7.
 
     Parameters
     ----------
-    results : pd.DataFrame
-        DataFrame containing NSForest results
+    author_to_cl_results : pd.DataFrame
+        DataFrame containing author to CL results
+    cellxgene_results : dict
+        Dictionary containing cellxgene results
 
     Returns
     -------
@@ -30,9 +32,9 @@ def create_tuples_from_author_to_cl(results):
     tuples = []
 
     # Nodes for these results
-    csd_term = f"CSD_{results['dataset_id'][0]}"
-    pub_term = f"PUB_{results['DOI'][0].replace('/', '-')}"
-    ds_term = f"DS_{results['dataset_source'][0]}"
+    csd_term = f"CSD_{author_to_cl_results['dataset_id'][0]}"
+    pub_term = f"PUB_{author_to_cl_results['DOI'][0].replace('/', '-')}"
+    ds_term = f"DS_{author_to_cl_results['dataset_source'][0]}"
 
     # Cell_set_dataset_Ind, SOURCE, Publication_Ind
     # IAO:0000100, dc:source, IAO:0000311
@@ -71,42 +73,41 @@ def create_tuples_from_author_to_cl(results):
     )
 
     # Node annotations
-    tuples.append(
-        (
-            URIRef(f"{PURLBASE}/{csd_term}"),
-            URIRef(f"{RDFSBASE}#Dataset_version_id"),
-            Literal(results["dataset_version_id"][0]),
+    keys = [
+        "Link to CELLxGENE Collection",
+        "Zenodo/Nextflow Workflow/Notebook",
+        "Cell Type",
+        "Tissue",
+        "Organism",
+        "Disease Status",
+        "Dataset Name",
+        "Collection Metadata",
+        "Dataset ID",
+        "Dataset Version ID",
+    ]
+    for key in keys:
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{csd_term}"),
+                URIRef(f"{RDFSBASE}#key"),
+                Literal(cellxgene_results[0][key]),
+            )
         )
-    )
-    tuples.append(
-        (
-            URIRef(f"{PURLBASE}/{csd_term}"),
-            URIRef(f"{RDFSBASE}#Collection_id"),
-            Literal(results["collection_id"][0]),
-        )
-    )
-    tuples.append(
-        (
-            URIRef(f"{PURLBASE}/{csd_term}"),
-            URIRef(f"{RDFSBASE}#Collection_version_id"),
-            Literal(results["collection_version_id"][0]),
-        )
-    )
     tuples.append(
         (
             URIRef(f"{PURLBASE}/{pub_term}"),
             URIRef(f"{RDFSBASE}#PMID"),
-            Literal(str(results["PMID"][0])),
+            Literal(str(author_to_cl_results["PMID"][0])),
         )
     )
     tuples.append(
         (
             URIRef(f"{PURLBASE}/{pub_term}"),
             URIRef(f"{RDFSBASE}#PMCID"),
-            Literal(str(results["PMCID"][0])),
+            Literal(str(author_to_cl_results["PMCID"][0])),
         )
     )
-    data = get_data_for_pmid(results["PMID"][0])
+    data = get_data_for_pmid(author_to_cl_results["PMID"][0])
     for key in data.keys():
         tuples.append(
             (
@@ -117,8 +118,8 @@ def create_tuples_from_author_to_cl(results):
         )
 
     # Nodes for each cell type or cell set
-    uuid_0 = results["uuid"][0]
-    for _, row in results.iterrows():
+    uuid_0 = author_to_cl_results["uuid"][0]
+    for _, row in author_to_cl_results.iterrows():
         uuid = row["uuid"]
         cl_term = row["cell_ontology_id"]
         uberon_term = row["uberon_entity_id"]
@@ -280,7 +281,7 @@ def create_tuples_from_author_to_cl(results):
             tuples.append(
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
-                    URIRef(f"{PURLBASE}/BFO:0000050"),
+                    URIRef(f"{PURLBASE}/BFO_0000050"),
                     URIRef(f"{PURLBASE}/{cl_term}"),
                 )
             )
@@ -412,8 +413,15 @@ def main(summarize=False):
             right_on="clusterName",
         )
 
+        # Load CELLxGENE results
+        cellxgene_path = Path(str(author_to_cl_path).replace(".csv", "-cellxgene.json"))
+        with open(cellxgene_path, "r") as fp:
+            cellxgene_results = json.load(fp)
+
         print(f"Creating tuples from {author_to_cl_path}")
-        author_to_cl_tuples = create_tuples_from_author_to_cl(author_to_cl_results)
+        author_to_cl_tuples = create_tuples_from_author_to_cl(
+            author_to_cl_results, cellxgene_results
+        )
         if summarize:
             output_dirpath = TUPLES_DIRPATH / "summaries"
         else:
