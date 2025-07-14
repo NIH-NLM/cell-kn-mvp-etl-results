@@ -826,7 +826,6 @@ def get_gene_results(nsforest_path, force=False):
         )
 
         gene_symbols = collect_unique_gene_symbols(nsforest_results)
-        breakpoint()
         gnm2id, _gid2nm = get_gene_name_to_and_from_entrez_id_maps(gene_symbols)
         gene_entrez_ids = collect_unique_gene_entrez_ids(gene_symbols, gnm2id)
 
@@ -863,7 +862,6 @@ def get_gene_results(nsforest_path, force=False):
 
             except Exception as exc:
                 print(f"Could not assign gene data for gene symbol {gene_symbol}")
-                breakpoint()
                 gene_results[gene_symbol] = {}
 
         else:
