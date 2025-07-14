@@ -144,8 +144,15 @@ def find_gene_id_for_gene_name(name, do_write=False):
         if len(json_data["esearchresult"]["idlist"]) > 0:
             gene_id = json_data["esearchresult"]["idlist"][0]
 
+        else:
+            print(
+                f"No gene id found while searching Gene for name {name}: {response.status_code}"
+            )
+
     else:
-        print(f"Encountered error in searching Gene: {response.status_code}")
+        print(
+            f"Encountered error in searching Gene for name {name}: {response.status_code}"
+        )
 
     return gene_id
 

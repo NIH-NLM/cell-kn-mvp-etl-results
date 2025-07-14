@@ -119,7 +119,7 @@ def create_tuples_from_nsforest(results):
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{RDFSBASE}#Label"),
+                URIRef(f"{RDFSBASE}#Author_cell_set"),
                 Literal(cluster_name),
             )
         )

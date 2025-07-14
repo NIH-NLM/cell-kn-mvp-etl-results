@@ -252,6 +252,27 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
                 Literal(row["author_category"]),
             )
         )
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{cs_term}"),
+                URIRef(f"{RDFSBASE}#Link_to_CELLxGENE_Dataset"),
+                Literal(cellxgene_results[0]["Link to CELLxGENE Dataset"]),
+            )
+        )
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{cs_term}"),
+                URIRef(f"{RDFSBASE}#PMID"),
+                Literal(str(author_to_cl_results["PMID"][0])),
+            )
+        )
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{cs_term}"),
+                URIRef(f"{RDFSBASE}#Cell_type"),
+                Literal(cl_term),
+            )
+        )
 
         # Edge annotations
         tuples.append(

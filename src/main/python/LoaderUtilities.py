@@ -275,7 +275,7 @@ def map_protein_ensembl_id_to_accession(ensp, ensp2accn):
     return accn
 
 
-def get_accession_to_protein_ensembl_id_map(protein_ids):
+def get_protein_accession_to_ensembl_id_map(protein_ids):
     """Map UniProt accession to Ensembl protein ids lists.
 
     Parameters
