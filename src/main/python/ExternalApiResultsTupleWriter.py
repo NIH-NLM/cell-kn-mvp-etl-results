@@ -811,7 +811,10 @@ def create_tuples_from_gene(gene_path, summarize=False):
         # == Gene relations
 
         # Gene, PRODUCES, Protein
-        if gene_results[gene_symbol]["Uniprot Name"]:
+        if (
+            "Uniprot Name" in gene_results[gene_symbol]
+            and gene_results[gene_symbol]["Uniprot Name"]
+        ):
             pr_term = f"PR_{gene_results[gene_symbol]['Uniprot Name']}"
             tuples.append(
                 (
@@ -1122,8 +1125,7 @@ def main(summarize=False):
         gene_tuples, gene_results = create_tuples_from_gene(
             gene_path, summarize=summarize
         )
-
-        gene_path
+        tuples_to_load.extend(gene_tuples)
 
         uniprot_path = Path(str(nsforest_path).replace(".csv", "-uniprot.json"))
 
