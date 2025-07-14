@@ -791,8 +791,6 @@ def create_tuples_from_gene(gene_path, summarize=False):
         gene_symbols = gene_results["gene_symbols"]
         results = gene_results
 
-    # == Gene annotations
-
     keys = [
         "Official Symbol",
         "Official Full Name",
@@ -809,8 +807,32 @@ def create_tuples_from_gene(gene_path, summarize=False):
             # Skip empty gene symbol
             continue
         gs_term = f"GS_{gene_symbol}"
+
+        # == Gene relations
+
+        # Gene, PRODUCES, Protein
+        if gene_results[gene_symbol]["Uniprot Name"]:
+            pr_term = f"PR_{gene_results[gene_symbol]['Uniprot Name']}"
+            tuples.append(
+                (
+                    URIRef(f"{PURLBASE}/{gs_term}"),
+                    URIRef(f"{RDFSBASE}#PRODUCES"),
+                    URIRef(f"{PURLBASE}/{pr_term}"),
+                )
+            )
+            tuples.append(
+                (
+                    URIRef(f"{PURLBASE}/{gs_term}"),
+                    URIRef(f"{PURLBASE}/{pr_term}"),
+                    URIRef(f"{RDFSBASE}#source"),
+                    Literal("UniProt"),
+                )
+            )
+
+        # == Gene annotations
+
         for key in keys:
-            if key in gene_results[gene_symbol]:
+            if key in gene_results[gene_symbol] and gene_results[gene_symbol][key]:
                 tuples.append(
                     (
                         URIRef(f"{PURLBASE}/{gs_term}"),
