@@ -9,7 +9,7 @@ import shutil
 import gget
 import requests
 
-from E_Utilities import get_data_for_gene_id, find_gene_id_for_gene_name
+from E_Utilities import get_data_for_gene_id
 from OpenTargetsGGetQueries import gget_queries
 from LoaderUtilities import (
     load_results,
@@ -18,11 +18,8 @@ from LoaderUtilities import (
     collect_unique_gene_symbols,
     get_gene_name_to_and_from_entrez_id_maps,
     get_gene_name_to_ensembl_ids_map,
-    get_protein_accession_to_ensembl_id_map,
-    get_protein_ensembl_id_to_accession_map,
     get_value_or_none,
     get_values_or_none,
-    map_protein_ensembl_id_to_accession,
 )
 
 
