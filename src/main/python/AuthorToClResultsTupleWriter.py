@@ -89,7 +89,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{csd_term}"),
-                URIRef(f"{RDFSBASE}#key"),
+                URIRef(f"{RDFSBASE}#{key}"),
                 Literal(cellxgene_results[0][key]),
             )
         )
@@ -108,6 +108,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
         )
     )
     data = get_data_for_pmid(author_to_cl_results["PMID"][0])
+    # TODO: Select required keys
     for key in data.keys():
         tuples.append(
             (
@@ -252,11 +253,16 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
                 Literal(row["author_category"]),
             )
         )
+        # TODO: Get this to load
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
                 URIRef(f"{RDFSBASE}#Link_to_CELLxGENE_Dataset"),
-                Literal(cellxgene_results[0]["Link to CELLxGENE Dataset"]),
+                Literal(
+                    cellxgene_results[0]["Link to CELLxGENE Dataset"].replace(
+                        "https://", ""
+                    )
+                ),
             )
         )
         tuples.append(
