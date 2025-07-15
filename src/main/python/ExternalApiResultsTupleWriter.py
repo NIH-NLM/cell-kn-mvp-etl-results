@@ -839,7 +839,7 @@ def create_tuples_from_gene(gene_path, summarize=False):
                 tuples.append(
                     (
                         URIRef(f"{PURLBASE}/{gs_term}"),
-                        URIRef(f"{RDFSBASE}#{key}"),
+                        URIRef(f"{RDFSBASE}#{key.replace(' ', '_')}"),
                         Literal(gene_results[gene_symbol][key]),
                     )
                 )
@@ -911,7 +911,7 @@ def create_tuples_from_uniprot(uniprot_path, summarize=False):
                 tuples.append(
                     (
                         URIRef(f"{PURLBASE}/{pr_term}"),
-                        URIRef(f"{RDFSBASE}#{key}"),
+                        URIRef(f"{RDFSBASE}#{key.replace(' ', '_')}"),
                         Literal(uniprot_results[protein_accession][key]),
                     )
                 )

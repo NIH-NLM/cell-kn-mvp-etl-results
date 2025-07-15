@@ -89,7 +89,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{csd_term}"),
-                URIRef(f"{RDFSBASE}#{key}"),
+                URIRef(f"{RDFSBASE}#{key.replace(' ', '_')}"),
                 Literal(cellxgene_results[0][key]),
             )
         )
@@ -113,7 +113,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{pub_term}"),
-                URIRef(f"{RDFSBASE}#{key.capitalize()}"),
+                URIRef(f"{RDFSBASE}#{key.capitalize().replace(' ', '_')}"),
                 Literal(data[key]),
             )
         )
