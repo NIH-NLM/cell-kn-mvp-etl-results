@@ -21,8 +21,8 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
     ----------
     author_to_cl_results : pd.DataFrame
         DataFrame containing author to CL results
-    cellxgene_results : dict
-        Dictionary containing cellxgene results
+    cellxgene_results : list(dict)
+        List of dictionaries containing cellxgene results
 
     Returns
     -------
@@ -102,7 +102,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             (
                 URIRef(f"{PURLBASE}/{csd_term}"),
                 URIRef(f"{RDFSBASE}#{key.replace('https://', '').replace(' ', '_')}"),
-                Literal(cellxgene_results[key]),
+                Literal(cellxgene_results[0][key]),
             )
         )
     tuples.append(
@@ -277,7 +277,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
                 (
                     URIRef(f"{PURLBASE}/{cs_term}"),
                     URIRef(f"{RDFSBASE}#{key.replace('https://', '').replace(' ', '_')}"),
-                    Literal(cellxgene_results[key]),
+                    Literal(cellxgene_results[0][key]),
                 )
             )
         tuples.append(

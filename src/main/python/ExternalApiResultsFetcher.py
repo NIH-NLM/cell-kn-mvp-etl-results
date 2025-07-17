@@ -61,8 +61,8 @@ def get_cellxgene_metadata(author_to_cl_path, force=False):
     -------
     cellxgene_path : Path
         Path to cellxgene results
-    cellxgene_results : dict
-        Dictionary containing cellxgene results
+    cellxgene_results : list(dict)
+        List of dictionaries containing cellxgene results
     """
     # Create, or load cellxgene results
     cellxgene_path = Path(str(author_to_cl_path).replace(".csv", "-cellxgene.json"))
