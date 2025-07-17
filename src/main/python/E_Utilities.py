@@ -1,6 +1,7 @@
 import json
 import os
 from pathlib import Path
+import re
 from time import sleep
 from urllib import parse
 
@@ -236,9 +237,12 @@ def get_data_for_gene_id(gene_id, do_write=False):
                 "Org-ref_taxname",
             ],
         )
-        for child in root.find_all("Gene-commentary_accession"):
-            if "NG_" in child.text:
-                data["RefSeq Gene ID"] = child.text
+        data["RefSeq Gene ID"] = None
+        for child in root.find_all("Gene-commentary_heading"):
+            if "GCF_" in child.text:
+                m = re.search(":\s*(GCF_.*)", child.text)
+                if m:
+                    data["RefSeq Gene ID"] = m.group(1)
         data["Also Known As"] = []
         for child in root.find_all("Gene-ref_syn_E"):
             data["Also Known As"].append(child.text)

@@ -797,6 +797,7 @@ def create_tuples_from_gene(gene_path, summarize=False):
         "Gene Type",
         "Hyperlink to Uniprot ID",
         "Organism",
+        "RefSeq Gene ID",
         "Also Known As",
         "Summary",
         "Uniprot Name",

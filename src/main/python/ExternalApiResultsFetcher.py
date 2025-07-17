@@ -93,7 +93,7 @@ def get_cellxgene_metadata(author_to_cl_path, force=False):
                 print(
                     f"Assigning cellxgene metadata for collection_id {collection_id} and dataset_id {dataset_id}"
                 )
-                dataset_results["Publication"] = None
+                dataset_results["Link to Publication"] = None
                 dataset_results["Link to CELLxGENE Collection"] = None
                 citation = get_value_or_none(response_json, ["citation"])
                 if citation:
@@ -106,23 +106,26 @@ def get_cellxgene_metadata(author_to_cl_path, force=False):
                 dataset_results["Link to CELLxGENE Dataset"] = response_json["assets"][
                     0
                 ]["url"]
-                dataset_results["Zenodo/Nextflow Workflow/Notebook"] = "TBC"
-                dataset_results["Cell Type"] = "TBC"
-                dataset_results["Tissue"] = get_values_or_none(
-                    response_json, "tissue", ["label"]
+                dataset_results["Dataset Name"] = get_value_or_none(
+                    response_json, ["title"]
+                )
+                dataset_results["Number of Cells"] = get_value_or_none(
+                    response_json, ["cell_count"]
                 )
                 dataset_results["Organism"] = get_values_or_none(
                     response_json, "organism", ["label"]
                 )
+                dataset_results["Tissue"] = get_values_or_none(
+                    response_json, "tissue", ["label"]
+                )
                 dataset_results["Disease Status"] = get_values_or_none(
                     response_json, "disease", ["label"]
                 )
-                dataset_results["Dataset Name"] = get_value_or_none(
-                    response_json, ["title"]
-                )
-                dataset_results["Collection Metadata"] = "TBC"
+                dataset_results["Collection ID"] = collection_id
+                dataset_results["Collection Version ID"] = collection_version_id
                 dataset_results["Dataset ID"] = dataset_id
                 dataset_results["Dataset Version ID"] = dataset_version_id
+                dataset_results["Zenodo/Nextflow Workflow/Notebook"] = "TBC"
                 cellxgene_results.append(dataset_results)
 
             else:
@@ -1197,6 +1200,7 @@ def main():
     # Load NSForest results and fetch external API results
     parser = argparse.ArgumentParser(description="Fetch External API Results")
     parser.add_argument(
+        "-c",
         "--force-cellxgene",
         action="store_true",
         help="force fetching of cellxgene results",

@@ -72,25 +72,54 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
         )
     )
 
-    # Node annotations
+    # CSD node annotations
+    pmid_data = get_data_for_pmid(author_to_cl_results["PMID"][0])
+    tuples.append(
+        (
+            URIRef(f"{PURLBASE}/{csd_term}"),
+            URIRef(f"{RDFSBASE}#Citation"),
+            Literal(pmid_data["citation"]),
+        )
+    )
+
     keys = [
+        "Link to Publication",
         "Link to CELLxGENE Collection",
-        "Zenodo/Nextflow Workflow/Notebook",
-        "Cell Type",
-        "Tissue",
-        "Organism",
-        "Disease Status",
+        "Link to CELLxGENE Dataset",
         "Dataset Name",
-        "Collection Metadata",
+        "Number of Cells",
+        "Organism",
+        "Tissue",
+        "Disease Status",
+        "Collection ID",
+        "Collection Version ID",
         "Dataset ID",
         "Dataset Version ID",
+        "Zenodo/Nextflow Workflow/Notebook",
     ]
     for key in keys:
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{csd_term}"),
-                URIRef(f"{RDFSBASE}#{key.replace(' ', '_')}"),
-                Literal(cellxgene_results[0][key]),
+                URIRef(f"{RDFSBASE}#{key.replace('https://', '').replace(' ', '_')}"),
+                Literal(cellxgene_results[key]),
+            )
+        )
+    tuples.append(
+        (
+            URIRef(f"{PURLBASE}/{csd_term}"),
+            URIRef(f"{RDFSBASE}#Cell_type"),
+            Literal(str(author_to_cl_results["author_category"][0])),
+        )
+    )
+
+    # PUB node annotations
+    for key in pmid_data.keys():
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{pub_term}"),
+                URIRef(f"{RDFSBASE}#{key.capitalize().replace(' ', '_')}"),
+                Literal(pmid_data[key]),
             )
         )
     tuples.append(
@@ -107,16 +136,6 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             Literal(str(author_to_cl_results["PMCID"][0])),
         )
     )
-    data = get_data_for_pmid(author_to_cl_results["PMID"][0])
-    # TODO: Select required keys
-    for key in data.keys():
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{pub_term}"),
-                URIRef(f"{RDFSBASE}#{key.capitalize().replace(' ', '_')}"),
-                Literal(data[key]),
-            )
-        )
 
     # Nodes for each cell type or cell set
     uuid_0 = author_to_cl_results["uuid"][0]
@@ -246,32 +265,21 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
                 Literal(row["author_cell_term"]),
             )
         )
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{RDFSBASE}#Author_category"),
-                Literal(row["author_category"]),
+
+        keys = [
+            "Link to Publication",
+            "Link to CELLxGENE Collection",
+            "Link to CELLxGENE Dataset",
+            "Dataset Name",
+        ]
+        for key in keys:
+            tuples.append(
+                (
+                    URIRef(f"{PURLBASE}/{cs_term}"),
+                    URIRef(f"{RDFSBASE}#{key.replace('https://', '').replace(' ', '_')}"),
+                    Literal(cellxgene_results[key]),
+                )
             )
-        )
-        # TODO: Get this to load
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{RDFSBASE}#Link_to_CELLxGENE_Dataset"),
-                Literal(
-                    cellxgene_results[0]["Link to CELLxGENE Dataset"].replace(
-                        "https://", ""
-                    )
-                ),
-            )
-        )
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{RDFSBASE}#PMID"),
-                Literal(str(author_to_cl_results["PMID"][0])),
-            )
-        )
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
