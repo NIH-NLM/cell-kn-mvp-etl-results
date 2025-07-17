@@ -81,7 +81,6 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             Literal(pmid_data["citation"]),
         )
     )
-
     keys = [
         "Link to Publication",
         "Link to CELLxGENE Collection",
@@ -98,11 +97,14 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
         "Zenodo/Nextflow Workflow/Notebook",
     ]
     for key in keys:
+        value = cellxgene_results[0][key]
+        if isinstance(value, str):
+            value = value.replace("https://", "")
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{csd_term}"),
-                URIRef(f"{RDFSBASE}#{key.replace('https://', '').replace(' ', '_')}"),
-                Literal(cellxgene_results[0][key]),
+                URIRef(f"{RDFSBASE}#{key.replace(' ', '_')}"),
+                Literal(value),
             )
         )
     tuples.append(
@@ -265,7 +267,6 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
                 Literal(row["author_cell_term"]),
             )
         )
-
         keys = [
             "Link to Publication",
             "Link to CELLxGENE Collection",
@@ -273,11 +274,14 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             "Dataset Name",
         ]
         for key in keys:
+            value = cellxgene_results[0][key]
+            if isinstance(value, str):
+                value = value.replace("https://", "")
             tuples.append(
                 (
                     URIRef(f"{PURLBASE}/{cs_term}"),
-                    URIRef(f"{RDFSBASE}#{key.replace('https://', '').replace(' ', '_')}"),
-                    Literal(cellxgene_results[0][key]),
+                    URIRef(f"{RDFSBASE}#{key.replace(' ', '_')}"),
+                    Literal(value),
                 )
             )
         tuples.append(

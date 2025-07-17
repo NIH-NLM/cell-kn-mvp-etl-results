@@ -99,7 +99,7 @@ def get_cellxgene_metadata(author_to_cl_path, force=False):
                 if citation:
                     m = re.search(r"Publication:\s*(\S*)\s*Dataset Version:", citation)
                     if m:
-                        dataset_results["Publication"] = m.group(1)
+                        dataset_results["Link to Publication"] = m.group(1)
                     m = re.search(r"Collection:\s*(\S*)$", citation)
                     if m:
                         dataset_results["Link to CELLxGENE Collection"] = m.group(1)
