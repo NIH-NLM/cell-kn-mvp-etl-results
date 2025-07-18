@@ -3,6 +3,7 @@ from glob import glob
 import json
 from pathlib import Path
 import re
+from urllib.parse import urlparse
 
 from rdflib.term import Literal, URIRef
 
@@ -143,8 +144,8 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
     uuid_0 = author_to_cl_results["uuid"][0]
     for _, row in author_to_cl_results.iterrows():
         uuid = row["uuid"]
-        cl_term = row["cell_ontology_id"]
-        uberon_term = row["uberon_entity_id"]
+        cl_term = urlparse(row["cell_ontology_id"]).path.replace("/obo/", "")
+        uberon_term = urlparse(row["uberon_entity_id"]).path.replace("/obo/", "")
         author_cell_set = hyphenate(row["author_cell_set"])
         cs_term = f"CS_{author_cell_set}-{uuid}"
         bmc_term = f"BMC_{uuid}-NSF"
