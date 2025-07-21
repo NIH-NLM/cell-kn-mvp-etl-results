@@ -902,9 +902,9 @@ def collect_unique_protein_accessions(gene_results):
     protein_accessions = set()
 
     for gene_symbol, gene_data in gene_results.items():
-        if gene_symbol in ["gene_symbols", "gene_entrez_ids"] or not gene_data:
+        if gene_symbol in ["gene_symbols", "gnm2id", "gene_entrez_ids"] or not gene_data:
             continue
-        protein_accessions |= set([gene_data["Uniprot Name"]])
+        protein_accessions |= set([gene_data["UniProt Name"]])
 
     return list(protein_accessions)
 
@@ -987,7 +987,7 @@ def get_uniprot_results(gene_path, force=False):
                         "value",
                     ],
                 )
-                data["Uniprot ID"] = get_value_or_none(
+                data["UniProt ID"] = get_value_or_none(
                     response_json, ["primaryAccession"]
                 )
                 data["Gene Name"] = None
