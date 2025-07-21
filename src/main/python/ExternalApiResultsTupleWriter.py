@@ -306,6 +306,22 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                     )
                 )
 
+            for indication in drug["drug"]["indications"]["rows"]:
+                mondo_term = get_mondo_term(indication["disease"]["id"], efo2mondo)
+                if mondo_term is None:
+                    continue
+                # TODO: Test disease score
+
+                # == Indications annotations
+
+                tuples.append(
+                    (
+                        URIRef(f"{PURLBASE}/{chembl_term}"),
+                        URIRef(f"{RDFSBASE}#Indications"),
+                        Literal(mondo_term),
+                    ),
+                )
+
             for drug_trial_id in drug["ctIds"]:
 
                 # Follow term naming convention for parsing
@@ -332,7 +348,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
 
                 # == Clinical_trial annotations
 
-                # TODO: Find another source for clinical trail data
+                # TODO: Find another source for clinical trial data
                 # tuples.extend(
                 #     [
                 #         (
@@ -602,7 +618,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
             )
 
             for pharmacogenetic_drug in pharmacogenetic["drugs"]:
-                # TODO: Check drug trail phase when available
+                # TODO: Check drug trial phase when available
                 if pharmacogenetic_drug["drugId"] is None:
                     # Skip pharmacogenetic drugs missing an id
                     continue
