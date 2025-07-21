@@ -226,7 +226,7 @@ def get_data_for_gene_id(gene_id, do_write=False):
         )
         for child in root.find_all("Other-source_url"):
             if "www.uniprot.org" in child.text:
-                data["Hyperlink to Uniprot ID"] = child.text
+                data["Link to UniProt ID"] = child.text
         data["Organism"] = find_names_or_none(
             root,
             [
@@ -248,8 +248,8 @@ def get_data_for_gene_id(gene_id, do_write=False):
             data["Also Known As"].append(child.text)
         data["Summary"] = find_names_or_none(root, ["Entrezgene_summary"])
         pr_desc = find_names_or_none(root, ["Entrezgene_prot", "Prot-ref_desc"])
-        data["Uniprot Name"] = Path(
-            parse.urlparse(data["Hyperlink to Uniprot ID"]).path
+        data["UniProt Name"] = Path(
+            parse.urlparse(data["Link to UniProt ID"]).path
         ).stem
         for product in root.find_all("Gene-commentary_products"):
             if find_names_or_none(product, ["Gene-commentary_type"], "value") == "mRNA":
