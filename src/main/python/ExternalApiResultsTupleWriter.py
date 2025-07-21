@@ -16,9 +16,11 @@ from ExternalApiResultsFetcher import (
 from LoaderUtilities import (
     PURLBASE,
     RDFSBASE,
+    get_chembl_to_pubchem_map,
     get_efo_to_mondo_map,
     get_gene_ensembl_id_to_names_map,
     load_results,
+    map_chembl_to_pubchem,
     map_efo_to_mondo,
     map_gene_ensembl_id_to_names,
     map_protein_ensembl_id_to_accession,
@@ -119,6 +121,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
     # Load mappings
     gid2nms = get_gene_ensembl_id_to_names_map()
     efo2mondo = get_efo_to_mondo_map()
+    chembl2pubchem = get_chembl_to_pubchem_map()
 
     # Assign gene ids to consider
     if summarize:
@@ -191,6 +194,10 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
         # Follow term naming convention for parsing
         gs_term = f"GS_{gene_symbol}"  # gene_ensembl_id.replace("ENSG", "GS_")
 
+        # Map gene name to protein uniprot name
+        pr_term = f"PR_{gene_results[gene_symbol]['UniProt Name']}"
+        pr_link = gene_results[gene_symbol]['Link to UniProt ID']}"
+        
         # == Gene relations
 
         for disease in results[gene_ensembl_id]["diseases"]:
@@ -280,9 +287,6 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                 )
             )
 
-            # Map gene name to protein uniprot name
-            pr_term = f"PR_{gene_results[gene_symbol]['Uniprot Name']}"
-
             # Drug_product, MOLECULARLY_INTERACTS_WITH, Protein
             tuples.append(
                 (
@@ -353,6 +357,11 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                     ),
                     (
                         URIRef(f"{PURLBASE}/{chembl_term}"),
+                        URIRef(f"{RDFSBASE}#Target"),
+                        Literal(gs_term.replace("GS_", "")),
+                    ),
+                    (
+                        URIRef(f"{PURLBASE}/{chembl_term}"),
                         URIRef(f"{RDFSBASE}#Type"),
                         Literal(str(drug["drugType"])),
                     ),
@@ -382,6 +391,27 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                         Literal(str(drug["drug"]["isApproved"])),
                     ),
                 ]
+            )
+
+            pubchem_id = map_chembl_to_pubchem(
+                chembl_term.replace("_", ""), chembl2pubchem
+            )
+            if pubchem_id:
+                tuples.append(
+                    (
+                        URIRef(f"{PURLBASE}/{chembl_term}"),
+                        URIRef(f"{RDFSBASE}#Link to PubChem Record"),
+                        Literal(f"pubchem.ncbi.nlm.nih.gov/compound/{pubchem_id}"),
+                    )
+                )
+            tuples.append(
+                (
+                    URIRef(f"{PURLBASE}/{chembl_term}"),
+                    URIRef(f"{RDFSBASE}#Link to UniProt"),
+                    Literal(
+                        f"https://www.uniprot.org/uniprotkb/{pr_term.replace('PR_', '')}/entry"
+                    ),
+                )
             )
 
         # Note: Removed in NLM Cell KN MVP UX/UI specification
@@ -795,12 +825,12 @@ def create_tuples_from_gene(gene_path, summarize=False):
         "Official Symbol",
         "Official Full Name",
         "Gene Type",
-        "Hyperlink to Uniprot ID",
+        "Link to UniProt ID",
         "Organism",
         "RefSeq Gene ID",
         "Also Known As",
         "Summary",
-        "Uniprot Name",
+        "UniProt Name",
         "mRNA (NM) and Protein (NP) sequences",
     ]
     for gene_symbol in gene_symbols:
@@ -813,10 +843,10 @@ def create_tuples_from_gene(gene_path, summarize=False):
 
         # Gene, PRODUCES, Protein
         if (
-            "Uniprot Name" in gene_results[gene_symbol]
-            and gene_results[gene_symbol]["Uniprot Name"]
+            "UniProt Name" in gene_results[gene_symbol]
+            and gene_results[gene_symbol]["UniProt Name"]
         ):
-            pr_term = f"PR_{gene_results[gene_symbol]['Uniprot Name']}"
+            pr_term = f"PR_{gene_results[gene_symbol]['UniProt Name']}"
             tuples.append(
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
@@ -895,7 +925,7 @@ def create_tuples_from_uniprot(uniprot_path, summarize=False):
 
     keys = [
         "Protein Name",
-        "Uniprot ID",
+        "UniProt ID",
         "Gene Name",
         "Number of Amino Acids",
         "Function",
