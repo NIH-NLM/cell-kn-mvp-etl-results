@@ -196,8 +196,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
 
         # Map gene name to protein uniprot name
         pr_term = f"PR_{gene_results[gene_symbol]['UniProt Name']}"
-        pr_link = gene_results[gene_symbol]['Link to UniProt ID']}"
-        
+
         # == Gene relations
 
         for disease in results[gene_ensembl_id]["diseases"]:
@@ -400,16 +399,18 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                 tuples.append(
                     (
                         URIRef(f"{PURLBASE}/{chembl_term}"),
-                        URIRef(f"{RDFSBASE}#Link to PubChem Record"),
+                        URIRef(f"{RDFSBASE}#Link_to_PubChem_Record"),
                         Literal(f"pubchem.ncbi.nlm.nih.gov/compound/{pubchem_id}"),
                     )
                 )
             tuples.append(
                 (
                     URIRef(f"{PURLBASE}/{chembl_term}"),
-                    URIRef(f"{RDFSBASE}#Link to UniProt"),
+                    URIRef(f"{RDFSBASE}#Link_to_UniProt_ID"),
                     Literal(
-                        f"https://www.uniprot.org/uniprotkb/{pr_term.replace('PR_', '')}/entry"
+                        gene_results[gene_symbol]["Link to UniProt ID"].replace(
+                            "https://", ""
+                        )
                     ),
                 )
             )
@@ -871,7 +872,7 @@ def create_tuples_from_gene(gene_path, summarize=False):
                     (
                         URIRef(f"{PURLBASE}/{gs_term}"),
                         URIRef(f"{RDFSBASE}#{key.replace(' ', '_')}"),
-                        Literal(gene_results[gene_symbol][key]),
+                        Literal(gene_results[gene_symbol][key].replace("http://", "")),
                     )
                 )
 
