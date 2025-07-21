@@ -507,7 +507,7 @@ def get_efo_to_mondo_map():
     """
     print("Creating EFO to MONDO term map")
     mondo_efo_mappings_name = (
-        "../../../cell-kn-mvp-etl-ontologies/data/mondo_efo_mappings.tsv"
+        "../../../cell-kn-mvp-etl-ontologies/data/mondo_efo_mappings.csv"
     )
     efo2mondo = pd.read_csv(mondo_efo_mappings_name)
     efo2mondo = efo2mondo.set_index("EFO")
@@ -614,6 +614,50 @@ def map_mesh_to_mondo(mesh, mesh2mondo):
         mondo = mesh2mondo[mesh]
 
     return mondo
+
+
+def get_chembl_to_pubchem_map():
+    """Get ChEMBL to PubChem id map.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    chembl2pubchem : pd.DataFrame
+        DataFrame indexed by ChEMBL id containing PubChem id
+    """
+    print("Creating ChEMBL to PubChem id map")
+    src1src22_name = "../../../cell-kn-mvp-etl-ontologies/data/src1src22.csv"
+    chembl2pubchem = pd.read_csv(src1src22_name)
+    chembl2pubchem = chembl2pubchem.set_index("ChEMBL")
+    return chembl2pubchem
+
+
+def map_chembl_to_pubchem(chembl, chembl2pubchem):
+    """Map ChEMBL to PubChem id.
+
+    Parameters
+    ----------
+    chembl : str
+        ChEMLB id
+    chembl2pubchem : pd.DataFrame
+        DataFrame indexed by ChEMBL containing PubChem id
+
+    Returns
+    -------
+    str
+        PubChem id
+    """
+    pubchem = None
+
+    if chembl in chembl2pubchem.index:
+        pubchem = chembl2pubchem.loc[chembl, "PubChem"]
+        if isinstance(pubchem, pd.core.series.Series):
+            pubchem = pubchem.iloc[0]
+
+    return pubchem
 
 
 def get_value_or_none(data, keys):
