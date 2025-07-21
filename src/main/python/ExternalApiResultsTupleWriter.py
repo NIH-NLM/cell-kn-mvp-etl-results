@@ -194,9 +194,6 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
         # Follow term naming convention for parsing
         gs_term = f"GS_{gene_symbol}"  # gene_ensembl_id.replace("ENSG", "GS_")
 
-        # Map gene name to protein uniprot name
-        pr_term = f"PR_{gene_results[gene_symbol]['UniProt Name']}"
-
         # == Gene relations
 
         for disease in results[gene_ensembl_id]["diseases"]:
@@ -287,21 +284,27 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
             )
 
             # Drug_product, MOLECULARLY_INTERACTS_WITH, Protein
-            tuples.append(
-                (
-                    URIRef(f"{PURLBASE}/{chembl_term}"),
-                    URIRef(f"{RDFSBASE}#MOLECULARLY_INTERACTS_WITH"),
-                    URIRef(f"{PURLBASE}/{pr_term}"),
+            if (
+                "UniProt Name" in gene_results[gene_symbol]
+                and gene_results[gene_symbol]["UniProt Name"]
+            ):
+                # Map gene name to protein uniprot name
+                pr_term = f"PR_{gene_results[gene_symbol]['UniProt Name']}"
+                tuples.append(
+                    (
+                        URIRef(f"{PURLBASE}/{chembl_term}"),
+                        URIRef(f"{RDFSBASE}#MOLECULARLY_INTERACTS_WITH"),
+                        URIRef(f"{PURLBASE}/{pr_term}"),
+                    )
                 )
-            )
-            tuples.append(
-                (
-                    URIRef(f"{PURLBASE}/{chembl_term}"),
-                    URIRef(f"{PURLBASE}/{pr_term}"),
-                    URIRef(f"{RDFSBASE}#source"),
-                    Literal("Open Targets and UniProt"),
+                tuples.append(
+                    (
+                        URIRef(f"{PURLBASE}/{chembl_term}"),
+                        URIRef(f"{PURLBASE}/{pr_term}"),
+                        URIRef(f"{RDFSBASE}#source"),
+                        Literal("Open Targets and UniProt"),
+                    )
                 )
-            )
 
             for drug_trial_id in drug["ctIds"]:
 
@@ -408,8 +411,8 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                     URIRef(f"{PURLBASE}/{chembl_term}"),
                     URIRef(f"{RDFSBASE}#Link_to_UniProt_ID"),
                     Literal(
-                        gene_results[gene_symbol]["Link to UniProt ID"].replace(
-                            "https://", ""
+                        remove_protocols(
+                            gene_results[gene_symbol]["Link to UniProt ID"]
                         )
                     ),
                 )
@@ -847,6 +850,7 @@ def create_tuples_from_gene(gene_path, summarize=False):
             "UniProt Name" in gene_results[gene_symbol]
             and gene_results[gene_symbol]["UniProt Name"]
         ):
+            # Map gene name to protein uniprot name
             pr_term = f"PR_{gene_results[gene_symbol]['UniProt Name']}"
             tuples.append(
                 (
@@ -872,7 +876,7 @@ def create_tuples_from_gene(gene_path, summarize=False):
                     (
                         URIRef(f"{PURLBASE}/{gs_term}"),
                         URIRef(f"{RDFSBASE}#{key.replace(' ', '_')}"),
-                        Literal(gene_results[gene_symbol][key].replace("http://", "")),
+                        Literal(remove_protocols(gene_results[gene_symbol][key])),
                     )
                 )
 
@@ -1055,6 +1059,25 @@ def create_tuples_from_hubmap(hubmap_path, cl_terms):
             )
 
     return tuples, hubmap_data
+
+
+def remove_protocols(value):
+    """Remove hypertext protocols.
+
+    Parameters
+    ----------
+    value : any
+       Any value, howerver, only strings are processed
+
+    Returns
+    -------
+    value : any
+       The value, if type str, with hypertext protocols removed
+    """
+    if isinstance(value, str):
+        value = value.replace("http://", "")
+        value = value.replace("https://", "")
+    return value
 
 
 def get_cl_terms(author_to_cl_results):
