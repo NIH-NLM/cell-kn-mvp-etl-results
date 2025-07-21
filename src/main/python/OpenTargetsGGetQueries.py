@@ -54,6 +54,11 @@ query target($ensemblId: String!) {
           indications {
             count
             rows {
+              disease {
+                id
+                name
+                description
+              }
               maxPhaseForIndication
               references {
                 source
