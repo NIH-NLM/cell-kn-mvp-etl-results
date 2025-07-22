@@ -52,7 +52,7 @@ def create_tuples_from_nsforest(results):
             (
                 URIRef(f"{PURLBASE}/{bmc_term}"),
                 URIRef(f"{PURLBASE}/SO_0001260"),
-                URIRef(f"{RDFSBASE}#source"),
+                URIRef(f"{RDFSBASE}#Source"),
                 Literal("NSForest"),
             )
         )
@@ -72,7 +72,7 @@ def create_tuples_from_nsforest(results):
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{PURLBASE}/{bmc_term}"),
-                    URIRef(f"{RDFSBASE}#source"),
+                    URIRef(f"{RDFSBASE}#Source"),
                     Literal("NSForest"),
                 )
             )
@@ -90,7 +90,7 @@ def create_tuples_from_nsforest(results):
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
                 URIRef(f"{PURLBASE}/{bmc_term}"),
-                URIRef(f"{RDFSBASE}#source"),
+                URIRef(f"{RDFSBASE}#Source"),
                 Literal("NSForest"),
             )
         )
@@ -108,7 +108,7 @@ def create_tuples_from_nsforest(results):
             (
                 URIRef(f"{PURLBASE}/{bmc_term}"),
                 URIRef(f"{PURLBASE}/{bgc_term}"),
-                URIRef(f"{RDFSBASE}#source"),
+                URIRef(f"{RDFSBASE}#Source"),
                 Literal("NSForest"),
             )
         )

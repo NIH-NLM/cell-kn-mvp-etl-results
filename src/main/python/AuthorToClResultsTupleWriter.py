@@ -50,7 +50,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
         (
             URIRef(f"{PURLBASE}/{csd_term}"),
             URIRef(f"{PURLBASE}/{pub_term}"),
-            URIRef(f"{RDFSBASE}#source"),
+            URIRef(f"{RDFSBASE}#Source"),
             Literal("Manual Mapping"),
         )
     )
@@ -68,7 +68,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
         (
             URIRef(f"{PURLBASE}/csd_term"),
             URIRef(f"{PURLBASE}/ds_term"),
-            URIRef(f"{RDFSBASE}#source"),
+            URIRef(f"{RDFSBASE}#Source"),
             Literal("Manual Mapping"),
         )
     )
@@ -163,7 +163,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             (
                 URIRef(f"{PURLBASE}/{cl_term}"),
                 URIRef(f"{PURLBASE}/{uberon_term}"),
-                URIRef(f"{RDFSBASE}#source"),
+                URIRef(f"{RDFSBASE}#Source"),
                 Literal("Manual Mapping"),
             )
         )
@@ -181,7 +181,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             (
                 URIRef(f"{PURLBASE}/{cl_term}"),
                 URIRef(f"{PURLBASE}/{csd_term}"),
-                URIRef(f"{RDFSBASE}#source"),
+                URIRef(f"{RDFSBASE}#Source"),
                 Literal("Manual Mapping"),
             )
         )
@@ -200,7 +200,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
                 URIRef(f"{PURLBASE}/{uberon_term}-{uuid_0}"),
-                URIRef(f"{RDFSBASE}#source"),
+                URIRef(f"{RDFSBASE}#Source"),
                 Literal("Manual Mapping"),
             )
         )
@@ -218,7 +218,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
                 URIRef(f"{PURLBASE}/{csd_term}"),
-                URIRef(f"{RDFSBASE}#source"),
+                URIRef(f"{RDFSBASE}#Source"),
                 Literal("Manual Mapping"),
             )
         )
@@ -236,7 +236,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
                 URIRef(f"{PURLBASE}/{cl_term}"),
-                URIRef(f"{RDFSBASE}#source"),
+                URIRef(f"{RDFSBASE}#Source"),
                 Literal("Manual Mapping"),
             )
         )
@@ -255,7 +255,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             (
                 URIRef(f"{PURLBASE}/{bmc_term}"),
                 URIRef(f"{PURLBASE}/{cl_term}"),
-                URIRef(f"{RDFSBASE}#source"),
+                URIRef(f"{RDFSBASE}#Source"),
                 Literal("Manual Mapping"),
             )
         )
@@ -329,7 +329,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{PURLBASE}/{cl_term}"),
-                    URIRef(f"{RDFSBASE}#source"),
+                    URIRef(f"{RDFSBASE}#Source"),
                     Literal("Manual Mapping"),
                 )
             )
@@ -353,7 +353,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
                 (
                     URIRef(f"{PURLBASE}/{cl_term}"),
                     URIRef(f"{PURLBASE}/{gs_term}"),
-                    URIRef(f"{RDFSBASE}#source"),
+                    URIRef(f"{RDFSBASE}#Source"),
                     Literal("Manual Mapping"),
                 )
             )
@@ -371,7 +371,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{PURLBASE}/{cl_term}"),
-                    URIRef(f"{RDFSBASE}#source"),
+                    URIRef(f"{RDFSBASE}#Source"),
                     Literal("Manual Mapping"),
                 )
             )
@@ -389,7 +389,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{PURLBASE}/{uberon_term}"),
-                    URIRef(f"{RDFSBASE}#source"),
+                    URIRef(f"{RDFSBASE}#Source"),
                     Literal("Manual Mapping"),
                 )
             )
