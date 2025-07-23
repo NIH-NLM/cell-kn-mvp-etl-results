@@ -285,7 +285,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
 
             # Drug_product, MOLECULARLY_INTERACTS_WITH, Protein
             if (
-                "UniProt Name" in gene_results[gene_symbol]
+                "UniProt_name" in gene_results[gene_symbol]
                 and gene_results[gene_symbol]["UniProt_name"]
             ):
                 # Map gene name to protein uniprot name
