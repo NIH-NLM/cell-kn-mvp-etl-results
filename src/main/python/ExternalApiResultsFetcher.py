@@ -93,23 +93,23 @@ def get_cellxgene_metadata(author_to_cl_path, force=False):
                 print(
                     f"Assigning cellxgene metadata for collection_id {collection_id} and dataset_id {dataset_id}"
                 )
-                dataset_results["Link to Publication"] = None
-                dataset_results["Link to CELLxGENE Collection"] = None
+                dataset_results["Link_to_publication"] = None
+                dataset_results["Link_to_CELLxGENE_collection"] = None
                 citation = get_value_or_none(response_json, ["citation"])
                 if citation:
                     m = re.search(r"Publication:\s*(\S*)\s*Dataset Version:", citation)
                     if m:
-                        dataset_results["Link to Publication"] = m.group(1)
+                        dataset_results["Link_to_publication"] = m.group(1)
                     m = re.search(r"Collection:\s*(\S*)$", citation)
                     if m:
-                        dataset_results["Link to CELLxGENE Collection"] = m.group(1)
-                dataset_results["Link to CELLxGENE Dataset"] = response_json["assets"][
+                        dataset_results["Link_to_CELLxGENE_collection"] = m.group(1)
+                dataset_results["Link_to_CELLxGENE_dataset"] = response_json["assets"][
                     0
                 ]["url"]
-                dataset_results["Dataset Name"] = get_value_or_none(
+                dataset_results["Dataset_name"] = get_value_or_none(
                     response_json, ["title"]
                 )
-                dataset_results["Number of Cells"] = get_value_or_none(
+                dataset_results["Number_of_cells"] = get_value_or_none(
                     response_json, ["cell_count"]
                 )
                 dataset_results["Organism"] = get_values_or_none(
@@ -118,14 +118,14 @@ def get_cellxgene_metadata(author_to_cl_path, force=False):
                 dataset_results["Tissue"] = get_values_or_none(
                     response_json, "tissue", ["label"]
                 )
-                dataset_results["Disease Status"] = get_values_or_none(
+                dataset_results["Disease_status"] = get_values_or_none(
                     response_json, "disease", ["label"]
                 )
-                dataset_results["Collection ID"] = collection_id
-                dataset_results["Collection Version ID"] = collection_version_id
-                dataset_results["Dataset ID"] = dataset_id
-                dataset_results["Dataset Version ID"] = dataset_version_id
-                dataset_results["Zenodo/Nextflow Workflow/Notebook"] = "TBC"
+                dataset_results["Collection_ID"] = collection_id
+                dataset_results["Collection_version_ID"] = collection_version_id
+                dataset_results["Dataset_ID"] = dataset_id
+                dataset_results["Dataset_version_ID"] = dataset_version_id
+                dataset_results["Zenodo/Nextflow_workflow/Notebook"] = "TBC"
                 cellxgene_results.append(dataset_results)
 
             else:
@@ -904,7 +904,7 @@ def collect_unique_protein_accessions(gene_results):
     for gene_symbol, gene_data in gene_results.items():
         if gene_symbol in ["gene_symbols", "gnm2id", "gene_entrez_ids"] or not gene_data:
             continue
-        protein_accessions |= set([gene_data["UniProt Name"]])
+        protein_accessions |= set([gene_data["UniProt_name"]])
 
     return list(protein_accessions)
 
@@ -978,7 +978,7 @@ def get_uniprot_results(gene_path, force=False):
                 )
                 response_json = response.json()
                 data = {}
-                data["Protein Name"] = get_value_or_none(
+                data["Protein_name"] = get_value_or_none(
                     response_json,
                     [
                         "proteinDescription",
@@ -987,19 +987,19 @@ def get_uniprot_results(gene_path, force=False):
                         "value",
                     ],
                 )
-                data["UniProt ID"] = get_value_or_none(
+                data["UniProt_ID"] = get_value_or_none(
                     response_json, ["primaryAccession"]
                 )
-                data["Gene Name"] = None
+                data["Gene_name"] = None
                 if "genes" in response_json and len(response_json["genes"]) > 0:
-                    data["Gene Name"] = get_value_or_none(
+                    data["Gene_name"] = get_value_or_none(
                         response_json["genes"][0],
                         [
                             "geneName",
                             "value",
                         ],
                     )
-                data["Number of Amino Acids"] = get_value_or_none(
+                data["Number_of_amino_acids"] = get_value_or_none(
                     response_json,
                     [
                         "sequence",
@@ -1017,7 +1017,7 @@ def get_uniprot_results(gene_path, force=False):
                                 data["Function"] = get_value_or_none(
                                     comment["texts"][0], ["value"]
                                 )
-                data["Annotation Score"] = get_value_or_none(
+                data["Annotation_score"] = get_value_or_none(
                     response_json, ["annotationScore"]
                 )
                 data["Organism"] = get_value_or_none(

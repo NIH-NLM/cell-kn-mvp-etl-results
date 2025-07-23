@@ -79,23 +79,23 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
         (
             URIRef(f"{PURLBASE}/{csd_term}"),
             URIRef(f"{RDFSBASE}#Citation"),
-            Literal(pmid_data["citation"]),
+            Literal(pmid_data["Citation"]),
         )
     )
     keys = [
-        "Link to Publication",
-        "Link to CELLxGENE Collection",
-        "Link to CELLxGENE Dataset",
-        "Dataset Name",
-        "Number of Cells",
+        "Link_to_publication",
+        "Link_to_CELLxGENE_collection",
+        "Link_to_CELLxGENE_dataset",
+        "Dataset_name",
+        "Number_of_cells",
         "Organism",
         "Tissue",
-        "Disease Status",
-        "Collection ID",
-        "Collection Version ID",
-        "Dataset ID",
-        "Dataset Version ID",
-        "Zenodo/Nextflow Workflow/Notebook",
+        "Disease_status",
+        "Collection_ID",
+        "Collection_version_ID",
+        "Dataset_ID",
+        "Dataset_version_ID",
+        "Zenodo/Nextflow_workflow/Notebook",
     ]
     for key in keys:
         value = cellxgene_results[0][key]
@@ -269,10 +269,10 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             )
         )
         keys = [
-            "Link to Publication",
-            "Link to CELLxGENE Collection",
-            "Link to CELLxGENE Dataset",
-            "Dataset Name",
+            "Link_to_publication",
+            "Link_to_CELLxGENE_collection",
+            "Link_to_CELLxGENE_dataset",
+            "Dataset_name",
         ]
         for key in keys:
             value = cellxgene_results[0][key]

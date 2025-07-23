@@ -286,10 +286,10 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
             # Drug_product, MOLECULARLY_INTERACTS_WITH, Protein
             if (
                 "UniProt Name" in gene_results[gene_symbol]
-                and gene_results[gene_symbol]["UniProt Name"]
+                and gene_results[gene_symbol]["UniProt_name"]
             ):
                 # Map gene name to protein uniprot name
-                pr_term = f"PR_{gene_results[gene_symbol]['UniProt Name']}"
+                pr_term = f"PR_{gene_results[gene_symbol]['UniProt_name']}"
                 tuples.append(
                     (
                         URIRef(f"{PURLBASE}/{chembl_term}"),
@@ -428,7 +428,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                     URIRef(f"{RDFSBASE}#Link_to_UniProt_ID"),
                     Literal(
                         remove_protocols(
-                            gene_results[gene_symbol]["Link to UniProt ID"]
+                            gene_results[gene_symbol]["Link_to_UniProt_ID"]
                         )
                     ),
                 )
@@ -842,16 +842,16 @@ def create_tuples_from_gene(gene_path, summarize=False):
         results = gene_results
 
     keys = [
-        "Official Symbol",
-        "Official Full Name",
-        "Gene Type",
-        "Link to UniProt ID",
+        "Official_symbol",
+        "Official_full_name",
+        "Gene_type",
+        "Link_to_UniProt_ID",
         "Organism",
-        "RefSeq Gene ID",
-        "Also Known As",
+        "RefSeq_gene_ID",
+        "Also_known_as",
         "Summary",
-        "UniProt Name",
-        "mRNA (NM) and Protein (NP) sequences",
+        "UniProt_name",
+        "mRNA_(NM)_and_protein_(NP)_sequences",
     ]
     for gene_symbol in gene_symbols:
         if not results[gene_symbol]:
@@ -864,7 +864,7 @@ def create_tuples_from_gene(gene_path, summarize=False):
         # Gene, PRODUCES, Protein
         if (
             "UniProt Name" in gene_results[gene_symbol]
-            and gene_results[gene_symbol]["UniProt Name"]
+            and gene_results[gene_symbol]["UniProt_name"]
         ):
             # Map gene name to protein uniprot name
             pr_term = f"PR_{gene_results[gene_symbol]['UniProt Name']}"
@@ -945,12 +945,12 @@ def create_tuples_from_uniprot(uniprot_path, summarize=False):
         results = uniprot_results
 
     keys = [
-        "Protein Name",
-        "UniProt ID",
-        "Gene Name",
-        "Number of Amino Acids",
+        "Protein_name",
+        "UniProt_ID",
+        "Gene_name",
+        "Number_of_amino_acids",
         "Function",
-        "Annotation Score",
+        "Annotation_score",
         "Organism",
     ]
     for protein_accession in protein_accessions:

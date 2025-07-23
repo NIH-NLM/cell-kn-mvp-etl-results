@@ -87,15 +87,15 @@ def get_data_for_pmid(pmid, do_write=False):
         # Got the page, so parse it, and search for the title
         root = bs4.BeautifulSoup(xml_data, "xml").find("Article")
         if root:
-            data["author"] = find_names_or_none(
+            data["Author"] = find_names_or_none(
                 root, ["AuthorList", "Author", "LastName"]
             )  # First author
             if len(find_names_or_none(root, ["AuthorList"])) > 1:
-                data["author"] += " et al."
-            data["journal"] = find_names_or_none(root, ["Journal", "ISOAbbreviation"])
-            data["title"] = find_names_or_none(root, ["ArticleTitle"])
-            data["year"] = find_names_or_none(root, ["ArticleDate", "Year"])
-            data["citation"] = f"{data['author']} ({data['year']}) {data['journal']}"
+                data["Author"] += " et al."
+            data["Journal"] = find_names_or_none(root, ["Journal", "ISOAbbreviation"])
+            data["Title"] = find_names_or_none(root, ["ArticleTitle"])
+            data["Year"] = find_names_or_none(root, ["ArticleDate", "Year"])
+            data["Citation"] = f"{data['Author']} ({data['Year']}) {data['Journal']}"
     else:
         print(f"Encountered error in fetching from PubMed: {response.status_code}")
 
@@ -203,7 +203,7 @@ def get_data_for_gene_id(gene_id, do_write=False):
         if len(tags) > 1:
             raise Exception("Expect a single Entrezgene element")
         root = tags[0]
-        data["Official Symbol"] = find_names_or_none(
+        data["Official_symbol"] = find_names_or_none(
             root,
             [
                 "Entrezgene_gene",
@@ -212,7 +212,7 @@ def get_data_for_gene_id(gene_id, do_write=False):
                 "Gene-nomenclature_symbol",
             ],
         )
-        data["Official Full Name"] = find_names_or_none(
+        data["Official_full_name"] = find_names_or_none(
             root,
             [
                 "Entrezgene_gene",
@@ -221,12 +221,12 @@ def get_data_for_gene_id(gene_id, do_write=False):
                 "Gene-nomenclature_name",
             ],
         )
-        data["Gene Type"] = find_names_or_none(
+        data["Gene_type"] = find_names_or_none(
             root, ["Entrezgene_type"], attribute="value"
         )
         for child in root.find_all("Other-source_url"):
             if "www.uniprot.org" in child.text:
-                data["Link to UniProt ID"] = child.text
+                data["Link_to_UniProt_ID"] = child.text
         data["Organism"] = find_names_or_none(
             root,
             [
@@ -237,19 +237,19 @@ def get_data_for_gene_id(gene_id, do_write=False):
                 "Org-ref_taxname",
             ],
         )
-        data["RefSeq Gene ID"] = None
+        data["RefSeq_gene_ID"] = None
         for child in root.find_all("Gene-commentary_heading"):
             if "GCF_" in child.text:
-                m = re.search(":\s*(GCF_.*)", child.text)
+                m = re.search(r":\s*(GCF_.*)", child.text)
                 if m:
-                    data["RefSeq Gene ID"] = m.group(1)
-        data["Also Known As"] = []
+                    data["RefSeq_gene_ID"] = m.group(1)
+        data["Also_known_as"] = []
         for child in root.find_all("Gene-ref_syn_E"):
-            data["Also Known As"].append(child.text)
+            data["Also_known_as"].append(child.text)
         data["Summary"] = find_names_or_none(root, ["Entrezgene_summary"])
         pr_desc = find_names_or_none(root, ["Entrezgene_prot", "Prot-ref_desc"])
-        data["UniProt Name"] = Path(
-            parse.urlparse(data["Link to UniProt ID"]).path
+        data["UniProt_name"] = Path(
+            parse.urlparse(data["Link_to_UniProt_ID"]).path
         ).stem
         for product in root.find_all("Gene-commentary_products"):
             if find_names_or_none(product, ["Gene-commentary_type"], "value") == "mRNA":
@@ -261,7 +261,7 @@ def get_data_for_gene_id(gene_id, do_write=False):
                     elif "NP_" in accession.text:
                         np_id = accession.text
                 if nm_id and np_id and pr_desc:
-                    data["mRNA (NM) and Protein (NP) sequences"] = (
+                    data["mRNA_(NM)_and_protein_(NP)_sequences"] = (
                         f"{nm_id} -> {np_id}, {pr_desc}"
                     )
                 break
