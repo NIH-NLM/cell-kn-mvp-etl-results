@@ -902,7 +902,10 @@ def collect_unique_protein_accessions(gene_results):
     protein_accessions = set()
 
     for gene_symbol, gene_data in gene_results.items():
-        if gene_symbol in ["gene_symbols", "gnm2id", "gene_entrez_ids"] or not gene_data:
+        if (
+            gene_symbol in ["gene_symbols", "gnm2id", "gene_entrez_ids"]
+            or not gene_data
+        ):
             continue
         protein_accessions |= set([gene_data["UniProt_name"]])
 
