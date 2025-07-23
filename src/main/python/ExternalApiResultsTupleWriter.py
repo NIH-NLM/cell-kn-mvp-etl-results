@@ -863,11 +863,11 @@ def create_tuples_from_gene(gene_path, summarize=False):
 
         # Gene, PRODUCES, Protein
         if (
-            "UniProt Name" in gene_results[gene_symbol]
+            "UniProt_name" in gene_results[gene_symbol]
             and gene_results[gene_symbol]["UniProt_name"]
         ):
             # Map gene name to protein uniprot name
-            pr_term = f"PR_{gene_results[gene_symbol]['UniProt Name']}"
+            pr_term = f"PR_{gene_results[gene_symbol]['UniProt_name']}"
             tuples.append(
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
