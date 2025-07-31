@@ -3,5 +3,6 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cell-kn-mvp-etl-ontologies" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/src/main/resources/ncbi/datasets/ncbi-datasets-openapi" vcs="Git" />
   </component>
 </project>
