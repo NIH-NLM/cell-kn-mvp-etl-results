@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-PROJECT_NAME="ncbi-datasets-pylib"
+PROJECT_NAME="ncbi-datasets-openapi"
 openapi-generator-cli \
     generate \
     -g python \

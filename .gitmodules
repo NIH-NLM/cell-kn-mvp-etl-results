@@ -1,3 +1,6 @@
 [submodule "cell-kn-mvp-etl-ontologies"]
 	path = cell-kn-mvp-etl-ontologies
 	url = git@github.com:NIH-NLM/cell-kn-mvp-etl-ontologies.git
+[submodule "ncbi-datasets-openapi"]
+	path = ncbi-datasets-openapi
+	url = git@github.com:ralatsdc/ncbi-datasets-openapi.git
