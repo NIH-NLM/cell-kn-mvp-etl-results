@@ -32,4 +32,4 @@ try:
     with io.TextIOWrapper(dataset_zip.open(zinfo), encoding="utf8") as fh:
         print(fh.read())
 except KeyError as e:
-    logger.error("File %s not found in zipfile: %s", file_name, e)
+    print("File %s not found in zipfile: %s", zipfile_name, e)
