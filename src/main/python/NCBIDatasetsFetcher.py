@@ -10,9 +10,9 @@ from ncbi.datasets.openapi import GeneApi as DatasetsGeneApi
 
 zipfile_name = "gene_ds.zip"
 
-# download the data package using the DatasetsGeneApi, and then print out protein sequences for A2M and GNAS
+# download the data package using the DatasetsGeneApi, and then print out protein sequences for A2M, GNAS, and KCNK3
 with DatasetsApiClient() as api_client:
-    gene_ids: List[int] = [2, 2778]
+    gene_ids: List[int] = [2, 2778, 3777]
     gene_api = DatasetsGeneApi(api_client)
     try:
         gene_dataset_download = gene_api.download_gene_package_without_preload_content(
