@@ -294,7 +294,7 @@ public class ResultsGraphBuilder {
      * @param cellKnGraph         Cell-KN ArangoDB graph
      * @param ontologyElementMaps Maps terms and labels
      */
-    public static void loadSchemaTuples(ArangoGraph cellKnGraph, Map<String, OntologyElementMap> ontologyElementMaps) {
+    public static void loadSchemaTuples(ArangoGraph cellKnGraph, Map<String, OntologyElementMap> ontologyElementMaps) throws IOException {
 
         // Create the database and graph
         String cellKnSchemaDbName = "Cell-KN-Schema";
@@ -449,7 +449,11 @@ public class ResultsGraphBuilder {
             updateEdges(tuplesArrayList, ontologyElementMaps, edgeDocuments);
         }
         // Insert vertices, and edges
-        insertVertices(vertexCollections, vertexDocuments);
+        try {
+            insertVertices(vertexCollections, vertexDocuments);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         insertEdges(vertexCollections, edgeCollections, edgeDocuments);
 
         // TODO: Remove after testing Python version
