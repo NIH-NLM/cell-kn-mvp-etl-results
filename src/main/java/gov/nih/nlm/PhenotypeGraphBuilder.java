@@ -51,6 +51,7 @@ public class PhenotypeGraphBuilder {
             queryPrefix += "LIMIT @limit ";
         }
         ArrayList<String> queryStrings = new ArrayList<>();
+        // Path CS-BMC-GS always created using NSForest results
         queryStrings.add(
                 queryPrefix
                         + "FOR v, e, p IN 2 ANY cs GRAPH @graphName "
@@ -60,6 +61,7 @@ public class PhenotypeGraphBuilder {
                         + "IS_SAME_COLLECTION('GS', p.vertices[2]) "
                         + "RETURN p"
         );
+        // Path CS-BMC-Gl always created using author to CL mapping results
         queryStrings.add(
                 queryPrefix
                         + "FOR v, e, p IN 2 ANY cs GRAPH @graphName "
@@ -69,6 +71,8 @@ public class PhenotypeGraphBuilder {
                         + "IS_SAME_COLLECTION('CL', p.vertices[2]) "
                         + "RETURN p"
         );
+        // Path CL-UBERON-NCBITaxon always created using author to CL mapping results,
+        // and ontology contents
         queryStrings.add(
                 queryPrefix
                         + "FOR v, e, p IN 3 ANY cs GRAPH @graphName "
@@ -80,6 +84,7 @@ public class PhenotypeGraphBuilder {
                         + "IS_SAME_COLLECTION('NCBITaxon', p.vertices[3]) "
                         + "RETURN p"
         );
+        // Path CL-CSD-PUB always created using author to CL mapping results
         queryStrings.add(
                 queryPrefix
                         + "FOR v, e, p IN 3 ANY cs GRAPH @graphName "
@@ -91,6 +96,18 @@ public class PhenotypeGraphBuilder {
                         + "IS_SAME_COLLECTION('PUB', p.vertices[3]) "
                         + "RETURN p"
         );
+        // Path CL-GS always created using NSForest and author to CL mapping results
+        queryStrings.add(
+                queryPrefix
+                        + "FOR v, e, p IN 2 ANY cs GRAPH @graphName "
+                        + "FILTER "
+                        + "IS_SAME_COLLECTION('CL', p.vertices[1]) "
+                        + "AND "
+                        + "IS_SAME_COLLECTION('GS', p.vertices[2]) "
+                        + "RETURN p"
+        );
+        // Path CL-GS always created using NSForest and author to CL mapping results,
+        // however CL-GS-MONDO may not always exist
         queryStrings.add(
                 queryPrefix
                         + "FOR v, e, p IN 3 ANY cs GRAPH @graphName "
@@ -102,6 +119,23 @@ public class PhenotypeGraphBuilder {
                         + "IS_SAME_COLLECTION('MONDO', p.vertices[3]) "
                         + "RETURN p"
         );
+        // Path CL-GS-PR always created using NSForest, author to CL mapping, and external API results,
+        // however CL-GS-PR-CHEMBL may not always exist
+        queryStrings.add(
+                queryPrefix
+                        + "FOR v, e, p IN 4 ANY cs GRAPH @graphName "
+                        + "FILTER "
+                        + "IS_SAME_COLLECTION('CL', p.vertices[1]) "
+                        + "AND "
+                        + "IS_SAME_COLLECTION('GS', p.vertices[2]) "
+                        + "AND "
+                        + "IS_SAME_COLLECTION('PR', p.vertices[3]) "
+                        + "AND "
+                        + "IS_SAME_COLLECTION('CHEMBL', p.vertices[4]) "
+                        + "RETURN p"
+        );
+        // Path CL-GS-PR always created using NSForest, author to CL mapping, and external API results,
+        // however CL-GS-PR-CHEMBL-MONDO may not always exist
         queryStrings.add(
                 queryPrefix
                         + "FOR v, e, p IN 5 ANY cs GRAPH @graphName "
@@ -125,7 +159,8 @@ public class PhenotypeGraphBuilder {
         List<Map> paths = new ArrayList<>();
         for (String queryString : queryStrings) {
             System.out.println("Query: " + queryString);
-            paths.addAll(db.query(queryString, Map.class, bindVars, queryOpts).asListRemaining());
+            List<Map> queryPaths = db.query(queryString, Map.class, bindVars, queryOpts).asListRemaining();
+            paths.addAll(queryPaths);
         }
         return paths;
     }

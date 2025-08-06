@@ -217,7 +217,7 @@ def create_tuples_from_annotation(annotation_results):
         o = URIRef(f"{PURLBASE}/{object}")
         tuples.append((s, p, o))
 
-        p = URIRef(f"{RDFSBASE}#source")
+        p = URIRef(f"{RDFSBASE}#Source")
         l = Literal("Manual Annotation")
         tuples.append((s, o, p, l))
 

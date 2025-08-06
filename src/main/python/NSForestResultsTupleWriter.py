@@ -52,7 +52,7 @@ def create_tuples_from_nsforest(results):
             (
                 URIRef(f"{PURLBASE}/{bmc_term}"),
                 URIRef(f"{PURLBASE}/SO_0001260"),
-                URIRef(f"{RDFSBASE}#source"),
+                URIRef(f"{RDFSBASE}#Source"),
                 Literal("NSForest"),
             )
         )
@@ -60,7 +60,6 @@ def create_tuples_from_nsforest(results):
         # Gene_Class, PART_OF, Biomarker_combination_Ind
         # SO:0000704, BFO:0000050, SO:0001260
         for gene in nsforest_markers:
-            # TODO: Use gs_term?
             gs_term = f"GS_{gene}"
             tuples.append(
                 (
@@ -73,7 +72,7 @@ def create_tuples_from_nsforest(results):
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{PURLBASE}/{bmc_term}"),
-                    URIRef(f"{RDFSBASE}#source"),
+                    URIRef(f"{RDFSBASE}#Source"),
                     Literal("NSForest"),
                 )
             )
@@ -91,7 +90,7 @@ def create_tuples_from_nsforest(results):
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
                 URIRef(f"{PURLBASE}/{bmc_term}"),
-                URIRef(f"{RDFSBASE}#source"),
+                URIRef(f"{RDFSBASE}#Source"),
                 Literal("NSForest"),
             )
         )
@@ -109,7 +108,7 @@ def create_tuples_from_nsforest(results):
             (
                 URIRef(f"{PURLBASE}/{bmc_term}"),
                 URIRef(f"{PURLBASE}/{bgc_term}"),
-                URIRef(f"{RDFSBASE}#source"),
+                URIRef(f"{RDFSBASE}#Source"),
                 Literal("NSForest"),
             )
         )
@@ -117,13 +116,13 @@ def create_tuples_from_nsforest(results):
         # Node annotations
 
         # Cell_set_Ind, rdfs:label, clusterName
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{RDFSBASE}#Label"),
-                Literal(cluster_name),
-            )
-        )
+        # tuples.append(
+        #     (
+        #         URIRef(f"{PURLBASE}/{cs_term}"),
+        #         URIRef(f"{RDFSBASE}#Author_cell_set"),
+        #         Literal(cluster_name),
+        #     )
+        # )
 
         # Cell_set_Ind, STATO:0000047 (count), clusterSize
         tuples.append(

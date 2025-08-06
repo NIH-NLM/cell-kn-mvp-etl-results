@@ -3,6 +3,7 @@ from glob import glob
 import json
 from pathlib import Path
 import re
+from urllib.parse import urlparse
 
 from rdflib.term import Literal, URIRef
 
@@ -13,14 +14,16 @@ NSFOREST_DIRPATH = Path("../../../data/results")
 TUPLES_DIRPATH = Path("../../../data/tuples")
 
 
-def create_tuples_from_author_to_cl(results):
+def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
     """Creates tuples from manual author cell set to CL term mapping
     consistent with schema v0.7.
 
     Parameters
     ----------
-    results : pd.DataFrame
-        DataFrame containing NSForest results
+    author_to_cl_results : pd.DataFrame
+        DataFrame containing author to CL results
+    cellxgene_results : list(dict)
+        List of dictionaries containing cellxgene results
 
     Returns
     -------
@@ -30,8 +33,9 @@ def create_tuples_from_author_to_cl(results):
     tuples = []
 
     # Nodes for these results
-    csd_term = f"CSD_{results['dataset_id'][0]}"
-    pub_term = f"PUB_{results['DOI'][0].replace('/', '-')}"
+    csd_term = f"CSD_{author_to_cl_results['dataset_id'][0]}"
+    pub_term = f"PUB_{author_to_cl_results['DOI'][0].replace('/', '-')}"
+    ds_term = f"DS_{author_to_cl_results['dataset_source'][0]}"
 
     # Cell_set_dataset_Ind, SOURCE, Publication_Ind
     # IAO:0000100, dc:source, IAO:0000311
@@ -46,7 +50,7 @@ def create_tuples_from_author_to_cl(results):
         (
             URIRef(f"{PURLBASE}/{csd_term}"),
             URIRef(f"{PURLBASE}/{pub_term}"),
-            URIRef(f"{RDFSBASE}#source"),
+            URIRef(f"{RDFSBASE}#Source"),
             Literal("Manual Mapping"),
         )
     )
@@ -55,72 +59,93 @@ def create_tuples_from_author_to_cl(results):
     # IAO:0000100, rdf:type, IAO:0000100
     tuples.append(
         (
-            URIRef(f"{PURLBASE}/CSD_{results['dataset_id'][0]}"),
+            URIRef(f"{PURLBASE}/csd_term"),
             URIRef(f"{RDFSBASE}/rdf#type"),
-            URIRef(f"{PURLBASE}/DS_{results['dataset_source'][0]}"),
+            URIRef(f"{PURLBASE}/ds_term"),
         )
     )
     tuples.append(
         (
-            URIRef(f"{PURLBASE}/CSD_{results['dataset_id'][0]}"),
-            URIRef(f"{PURLBASE}/DS_{results['dataset_source'][0]}"),
-            URIRef(f"{RDFSBASE}#source"),
+            URIRef(f"{PURLBASE}/csd_term"),
+            URIRef(f"{PURLBASE}/ds_term"),
+            URIRef(f"{RDFSBASE}#Source"),
             Literal("Manual Mapping"),
         )
     )
 
-    # Node annotations
+    # CSD node annotations
+    pmid_data = get_data_for_pmid(author_to_cl_results["PMID"][0])
     tuples.append(
         (
             URIRef(f"{PURLBASE}/{csd_term}"),
-            URIRef(f"{RDFSBASE}#Dataset_version_id"),
-            Literal(results["dataset_version_id"][0]),
+            URIRef(f"{RDFSBASE}#Citation"),
+            Literal(pmid_data["Citation"]),
         )
     )
+    keys = [
+        "Link_to_publication",
+        "Link_to_CELLxGENE_collection",
+        "Link_to_CELLxGENE_dataset",
+        "Dataset_name",
+        "Number_of_cells",
+        "Organism",
+        "Tissue",
+        "Disease_status",
+        "Collection_ID",
+        "Collection_version_ID",
+        "Dataset_ID",
+        "Dataset_version_ID",
+        "Zenodo/Nextflow_workflow/Notebook",
+    ]
+    for key in keys:
+        value = cellxgene_results[0][key]
+        if isinstance(value, str):
+            value = value.replace("https://", "")
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{csd_term}"),
+                URIRef(f"{RDFSBASE}#{key.replace(' ', '_')}"),
+                Literal(value),
+            )
+        )
     tuples.append(
         (
             URIRef(f"{PURLBASE}/{csd_term}"),
-            URIRef(f"{RDFSBASE}#Collection_id"),
-            Literal(results["collection_id"][0]),
+            URIRef(f"{RDFSBASE}#Cell_type"),
+            Literal(str(author_to_cl_results["author_category"][0])),
         )
     )
-    tuples.append(
-        (
-            URIRef(f"{PURLBASE}/{csd_term}"),
-            URIRef(f"{RDFSBASE}#Collection_version_id"),
-            Literal(results["collection_version_id"][0]),
+
+    # PUB node annotations
+    for key in pmid_data.keys():
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{pub_term}"),
+                URIRef(f"{RDFSBASE}#{key.capitalize().replace(' ', '_')}"),
+                Literal(pmid_data[key]),
+            )
         )
-    )
     tuples.append(
         (
             URIRef(f"{PURLBASE}/{pub_term}"),
             URIRef(f"{RDFSBASE}#PMID"),
-            Literal(str(results["PMID"][0])),
+            Literal(str(author_to_cl_results["PMID"][0])),
         )
     )
     tuples.append(
         (
             URIRef(f"{PURLBASE}/{pub_term}"),
             URIRef(f"{RDFSBASE}#PMCID"),
-            Literal(str(results["PMCID"][0])),
+            Literal(str(author_to_cl_results["PMCID"][0])),
         )
     )
-    data = get_data_for_pmid(results["PMID"][0])
-    for key in data.keys():
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{pub_term}"),
-                URIRef(f"{RDFSBASE}#{key.capitalize()}"),
-                Literal(data[key]),
-            )
-        )
 
     # Nodes for each cell type or cell set
-    uuid_0 = results["uuid"][0]
-    for _, row in results.iterrows():
+    uuid_0 = author_to_cl_results["uuid"][0]
+    for _, row in author_to_cl_results.iterrows():
         uuid = row["uuid"]
-        cl_term = row["cell_ontology_id"]
-        uberon_term = row["uberon_entity_id"]
+        cl_term = urlparse(row["cell_ontology_id"]).path.replace("/obo/", "")
+        uberon_term = urlparse(row["uberon_entity_id"]).path.replace("/obo/", "")
         author_cell_set = hyphenate(row["author_cell_set"])
         cs_term = f"CS_{author_cell_set}-{uuid}"
         bmc_term = f"BMC_{uuid}-NSF"
@@ -129,16 +154,16 @@ def create_tuples_from_author_to_cl(results):
         # CL:0000000, BFO:0000050, UBERON:0001062
         tuples.append(
             (
-                URIRef(f"{cl_term}"),
+                URIRef(f"{PURLBASE}/{cl_term}"),
                 URIRef(f"{PURLBASE}/BFO_0000050"),
-                URIRef(f"{uberon_term}"),
+                URIRef(f"{PURLBASE}/{uberon_term}"),
             )
         )
         tuples.append(
             (
-                URIRef(f"{cl_term}"),
-                URIRef(f"{uberon_term}"),
-                URIRef(f"{RDFSBASE}#source"),
+                URIRef(f"{PURLBASE}/{cl_term}"),
+                URIRef(f"{PURLBASE}/{uberon_term}"),
+                URIRef(f"{RDFSBASE}#Source"),
                 Literal("Manual Mapping"),
             )
         )
@@ -147,16 +172,16 @@ def create_tuples_from_author_to_cl(results):
         # CL:0000000, RO:0015001, IAO:0000100
         tuples.append(
             (
-                URIRef(f"{cl_term}"),
+                URIRef(f"{PURLBASE}/{cl_term}"),
                 URIRef(f"{PURLBASE}/RO_0015001"),
                 URIRef(f"{PURLBASE}/{csd_term}"),
             )
         )
         tuples.append(
             (
-                URIRef(f"{cl_term}"),
+                URIRef(f"{PURLBASE}/{cl_term}"),
                 URIRef(f"{PURLBASE}/{csd_term}"),
-                URIRef(f"{RDFSBASE}#source"),
+                URIRef(f"{RDFSBASE}#Source"),
                 Literal("Manual Mapping"),
             )
         )
@@ -168,14 +193,14 @@ def create_tuples_from_author_to_cl(results):
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
                 URIRef(f"{PURLBASE}/RO_0001000"),
-                URIRef(f"{uberon_term}-{uuid_0}"),
+                URIRef(f"{PURLBASE}/{uberon_term}-{uuid_0}"),
             )
         )
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{uberon_term}-{uuid_0}"),
-                URIRef(f"{RDFSBASE}#source"),
+                URIRef(f"{PURLBASE}/{uberon_term}-{uuid_0}"),
+                URIRef(f"{RDFSBASE}#Source"),
                 Literal("Manual Mapping"),
             )
         )
@@ -193,7 +218,7 @@ def create_tuples_from_author_to_cl(results):
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
                 URIRef(f"{PURLBASE}/{csd_term}"),
-                URIRef(f"{RDFSBASE}#source"),
+                URIRef(f"{RDFSBASE}#Source"),
                 Literal("Manual Mapping"),
             )
         )
@@ -204,14 +229,14 @@ def create_tuples_from_author_to_cl(results):
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
                 URIRef(f"{PURLBASE}/RO_0002473"),
-                URIRef(f"{cl_term}"),
+                URIRef(f"{PURLBASE}/{cl_term}"),
             )
         )
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{cl_term}"),
-                URIRef(f"{RDFSBASE}#source"),
+                URIRef(f"{PURLBASE}/{cl_term}"),
+                URIRef(f"{RDFSBASE}#Source"),
                 Literal("Manual Mapping"),
             )
         )
@@ -223,14 +248,14 @@ def create_tuples_from_author_to_cl(results):
             (
                 URIRef(f"{PURLBASE}/{bmc_term}"),
                 URIRef(f"{PURLBASE}/IS_CHARACTERIZING_MARKER_SET_FOR"),
-                URIRef(f"{cl_term}"),
+                URIRef(f"{PURLBASE}/{cl_term}"),
             )
         )
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{bmc_term}"),
-                URIRef(f"{cl_term}"),
-                URIRef(f"{RDFSBASE}#source"),
+                URIRef(f"{PURLBASE}/{cl_term}"),
+                URIRef(f"{RDFSBASE}#Source"),
                 Literal("Manual Mapping"),
             )
         )
@@ -243,11 +268,28 @@ def create_tuples_from_author_to_cl(results):
                 Literal(row["author_cell_term"]),
             )
         )
+        keys = [
+            "Link_to_publication",
+            "Link_to_CELLxGENE_collection",
+            "Link_to_CELLxGENE_dataset",
+            "Dataset_name",
+        ]
+        for key in keys:
+            value = cellxgene_results[0][key]
+            if isinstance(value, str):
+                value = value.replace("https://", "")
+            tuples.append(
+                (
+                    URIRef(f"{PURLBASE}/{cs_term}"),
+                    URIRef(f"{RDFSBASE}#{key.replace(' ', '_')}"),
+                    Literal(value),
+                )
+            )
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{RDFSBASE}#Author_category"),
-                Literal(row["author_category"]),
+                URIRef(f"{RDFSBASE}#Cell_type"),
+                Literal(cl_term),
             )
         )
 
@@ -255,7 +297,7 @@ def create_tuples_from_author_to_cl(results):
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{cl_term}"),
+                URIRef(f"{PURLBASE}/{cl_term}"),
                 URIRef(f"{RDFSBASE}#Match"),
                 Literal(row["match"]),
             )
@@ -263,7 +305,7 @@ def create_tuples_from_author_to_cl(results):
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{cl_term}"),
+                URIRef(f"{PURLBASE}/{cl_term}"),
                 URIRef(f"{RDFSBASE}#Mapping_method"),
                 Literal(row["mapping_method"]),
             )
@@ -279,15 +321,15 @@ def create_tuples_from_author_to_cl(results):
             tuples.append(
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
-                    URIRef(f"{PURLBASE}/BFO:0000050"),
-                    URIRef(f"{cl_term}"),
+                    URIRef(f"{PURLBASE}/BFO_0000050"),
+                    URIRef(f"{PURLBASE}/{cl_term}"),
                 )
             )
             tuples.append(
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
-                    URIRef(f"{cl_term}"),
-                    URIRef(f"{RDFSBASE}#source"),
+                    URIRef(f"{PURLBASE}/{cl_term}"),
+                    URIRef(f"{RDFSBASE}#Source"),
                     Literal("Manual Mapping"),
                 )
             )
@@ -302,16 +344,16 @@ def create_tuples_from_author_to_cl(results):
             # CL:0000000, RO:0002292, SO:0000704
             tuples.append(
                 (
-                    URIRef(f"{cl_term}"),
+                    URIRef(f"{PURLBASE}/{cl_term}"),
                     URIRef(f"{RDFSBASE}#SELECTIVELY_EXPRESS"),
                     URIRef(f"{PURLBASE}/{gs_term}"),
                 )
             )
             tuples.append(
                 (
-                    URIRef(f"{cl_term}"),
+                    URIRef(f"{PURLBASE}/{cl_term}"),
                     URIRef(f"{PURLBASE}/{gs_term}"),
-                    URIRef(f"{RDFSBASE}#source"),
+                    URIRef(f"{RDFSBASE}#Source"),
                     Literal("Manual Mapping"),
                 )
             )
@@ -322,14 +364,14 @@ def create_tuples_from_author_to_cl(results):
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{PURLBASE}/BFO_0000050"),
-                    URIRef(f"{cl_term}"),
+                    URIRef(f"{PURLBASE}/{cl_term}"),
                 )
             )
             tuples.append(
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
-                    URIRef(f"{cl_term}"),
-                    URIRef(f"{RDFSBASE}#source"),
+                    URIRef(f"{PURLBASE}/{cl_term}"),
+                    URIRef(f"{RDFSBASE}#Source"),
                     Literal("Manual Mapping"),
                 )
             )
@@ -340,14 +382,14 @@ def create_tuples_from_author_to_cl(results):
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
                     URIRef(f"{PURLBASE}/RO_0002206"),
-                    URIRef(f"{uberon_term}"),
+                    URIRef(f"{PURLBASE}/{uberon_term}"),
                 )
             )
             tuples.append(
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
-                    URIRef(f"{uberon_term}"),
-                    URIRef(f"{RDFSBASE}#source"),
+                    URIRef(f"{PURLBASE}/{uberon_term}"),
+                    URIRef(f"{RDFSBASE}#Source"),
                     Literal("Manual Mapping"),
                 )
             )
@@ -411,8 +453,15 @@ def main(summarize=False):
             right_on="clusterName",
         )
 
+        # Load CELLxGENE results
+        cellxgene_path = Path(str(author_to_cl_path).replace(".csv", "-cellxgene.json"))
+        with open(cellxgene_path, "r") as fp:
+            cellxgene_results = json.load(fp)
+
         print(f"Creating tuples from {author_to_cl_path}")
-        author_to_cl_tuples = create_tuples_from_author_to_cl(author_to_cl_results)
+        author_to_cl_tuples = create_tuples_from_author_to_cl(
+            author_to_cl_results, cellxgene_results
+        )
         if summarize:
             output_dirpath = TUPLES_DIRPATH / "summaries"
         else:

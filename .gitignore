@@ -43,6 +43,7 @@ build/
 *.notes
 *.out
 *.tern-port
+*.tar.gz
 *.txt
 *.xml
 .DS_Store

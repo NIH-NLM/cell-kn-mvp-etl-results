@@ -1,4 +1,6 @@
 import ast
+import hashlib
+import json
 from pathlib import Path
 import random
 import string
@@ -7,8 +9,8 @@ from lxml import etree
 import pandas as pd
 import scanpy as sc
 
+from E_Utilities import find_gene_id_for_gene_name
 from OntologyParserLoader import parse_term
-
 from UniProtIdMapper import (
     submit_id_mapping,
     check_id_mapping_results_ready,
@@ -84,8 +86,8 @@ def hyphenate(iname):
     return oname
 
 
-def get_gene_names_and_ids():
-    """Query BioMart to get gene names and ids.
+def get_gene_names_and_ensembl_ids():
+    """Query BioMart to get gene names and Ensembl ids.
 
     Parameters
     ----------
@@ -94,17 +96,17 @@ def get_gene_names_and_ids():
     Returns
     -------
     gnmsids : pd.DataFrame
-        DataFrame with columns containing gene names and ids
+        DataFrame with columns containing gene names and Ensembl ids
     """
-    print("Getting gene names and ids from BioMart")
+    print("Getting gene names and Ensembl ids from BioMart")
     gnmsids = sc.queries.biomart_annotations(
         "hsapiens", ["external_gene_name", "ensembl_gene_id"], use_cache=True
     )
     return gnmsids
 
 
-def get_gene_name_to_ids_map():
-    """Get gene name to ids map.
+def get_gene_name_to_ensembl_ids_map():
+    """Get gene name to Ensembl ids map.
 
     Parameters
     ----------
@@ -113,28 +115,28 @@ def get_gene_name_to_ids_map():
     Returns
     -------
     gnm2ids : pd.DataFrame
-        DataFrame indexed by gene name containing gene id
+        DataFrame indexed by gene name containing gene Ensembl id
     """
-    print("Creating gene name to ids map")
-    gnmsids = get_gene_names_and_ids()
+    print("Creating gene name to Ensembl ids map")
+    gnmsids = get_gene_names_and_ensembl_ids()
     gnm2ids = gnmsids.set_index("external_gene_name")
     return gnm2ids
 
 
-def map_gene_name_to_ids(name, gnm2ids):
-    """Map a gene name to a gene id list.
+def map_gene_name_to_ensembl_ids(name, gnm2ids):
+    """Map a gene name to a gene Ensembl id list.
 
     Parameters
     ----------
     name : str
         Gene name
     gnm2ids : pd.DataFrame
-        DataFrame indexed by gene name containing gene id
+        DataFrame indexed by gene name containing gene Ensembl id
 
     Returns
     -------
     list
-        Gene ids
+        Gene Ensembl ids
     """
     if name in gnm2ids.index:
         ids = gnm2ids.loc[name, "ensembl_gene_id"]
@@ -142,15 +144,15 @@ def map_gene_name_to_ids(name, gnm2ids):
             ids = ids.to_list()
         else:
             ids = [ids]
-        # print(f"Mapped gene name {name} to ids {ids}")
+        # print(f"Mapped gene name {name} to Ensembl ids {ids}")
     else:
-        print(f"Could not find gene ids for gene name: {name}")
+        print(f"Could not find gene Ensembl ids for gene name: {name}")
         ids = []
     return ids
 
 
-def get_gene_id_to_names_map():
-    """Map gene id to names.
+def get_gene_ensembl_id_to_names_map():
+    """Map gene Ensembl id to names.
 
     Parameters
     ----------
@@ -159,23 +161,23 @@ def get_gene_id_to_names_map():
     Returns
     -------
     gid2nms : pd.DataFrame
-        DataFrame indexed by gene ids containing gene names
+        DataFrame indexed by gene Ensembl ids containing gene names
     """
-    print("Creating gene id to names map")
-    gnmsids = get_gene_names_and_ids()
+    print("Creating gene Ensembl id to names map")
+    gnmsids = get_gene_names_and_ensembl_ids()
     gid2nms = gnmsids.set_index("ensembl_gene_id")
     return gid2nms
 
 
-def map_gene_id_to_names(gid, gid2nms):
-    """Map a gene id to a gene name list.
+def map_gene_ensembl_id_to_names(gid, gid2nms):
+    """Map a gene Ensembl id to a gene name list.
 
     Parameters
     ----------
     gid : str
-        Gene id
+        Gene Ensembl id
     gid2nms : pd.DataFrame
-        DataFrame indexed by gene id containing gene name
+        DataFrame indexed by gene Ensembl id containing gene name
 
     Returns
     -------
@@ -188,14 +190,14 @@ def map_gene_id_to_names(gid, gid2nms):
             names = names.to_list()
         else:
             names = [names]
-        # print(f"Mapped gene id {gid} to names {names}")
+        # print(f"Mapped gene Ensembl id {gid} to names {names}")
     else:
-        print(f"Could not find gene names for gene id: {gid}")
+        print(f"Could not find gene names for gene Ensembl id: {gid}")
         names = []
     return names
 
 
-def get_protein_id_to_accession_map(protein_ids):
+def get_protein_ensembl_id_to_accession_map(protein_ids):
     """Map Ensembl protein ids to UniProt accession lists.
 
     Parameters
@@ -246,7 +248,7 @@ def get_protein_id_to_accession_map(protein_ids):
     return ensp2accn
 
 
-def map_protein_id_to_accession(ensp, ensp2accn):
+def map_protein_ensembl_id_to_accession(ensp, ensp2accn):
     """Map Ensembl protein id to UniProt accession, selecting the
     first if more than one found.
 
@@ -273,7 +275,7 @@ def map_protein_id_to_accession(ensp, ensp2accn):
     return accn
 
 
-def get_accession_to_protein_id_map(protein_ids):
+def get_protein_accession_to_ensembl_id_map(protein_ids):
     """Map UniProt accession to Ensembl protein ids lists.
 
     Parameters
@@ -325,7 +327,7 @@ def get_accession_to_protein_id_map(protein_ids):
     return accn2esnp
 
 
-def map_accession_to_protein_id(accn, accn2ensp):
+def map_accession_to_protein_ensembl_id(accn, accn2ensp):
     """Map UniProt accession to Ensembl protein id, selecting the
     first if more than one found.
 
@@ -375,28 +377,117 @@ def collect_unique_gene_symbols(nsforest_results):
     return list(gene_symbols)
 
 
-def collect_unique_gene_ids(gene_symbols, gnm2ids):
-    """Collect unique Ensembl gene ids corresponding to the specified list of gene symbols.
+def get_gene_name_to_and_from_entrez_id_maps(gene_symbols):
+    """Get gene name to Entrez id map, and its reverse. Cache results
+    after each success to prevent duplicate requests on restart.
 
     Parameters
     ----------
     gene_symbols : list(str)
-        List of unique gene symbols
+        List of gene symbols
+
+    Returns
+    -------
+    gnm2id : dict
+        Dictionary with name keys and id values
+    gid2nm : dict
+        Dictionary with id keys and name values
+    """
+    gnm2id = {}
+    gid2nm = {}
+
+    # Initialize a cache to prevent duplicate requests on restart
+    hasher = hashlib.sha256()
+    gene_symbols = sorted(set(gene_symbols))
+    hasher.update(":".join(gene_symbols).encode("utf-8"))
+    cache_path = Path(f".cache/{hasher.hexdigest()}.json")
+    if cache_path.exists():
+        with open(cache_path, "r") as fp:
+            cache = json.load(fp)
+        gnm2id = cache["gnm2id"]
+        gid2nm = cache["gid2nm"]
+
+    else:
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        cache = {}
+        cache["gnm2id"] = gnm2id
+        cache["gid2nm"] = gid2nm
+        with open(cache_path, "w") as fp:
+            json.dump(cache, fp, indent=4)
+
+    print("Creating gene name to and from Entrez id maps")
+    for gene_symbol in gene_symbols:
+
+        # Skip cached results
+        if gene_symbol in gnm2id:
+            continue
+
+        gene_id = find_gene_id_for_gene_name(gene_symbol)
+        gnm2id[gene_symbol] = gene_id
+        gid2nm[gene_id] = gene_symbol
+
+        # Cache current results
+        cache["gnm2id"] = gnm2id
+        cache["gid2nm"] = gid2nm
+        with open(cache_path, "w") as fp:
+            json.dump(cache, fp, indent=4)
+
+    return gnm2id, gid2nm
+
+
+def collect_unique_gene_ensembl_ids(gene_symbols, gnm2ids):
+    """Collect unique Ensembl gene ids corresponding to the specified
+    list of gene symbols.
+
+    Parameters
+    ----------
+    gene_symbols : list(str)
+        List of gene symbols
     gnm2ids : pd.DataFrame
-        DataFrame indexed by gene name containing gene id
+        DataFrame indexed by gene name containing gene Ensembl id
 
     Returns
     -------
     gene_ids : list(str)
-        List of unique gene ids
+        List of unique gene Ensembl ids
     """
     gene_ids = set()
 
     gene_symbols = set(gene_symbols)
     for gene_symbol in gene_symbols:
-        gene_ids |= set(map_gene_name_to_ids(gene_symbol, gnm2ids))
+        gene_ids |= set(map_gene_name_to_ensembl_ids(gene_symbol, gnm2ids))
     print(
-        f"Collected {len(gene_ids)} unique gene ids for {len(gene_symbols)} unique gene symbols"
+        f"Collected {len(gene_ids)} unique Ensembl gene ids for {len(gene_symbols)} unique gene symbols"
+    )
+
+    return list(gene_ids)
+
+
+def collect_unique_gene_entrez_ids(gene_symbols, gnm2id):
+    """Collect unique Entrez gene ids corresponding to the specified
+    list of gene symbols.
+
+    Parameters
+    ----------
+    gene_symbols : list(str)
+        List of gene symbols
+    gnm2id : dict
+        Dictionary with name keys and id values
+
+    Returns
+    -------
+    gene_ids : list(str)
+        List of unique gene Entrez ids
+    """
+    gene_ids = set()
+
+    gene_symbols = set(gene_symbols)
+    for gene_symbol in gene_symbols:
+        gene_id = gnm2id[gene_symbol]
+        if gene_id:
+            gene_ids.add(gene_id)
+    print(
+        f"Collected {len(gene_ids)} unique Entrez gene ids for {len(gene_symbols)} unique gene symbols"
     )
 
     return list(gene_ids)
@@ -416,7 +507,7 @@ def get_efo_to_mondo_map():
     """
     print("Creating EFO to MONDO term map")
     mondo_efo_mappings_name = (
-        "../../../cell-kn-mvp-etl-ontologies/data/mondo_efo_mappings.tsv"
+        "../../../cell-kn-mvp-etl-ontologies/data/mondo_efo_mappings.csv"
     )
     efo2mondo = pd.read_csv(mondo_efo_mappings_name)
     efo2mondo = efo2mondo.set_index("EFO")
@@ -523,3 +614,94 @@ def map_mesh_to_mondo(mesh, mesh2mondo):
         mondo = mesh2mondo[mesh]
 
     return mondo
+
+
+def get_chembl_to_pubchem_map():
+    """Get ChEMBL to PubChem id map.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    chembl2pubchem : pd.DataFrame
+        DataFrame indexed by ChEMBL id containing PubChem id
+    """
+    print("Creating ChEMBL to PubChem id map")
+    src1src22_name = "../../../cell-kn-mvp-etl-ontologies/data/src1src22.csv"
+    chembl2pubchem = pd.read_csv(src1src22_name)
+    chembl2pubchem = chembl2pubchem.set_index("ChEMBL")
+    return chembl2pubchem
+
+
+def map_chembl_to_pubchem(chembl, chembl2pubchem):
+    """Map ChEMBL to PubChem id.
+
+    Parameters
+    ----------
+    chembl : str
+        ChEMLB id
+    chembl2pubchem : pd.DataFrame
+        DataFrame indexed by ChEMBL containing PubChem id
+
+    Returns
+    -------
+    str
+        PubChem id
+    """
+    pubchem = None
+
+    if chembl in chembl2pubchem.index:
+        pubchem = chembl2pubchem.loc[chembl, "PubChem"]
+        if isinstance(pubchem, pd.core.series.Series):
+            pubchem = pubchem.iloc[0]
+
+    return pubchem
+
+
+def get_value_or_none(data, keys):
+    """Return the value in the data corresponding to the last key, or
+    None, if any key is not in the data.
+
+    Parameters
+    ----------
+    data : dict
+        Dictionary which may or may not contain the keys
+    keys : list(str)
+        List of keys to access the dictionary in order
+    """
+    value = None
+    for key in keys:
+        try:
+            if value is None:
+                value = data[key]
+            else:
+                value = value[key]
+        except:
+            return None
+    return value
+
+
+def get_values_or_none(data, list_key, value_keys):
+    """Collect and return the values for each list item in the data
+    corresponding to the list key, and last value key.
+
+    Parameters
+    ----------
+    data : dict
+        Dictionary which may or may not contain the keys
+    list_key : str
+        Key of the list of items
+    value_keys : list(str)
+        List of keys to access each item in order
+    """
+    values = ""
+    if list_key in data:
+        for item in data[list_key]:
+            value = get_value_or_none(item, value_keys)
+            if values == "":
+                values = value
+            else:
+                values += ", " + value
+    return values
