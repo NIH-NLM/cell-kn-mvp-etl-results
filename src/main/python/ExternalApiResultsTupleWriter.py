@@ -14,6 +14,7 @@ from ExternalApiResultsFetcher import (
     get_uniprot_results,
 )
 from LoaderUtilities import (
+    DEPRECATED_TERMS,
     PURLBASE,
     RDFSBASE,
     get_chembl_to_pubchem_map,
@@ -53,6 +54,10 @@ def get_mondo_term(disease_id, efo2mondo):
 
     elif "EFO" in disease_id:
         mondo_term = map_efo_to_mondo(disease_id, efo2mondo)
+
+    if mondo_term in DEPRECATED_TERMS:
+        print(f"Warning: MONDO term {mondo_term} deprecated")
+        return None
 
     return mondo_term
 
@@ -580,6 +585,8 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
             # Follow term naming convention for parsing
             rs_term = pharmacogenetic["variantRsId"].replace("rs", "RS_")
             so_term = pharmacogenetic["variantFunctionalConsequenceId"]
+            if so_term in DEPRECATED_TERMS:
+                print(f"Warning: SO term {so_term} deprecated")
 
             # == Pharmacogenetic relations
 
@@ -742,6 +749,8 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                 # Skip expressions for tissue not in UBERON
                 continue
             exp_term = expression["tissue"]["id"]
+            if exp_term in DEPRECATED_TERMS:
+                print(f"Warning: Expression term {exp_term} deprecated")
 
             # == Expression relations
 
@@ -1005,12 +1014,16 @@ def create_tuples_from_hubmap(hubmap_path, cl_terms):
         s_uberon_term = anatomical_structure["id"].replace(":", "_")
         if "UBERON" not in s_uberon_term:
             continue
+        if s_uberon_term in DEPRECATED_TERMS:
+            print(f"Warning: UBERON term {s_uberon_term} deprecated")
 
         # Get each object UBERON term
         for o_uberon_term in anatomical_structure["ccf_part_of"]:
             if "UBERON" not in o_uberon_term:
                 continue
             o_uberon_term = o_uberon_term.replace(":", "_")
+            if o_uberon_term in DEPRECATED_TERMS:
+                print(f"Warning: UBERON term {o_uberon_term} deprecated")
 
             # == Anatomical structure relations
 
@@ -1054,6 +1067,8 @@ def create_tuples_from_hubmap(hubmap_path, cl_terms):
             if "UBERON" not in uberon_term:
                 continue
             uberon_term = uberon_term.replace(":", "_")
+            if uberon_term in DEPRECATED_TERMS:
+                print(f"Warning: UBERON term {uberon_term} deprecated")
 
             # == Cell type relations
 
