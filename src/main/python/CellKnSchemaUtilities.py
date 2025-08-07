@@ -413,7 +413,7 @@ def main():
         adb.create_analyzers(database_name)
         adb.create_view(
             database_name,
-            collection_maps_name="../../../cell-kn-mvp-etl-ontologies/data/cell-kn-mvp-collection-maps.json",
+            collection_maps_name="../../../cell-kn-mvp-ui/react/src/assets/cell-kn-mvp-collection-maps.json",
         )
 
 
