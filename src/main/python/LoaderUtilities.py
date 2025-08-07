@@ -26,6 +26,9 @@ OWL_NS = "{http://www.w3.org/2002/07/owl#}"
 OBO_IN_OWL_NS = "{http://www.geneontology.org/formats/oboInOwl#}"
 RDF_NS = "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}"
 
+with open(Path("../../../data/obo/deprecated_terms.txt"), "r") as fp:
+    DEPRECATED_TERMS = fp.read().splitlines()
+
 
 def get_uuid():
     """Get an eight character random string.

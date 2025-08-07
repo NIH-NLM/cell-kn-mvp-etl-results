@@ -8,7 +8,13 @@ from urllib.parse import urlparse
 from rdflib.term import Literal, URIRef
 
 from E_Utilities import get_data_for_pmid
-from LoaderUtilities import load_results, hyphenate, PURLBASE, RDFSBASE
+from LoaderUtilities import (
+    DEPRECATED_TERMS,
+    PURLBASE,
+    RDFSBASE,
+    load_results,
+    hyphenate,
+)
 
 NSFOREST_DIRPATH = Path("../../../data/results")
 TUPLES_DIRPATH = Path("../../../data/tuples")
@@ -145,7 +151,11 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
     for _, row in author_to_cl_results.iterrows():
         uuid = row["uuid"]
         cl_term = urlparse(row["cell_ontology_id"]).path.replace("/obo/", "")
+        if cl_term in DEPRECATED_TERMS:
+            print(f"Warning: CL term {cl_term} deprecated")
         uberon_term = urlparse(row["uberon_entity_id"]).path.replace("/obo/", "")
+        if uberon_term in DEPRECATED_TERMS:
+            print(f"Warning: UBERON term {uberon_term} deprecated")
         author_cell_set = hyphenate(row["author_cell_set"])
         cs_term = f"CS_{author_cell_set}-{uuid}"
         bmc_term = f"BMC_{uuid}-NSF"
