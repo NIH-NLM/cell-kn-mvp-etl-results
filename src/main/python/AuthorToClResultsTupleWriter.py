@@ -48,7 +48,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
     tuples.append(
         (
             URIRef(f"{PURLBASE}/{csd_term}"),
-            URIRef(f"{RDFSBASE}/dc#source"),
+            URIRef(f"{RDFSBASE}/dc#Source"),
             URIRef(f"{PURLBASE}/{pub_term}"),
         )
     )
@@ -220,7 +220,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{RDFSBASE}/dc#source"),
+                URIRef(f"{RDFSBASE}/dc#Source"),
                 URIRef(f"{PURLBASE}/{csd_term}"),
             )
         )
