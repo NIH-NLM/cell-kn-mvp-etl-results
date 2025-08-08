@@ -851,6 +851,7 @@ def create_tuples_from_gene(gene_path, summarize=False):
         results = gene_results
 
     keys = [
+        "Gene_ID",
         "Official_symbol",
         "Official_full_name",
         "Gene_type",

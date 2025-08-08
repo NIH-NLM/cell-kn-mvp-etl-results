@@ -199,6 +199,7 @@ def get_data_for_gene_id(gene_id, do_write=False):
         if len(tags) > 1:
             raise Exception("Expect a single Entrezgene element")
         root = tags[0]
+        data["Gene_ID"] = gene_id
         data["Official_symbol"] = find_names_or_none(
             root,
             [
