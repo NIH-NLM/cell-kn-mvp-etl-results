@@ -126,7 +126,7 @@ def find_gene_id_for_gene_name(name, do_write=False):
     search_url = EUTILS_URL + "esearch.fcgi"
     params = {
         "db": "gene",
-        "term": name,
+        "term": f"{name}[Gene Name] AND 9606[Taxonomy ID]",
         "sort": "relevance",
         "retmax": 1,
         "retmode": "json",
