@@ -145,6 +145,13 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             Literal(str(author_to_cl_results["PMCID"][0])),
         )
     )
+    tuples.append(
+        (
+            URIRef(f"{PURLBASE}/{pub_term}"),
+            URIRef(f"{RDFSBASE}#DOI"),
+            Literal(author_to_cl_results["DOI"][0]),
+        )
+    )
 
     # Nodes for each cell type or cell set
     uuid_0 = author_to_cl_results["uuid"][0]
