@@ -163,12 +163,12 @@ public class ResultsGraphBuilder {
             if (!vtuple.isValidVertex()) continue;
 
             // Parse the predicate
-            String attribute = parsePredicate(ontologyElementMaps, tupleArrayList.get(triplePredicateIdx));
+            String attribute = normalizeAttribute(parsePredicate(ontologyElementMaps, tupleArrayList.get(triplePredicateIdx)));
 
             // Update the corresponding vertex
             if (!vertexDocuments.get(vtuple.id()).containsKey(vtuple.number()))
                 throw new RuntimeException("No vertex for VTuple " + vtuple);
-            updatedVertices.add(vtuple.id() + "-" + vtuple.number() + "-" + attribute + "-" + literal);
+            updatedVertices.add(vtuple.id() + "-" + vtuple.number());
             BaseDocument doc = vertexDocuments.get(vtuple.id()).get(vtuple.number());
             Set<String> literals;
             if (doc.getAttribute(attribute) == null) {
@@ -225,7 +225,7 @@ public class ResultsGraphBuilder {
             if (!edgeKeys.get(idPair).contains(key)) {
                 nEdges++;
                 BaseEdgeDocument doc = new BaseEdgeDocument(key, s_vtuple.id() + "/" + s_vtuple.number(), o_vtuple.id() + "/" + o_vtuple.number());
-                doc.addAttribute("label", label);
+                doc.addAttribute("Label", label);
                 edgeDocuments.get(idPair).put(key, doc);
                 edgeKeys.get(idPair).add(key);
             }
@@ -263,7 +263,7 @@ public class ResultsGraphBuilder {
             if (!o_vtuple.isValidVertex()) continue;
 
             // Parse the predicate
-            String attribute = parsePredicate(ontologyElementMaps, tupleArrayList.get(quadruplePredicateIdx));
+            String attribute = normalizeAttribute(parsePredicate(ontologyElementMaps, tupleArrayList.get(quadruplePredicateIdx)));
 
             // Parse the literal
             String literal = tupleArrayList.get(quadrupleLiteralIdx).getLiteralValue().toString();
@@ -273,7 +273,7 @@ public class ResultsGraphBuilder {
             String key = s_vtuple.number() + "-" + o_vtuple.number();
             if (!edgeDocuments.get(idPair).containsKey(key))
                 throw new RuntimeException("Invalid edge in collection " + idPair + " with key " + key);
-            updatedEdges.add(s_vtuple.id() + "/" + s_vtuple.number() + "-" + o_vtuple.id() + "/" + o_vtuple.number() + "-" + attribute + "-" + literal);
+            updatedEdges.add(s_vtuple.id() + "/" + s_vtuple.number() + "-" + o_vtuple.id() + "/" + o_vtuple.number());
             BaseEdgeDocument doc = edgeDocuments.get(idPair).get(key);
             Set<String> literals;
             if (doc.getAttribute(attribute) == null) {
