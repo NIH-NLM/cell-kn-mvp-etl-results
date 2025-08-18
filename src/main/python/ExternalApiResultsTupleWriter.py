@@ -137,7 +137,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
             # Find a gene id for which all resources are not empty
             is_empty = False
             for resource in RESOURCES:
-                if len(opentargets_results[gene_ensembl_id][resource]) == 0:
+                if len(opentargets_results[gene_ensembl_id][resource]) < 3:
                     is_empty = True
                     break
             if is_empty:
@@ -172,18 +172,9 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
             gene_ensembl_id, gid2nms
         )[0]
 
-        # Retain only the first result for each resource
+        # Retain the first three results for each resource
         for resource in RESOURCES:
-            if resource == "diseases":
-                results[gene_ensembl_id][resource] = [disease]
-
-            elif resource == "interactions":
-                results[gene_ensembl_id][resource] = [interaction]
-
-            else:
-                results[gene_ensembl_id][resource] = [
-                    results[gene_ensembl_id][resource][0]
-                ]
+            results[gene_ensembl_id][resource] = results[gene_ensembl_id][resource][0:3]
 
     else:
 
