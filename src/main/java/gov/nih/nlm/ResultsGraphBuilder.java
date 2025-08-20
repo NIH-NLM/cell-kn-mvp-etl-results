@@ -163,7 +163,7 @@ public class ResultsGraphBuilder {
             if (!vtuple.isValidVertex()) continue;
 
             // Parse the predicate
-            String attribute = normalizeAttribute(parsePredicate(ontologyElementMaps, tupleArrayList.get(triplePredicateIdx)));
+            String attribute = parsePredicate(ontologyElementMaps, tupleArrayList.get(triplePredicateIdx));
 
             // Update the corresponding vertex
             if (!vertexDocuments.get(vtuple.id()).containsKey(vtuple.number()))
@@ -210,7 +210,7 @@ public class ResultsGraphBuilder {
             if (!o_vtuple.isValidVertex()) continue;
 
             // Parse the predicate
-            String label = parsePredicate(ontologyElementMaps, tupleArrayList.get(triplePredicateIdx));
+            String label = normalizeEdgeLabel(parsePredicate(ontologyElementMaps, tupleArrayList.get(triplePredicateIdx)));
 
             // Create an edge collection, if needed
             String idPair = s_vtuple.id() + "-" + o_vtuple.id();
@@ -263,7 +263,7 @@ public class ResultsGraphBuilder {
             if (!o_vtuple.isValidVertex()) continue;
 
             // Parse the predicate
-            String attribute = normalizeAttribute(parsePredicate(ontologyElementMaps, tupleArrayList.get(quadruplePredicateIdx)));
+            String attribute = parsePredicate(ontologyElementMaps, tupleArrayList.get(quadruplePredicateIdx));
 
             // Parse the literal
             String literal = tupleArrayList.get(quadrupleLiteralIdx).getLiteralValue().toString();
