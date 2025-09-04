@@ -168,7 +168,6 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
         bmc_term = f"BMC_{uuid}"
         bgs_term = f"BGS_{uuid}"
 
-
         # Cell_type_Class, PART_OF, Anatomical_structure_Class
         # CL:0000000, BFO:0000050, UBERON:0001062
         tuples.append(
