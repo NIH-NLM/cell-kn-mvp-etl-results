@@ -152,12 +152,19 @@ def create_tuples_from_nsforest(results):
         )
 
         # Biomarker_combination_Ind, RO:0015004 (has characterizing marker set), NSForest_markers
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{bmc_term}"),
-                URIRef(f"{RDFSBASE}#Markers"),
-                Literal(" ".join(nsforest_markers)),
-            )
+        tuples.extend(
+            [
+                (
+                    URIRef(f"{PURLBASE}/{bmc_term}"),
+                    URIRef(f"{RDFSBASE}#Markers"),
+                    Literal(" ".join(nsforest_markers)),
+                ),
+                (
+                    URIRef(f"{PURLBASE}/{bmc_term}"),
+                    URIRef(f"{RDFSBASE}#F_beta_confidence_score"),  # [STAT:0000663]
+                    Literal(str(row["f_score"])),
+                ),
+            ]
         )
 
         # Edge annotations for BMC terms
