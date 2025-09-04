@@ -36,8 +36,8 @@ def create_tuples_from_nsforest(results):
         binary_genes = ast.literal_eval(row["binary_genes"])
         nsforest_markers = ast.literal_eval(row["NSForest_markers"])
         cs_term = f"CS_{cluster_name}-{uuid}"
-        bmc_term = f"BMC_{uuid}-NSF"
-        bgc_term = f"BMC_{uuid}-BG"
+        bmc_term = f"BMC_{uuid}"
+        bgs_term = f"BGS_{uuid}"
 
         # Biomarker_combination_Ind, INSTANCE_OF, Biomarker_combination_Class
         # ---, rdf:type, SO:0001260
@@ -101,13 +101,13 @@ def create_tuples_from_nsforest(results):
             (
                 URIRef(f"{PURLBASE}/{bmc_term}"),
                 URIRef(f"{PURLBASE}/RO_0015003"),
-                URIRef(f"{PURLBASE}/{bgc_term}"),
+                URIRef(f"{PURLBASE}/{bgs_term}"),
             )
         )
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{bmc_term}"),
-                URIRef(f"{PURLBASE}/{bgc_term}"),
+                URIRef(f"{PURLBASE}/{bgs_term}"),
                 URIRef(f"{RDFSBASE}#Source"),
                 Literal("NSForest"),
             )
@@ -232,7 +232,7 @@ def create_tuples_from_nsforest(results):
         # tuples.append(
         #     (
         #         URIRef(f"{PURLBASE}/{cs_term}"),
-        #         URIRef(f"{PURLBASE}/{bgc_term}"),
+        #         URIRef(f"{PURLBASE}/{bgs_term}"),
         #         URIRef(f"{RDFSBASE}#On_target"),  # [STAT:0000047]
         #         Literal(str(row["onTarget"])),
         #     )

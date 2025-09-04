@@ -165,7 +165,9 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             print(f"Warning: UBERON term {uberon_term} deprecated")
         author_cell_set = hyphenate(row["author_cell_set"])
         cs_term = f"CS_{author_cell_set}-{uuid}"
-        bmc_term = f"BMC_{uuid}-NSF"
+        bmc_term = f"BMC_{uuid}"
+        bgs_term = f"BGS_{uuid}"
+
 
         # Cell_type_Class, PART_OF, Anatomical_structure_Class
         # CL:0000000, BFO:0000050, UBERON:0001062
@@ -258,6 +260,23 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             )
         )
 
+        # Cell_set, RO:0002292 (EXPRESSES), Binary_gene_set
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{cs_term}"),
+                URIRef(f"{PURLBASE}/RO_0002292"),
+                URIRef(f"{PURLBASE}/{bgs_term}"),
+            )
+        )
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{cs_term}"),
+                URIRef(f"{PURLBASE}/{bgs_term}"),
+                URIRef(f"{RDFSBASE}#Source"),
+                Literal("Manual Mapping"),
+            )
+        )
+
         # Biomarker_combination_Ind, IS_CHARACTERIZING_MARKER_SET_FOR, Cell_type_Class
         # TODO: Update and use RO term
         # -, RO:0015004, CL:0000000
@@ -272,6 +291,23 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             (
                 URIRef(f"{PURLBASE}/{bmc_term}"),
                 URIRef(f"{PURLBASE}/{cl_term}"),
+                URIRef(f"{RDFSBASE}#Source"),
+                Literal("Manual Mapping"),
+            )
+        )
+
+        # Biomarker_combination, RO:0015003 (SUBCLUSTER_OF), Binary_gene_set
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{bmc_term}"),
+                URIRef(f"{PURLBASE}/RO_0015003"),
+                URIRef(f"{PURLBASE}/{bgs_term}"),
+            )
+        )
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{bmc_term}"),
+                URIRef(f"{PURLBASE}/{bgs_term}"),
                 URIRef(f"{RDFSBASE}#Source"),
                 Literal("Manual Mapping"),
             )
