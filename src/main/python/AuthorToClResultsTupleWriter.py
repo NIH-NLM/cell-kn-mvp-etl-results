@@ -154,7 +154,6 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
     )
 
     # Nodes for each cell type or cell set
-    uuid_0 = author_to_cl_results["uuid"][0]
     for _, row in author_to_cl_results.iterrows():
         uuid = row["uuid"]
         cl_term = urlparse(row["cell_ontology_id"]).path.replace("/obo/", "")
@@ -204,20 +203,20 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             )
         )
 
-        # Cell_set_Ind, DERIVES_FROM, Anatomical_structure_Ind
+        # Cell_set_Ind, DERIVES_FROM, Anatomical_structure_Cls
         # -, RO:0001000, UBERON:0001062
         # TODO: Add Anatomical_structure_Ind annotations, remove, or replace?
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
                 URIRef(f"{PURLBASE}/RO_0001000"),
-                URIRef(f"{PURLBASE}/{uberon_term}-{uuid_0}"),
+                URIRef(f"{PURLBASE}/{uberon_term}"),
             )
         )
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{PURLBASE}/{uberon_term}-{uuid_0}"),
+                URIRef(f"{PURLBASE}/{uberon_term}"),
                 URIRef(f"{RDFSBASE}#Source"),
                 Literal("Manual Mapping"),
             )
