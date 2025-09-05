@@ -296,21 +296,21 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
         )
 
         # Biomarker_combination, RO:0015003 (SUBCLUSTER_OF), Binary_gene_set
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{bmc_term}"),
-                URIRef(f"{PURLBASE}/RO_0015003"),
-                URIRef(f"{PURLBASE}/{bgs_term}"),
-            )
-        )
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{bmc_term}"),
-                URIRef(f"{PURLBASE}/{bgs_term}"),
-                URIRef(f"{RDFSBASE}#Source"),
-                Literal("Manual Mapping"),
-            )
-        )
+        # tuples.append(
+        #     (
+        #         URIRef(f"{PURLBASE}/{bmc_term}"),
+        #         URIRef(f"{PURLBASE}/RO_0015003"),
+        #         URIRef(f"{PURLBASE}/{bgs_term}"),
+        #     )
+        # )
+        # tuples.append(
+        #     (
+        #         URIRef(f"{PURLBASE}/{bmc_term}"),
+        #         URIRef(f"{PURLBASE}/{bgs_term}"),
+        #         URIRef(f"{RDFSBASE}#Source"),
+        #         Literal("Manual Mapping"),
+        #     )
+        # )
 
         # Node annotations
         tuples.append(

@@ -125,29 +125,34 @@ def create_tuples_from_nsforest(results):
         # )
 
         # Cell_set_Ind, STATO:0000047 (count), clusterSize
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{RDFSBASE}#Total_cell_count"),
-                Literal(str(cluster_size)),
-            )
+        # Cell_set_Ind, -, binary_genes
+        # Cell_set_Ind, RO:0015004 (has characterizing marker set), NSForest_markers
+        tuples.extend(
+            [
+                (
+                    URIRef(f"{PURLBASE}/{cs_term}"),
+                    URIRef(f"{RDFSBASE}#Total_cell_count"),
+                    Literal(str(cluster_size)),
+                ),
+                (
+                    URIRef(f"{PURLBASE}/{cs_term}"),
+                    URIRef(f"{RDFSBASE}#Binary_genes"),
+                    Literal(" ".join(binary_genes)),
+                ),
+                (
+                    URIRef(f"{PURLBASE}/{cs_term}"),
+                    URIRef(f"{RDFSBASE}#Markers"),
+                    Literal(" ".join(nsforest_markers)),
+                ),
+            ]
         )
 
-        # Cell_set_Ind, -, binary_genes
+        # Binary_gene_set, -, binary_genes
         tuples.append(
             (
-                URIRef(f"{PURLBASE}/{cs_term}"),
+                URIRef(f"{PURLBASE}/{bgs_term}"),
                 URIRef(f"{RDFSBASE}#Binary_genes"),
                 Literal(" ".join(binary_genes)),
-            )
-        )
-
-        # Cell_set_Ind, RO:0015004 (has characterizing marker set), NSForest_markers
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{cs_term}"),
-                URIRef(f"{RDFSBASE}#Markers"),
-                Literal(" ".join(nsforest_markers)),
             )
         )
 
