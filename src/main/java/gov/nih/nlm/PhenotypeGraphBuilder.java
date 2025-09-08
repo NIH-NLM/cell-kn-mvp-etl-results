@@ -61,7 +61,17 @@ public class PhenotypeGraphBuilder {
                         + "IS_SAME_COLLECTION('GS', p.vertices[2]) "
                         + "RETURN p"
         );
-        // Path CS-BMC-Gl always created using author to CL mapping results
+        // Path CS-BGS-GS always created using NSForest results
+        queryStrings.add(
+                queryPrefix
+                        + "FOR v, e, p IN 2 ANY cs GRAPH @graphName "
+                        + "FILTER "
+                        + "IS_SAME_COLLECTION('BGS', p.vertices[1]) "
+                        + "AND "
+                        + "IS_SAME_COLLECTION('GS', p.vertices[2]) "
+                        + "RETURN p"
+        );
+        // Path CS-BMC-CL always created using author to CL mapping results
         queryStrings.add(
                 queryPrefix
                         + "FOR v, e, p IN 2 ANY cs GRAPH @graphName "
