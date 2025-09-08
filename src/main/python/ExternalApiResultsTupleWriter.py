@@ -304,7 +304,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
 
             for indication in drug["drug"]["indications"]["rows"]:
                 mondo_term = get_mondo_term(indication["disease"]["id"], efo2mondo)
-                if mondo_term is None:
+                if mondo_term is None or indication["maxPhaseForIndication"] < 4:
                     continue
                 # TODO: Test disease score
 
