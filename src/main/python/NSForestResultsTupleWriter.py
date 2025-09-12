@@ -115,15 +115,6 @@ def create_tuples_from_nsforest(results):
 
         # Node annotations
 
-        # Cell_set_Ind, rdfs:label, clusterName
-        # tuples.append(
-        #     (
-        #         URIRef(f"{PURLBASE}/{cs_term}"),
-        #         URIRef(f"{RDFSBASE}#Author_cell_set"),
-        #         Literal(cluster_name),
-        #     )
-        # )
-
         # Cell_set_Ind, STATO:0000047 (count), clusterSize
         # Cell_set_Ind, -, binary_genes
         # Cell_set_Ind, RO:0015004 (has characterizing marker set), NSForest_markers

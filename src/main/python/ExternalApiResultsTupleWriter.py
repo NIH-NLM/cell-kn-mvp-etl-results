@@ -344,21 +344,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
 
                 # == Clinical_trial annotations
 
-                # TODO: Find another source for clinical trial data
-                # tuples.extend(
-                #     [
-                #         (
-                #             URIRef(f"{PURLBASE}/{nct_term}"),
-                #             URIRef(f"{RDFSBASE}#Phase"),
-                #             Literal(str(drug["trial_phase"])),
-                #         ),
-                #         (
-                #             URIRef(f"{PURLBASE}/{nct_term}"),
-                #             URIRef(f"{RDFSBASE}#Status"),
-                #             Literal(str(drug["trial_status"])),
-                #         ),
-                #     ]
-                # )
+                # None
 
             # == Drug_product annotations
 
@@ -429,144 +415,6 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                     ),
                 )
             )
-
-        # Note: Removed in NLM Cell KN MVP UX/UI specification
-        # for interaction in results[gene_ensembl_id]["interactions"]:
-        #     if interaction["gene_b_id"] is None:
-        #         # Skip interactions missing the second protein
-        #         continue
-        #     if (
-        #         interaction["evidence_score"] is None
-        #         or interaction["evidence_score"] < 0.5
-        #     ):
-        #         # Skip interactions with low evidence scores
-        #         continue
-
-        #     # Map id to name
-        #     gene_b_id = interaction["gene_b_id"]
-        #     gene_b_symbol = map_gene_ensembl_id_to_names(gene_b_id, gid2nms)
-        #     if len(gene_b_symbol) == 0:
-        #         # Skip interactions with no second gene symbol
-        #         continue
-        #     gene_b_symbol = gene_b_symbol[0]
-
-        #     # Follow term naming convention for parsing
-        #     gs_b_term = (
-        #         f"GS_{gene_b_symbol}"  # interaction["gene_b_id"].replace("ENSG", "GS_")
-        #     )
-
-        #     # == Interaction relations
-
-        #     # Gene, GENETICALLY_INTERACTS_WITH, Gene
-        #     tuples.append(
-        #         (
-        #             URIRef(f"{PURLBASE}/{gs_term}"),
-        #             URIRef(f"{RDFSBASE}#GENETICALLY_INTERACTS_WITH"),
-        #             URIRef(f"{PURLBASE}/{gs_b_term}"),
-        #         )
-        #     )
-        #     tuples.append(
-        #         (
-        #             URIRef(f"{PURLBASE}/{gs_term}"),
-        #             URIRef(f"{PURLBASE}/{gs_b_term}"),
-        #             URIRef(f"{RDFSBASE}#Source"),
-        #             Literal("Open Targets"),
-        #         )
-        #     )
-
-        #     # Get protein terms, handling Ensembl ids and the term
-        #     # naming convention for parsing
-        #     protein_a_id = interaction["protein_a_id"]
-        #     pr_a_term = get_protein_term(protein_a_id, ensp2accn)
-        #     protein_b_id = interaction["protein_b_id"]
-        #     pr_b_term = get_protein_term(protein_b_id, ensp2accn)
-
-        #     # Gene, PRODUCES, Protein
-        #     if pr_a_term is not None:
-        #         tuples.append(
-        #             (
-        #                 URIRef(f"{PURLBASE}/{gs_term}"),
-        #                 URIRef(f"{RDFSBASE}#PRODUCES"),
-        #                 URIRef(f"{PURLBASE}/{pr_a_term}"),
-        #             )
-        #         )
-        #         tuples.append(
-        #             (
-        #                 URIRef(f"{PURLBASE}/{gs_term}"),
-        #                 URIRef(f"{PURLBASE}/{pr_a_term}"),
-        #                 URIRef(f"{RDFSBASE}#Source"),
-        #                 Literal("Open Targets"),
-        #             )
-        #         )
-
-        #         for drug in results[gene_ensembl_id]["drugs"]:
-        #             mondo_term = get_mondo_term(drug["disease_id"], efo2mondo)
-        #             if (
-        #                 mondo_term is None
-        #                 or drug["trial_phase"] < 3
-        #                 or not drug["approved"]
-        #             ):
-        #                 continue
-        #             # TODO: Test disease score
-
-        #             # Follow term naming convention for parsing
-        #             chembl_term = drug["id"].replace("CHEMBL", "CHEMBL_")
-
-        #             # == Drug_product relations
-
-        #             # Drug_product, MOLECULARLY_INTERACTS_WITH, Protein
-        #             tuples.append(
-        #                 (
-        #                     URIRef(f"{PURLBASE}/{chembl_term}"),
-        #                     URIRef(f"{RDFSBASE}#MOLECULARLY_INTERACTS_WITH"),
-        #                     URIRef(f"{PURLBASE}/{pr_a_term}"),
-        #                 )
-        #             )
-        #             tuples.append(
-        #                 (
-        #                     URIRef(f"{PURLBASE}/{chembl_term}"),
-        #                     URIRef(f"{PURLBASE}/{pr_a_term}"),
-        #                     URIRef(f"{RDFSBASE}#Source"),
-        #                     Literal("Open Targets"),
-        #                 )
-        #             )
-
-        #     # == Gene to Interaction edge annotations
-
-        #     tuples.extend(
-        #         [
-        #             (
-        #                 URIRef(f"{PURLBASE}/{gs_term}"),
-        #                 URIRef(f"{PURLBASE}/{gs_b_term}"),
-        #                 URIRef(f"{RDFSBASE}#Evidence_score"),
-        #                 Literal(str(interaction["evidence_score"])),
-        #             ),
-        #             (
-        #                 URIRef(f"{PURLBASE}/{gs_term}"),
-        #                 URIRef(f"{PURLBASE}/{gs_b_term}"),
-        #                 URIRef(f"{RDFSBASE}#Evidence_count"),
-        #                 Literal(str(interaction["evidence_count"])),
-        #             ),
-        #             (
-        #                 URIRef(f"{PURLBASE}/{gs_term}"),
-        #                 URIRef(f"{PURLBASE}/{gs_b_term}"),
-        #                 URIRef(f"{RDFSBASE}#Source_DB"),
-        #                 Literal(str(interaction["source_db"])),
-        #             ),
-        #             (
-        #                 URIRef(f"{PURLBASE}/{gs_term}"),
-        #                 URIRef(f"{PURLBASE}/{gs_b_term}"),
-        #                 URIRef(f"{RDFSBASE}#Protein_a"),
-        #                 Literal(str(protein_a_id)),
-        #             ),
-        #             (
-        #                 URIRef(f"{PURLBASE}/{gs_term}"),
-        #                 URIRef(f"{PURLBASE}/{gs_b_term}"),
-        #                 URIRef(f"{RDFSBASE}#Protein_b"),
-        #                 Literal(str(protein_b_id)),
-        #             ),
-        #         ]
-        #     )
 
         for pharmacogenetic in results[gene_ensembl_id]["pharmacogenetics"]:
             if pharmacogenetic["variantRsId"] is None:
@@ -705,35 +553,6 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
         # None
 
         # == Gene annotations
-
-        # Note: Now created from NCBI Gene results
-        # tuples.append(
-        #     (
-        #         URIRef(f"{PURLBASE}/{gs_term}"),
-        #         URIRef(f"{RDFSBASE}#Symbol"),
-        #         Literal(str(gene_symbol)),
-        #     )
-        # )
-
-        # Note: Removed in NLM Cell KN MVP UX/UI specification
-        # for tractability in results[gene_ensembl_id]["tractability"]:
-        #     if tractability == {}:
-        #         # Skip empty tractabilities
-        #         continue
-        #     tuples.extend(
-        #         [
-        #             (
-        #                 URIRef(f"{PURLBASE}/{gs_term}"),
-        #                 URIRef(f"{RDFSBASE}#Label"),
-        #                 Literal(str(tractability["label"])),
-        #             ),
-        #             (
-        #                 URIRef(f"{PURLBASE}/{gs_term}"),
-        #                 URIRef(f"{RDFSBASE}#Modality"),
-        #                 Literal(str(tractability["modality"])),
-        #             ),
-        #         ]
-        #     )
 
         for expression in results[gene_ensembl_id]["expression"]:
             if expression["tissue"]["id"][0:7] != "UBERON_":

@@ -48,14 +48,6 @@ def read_schema(schema_path):
         & (schema["Object Node"] != "Cellular_component")
     ]
 
-    # Drop unknown predicate relation
-    # schema = schema[schema["Predicate Relation"] != "???"]
-
-    # TODO: Remove
-    # Drop predicates since not present in the classes/relations
-    # schema = schema[schema["Predicate Relation"] != "IS_MARKER_FOR_PROTEIN"]
-    # schema = schema[schema["Predicate Relation"] != "IS_A"]
-
     # Organism and species appear in the schema as separate entries,
     # but as combined in the classes/relations
     combined = terms[terms["Schema Name"] == "Organism/Species"]
