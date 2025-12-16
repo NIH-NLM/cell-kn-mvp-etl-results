@@ -1284,13 +1284,15 @@ def main():
             nsforest_path, force=args.force_opentargets or args.force_all
         )
 
-        _ebi_path, _ebi_results = get_ebi_results(
-            opentargets_path, force=args.force_ebi or args.force_all
-        )
+        # TODO: Restore if, and when results used to write tuples
+        # _ebi_path, _ebi_results = get_ebi_results(
+        #     opentargets_path, force=args.force_ebi or args.force_all
+        # )
 
-        _rxnav_path, _rxnav_results = get_rxnav_results(
-            opentargets_path, force=args.force_rxnav or args.force_all
-        )
+        # TODO: Restore if, and when results used to write tuples
+        # _rxnav_path, _rxnav_results = get_rxnav_results(
+        #     opentargets_path, force=args.force_rxnav or args.force_all
+        # )
 
         # TODO: Restore if API becomes available
         # drugbank_path, drugbank_results = get_drugbank_results(
