@@ -377,6 +377,7 @@ def collect_unique_gene_symbols(nsforest_results):
         for gene_list_str in nsforest_results[column]:
             gene_symbols |= set(ast.literal_eval(gene_list_str))
 
+    # TODO: Return a set
     return list(gene_symbols)
 
 

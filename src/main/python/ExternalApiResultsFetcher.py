@@ -148,6 +148,36 @@ def get_cellxgene_metadata(author_to_cl_path, force=False):
     return cellxgene_path, cellxgene_results
 
 
+def collect_all_unique_gene_symbols():
+
+    gene_symbols = set()
+
+    nsforest_paths = [
+        Path(p).resolve()
+        for p in glob(str(NSFOREST_DIRPATH / "cell-kn-mvp-nsforest-results-*.csv"))
+    ]
+    for nsforest_path in nsforest_paths:
+
+        print(f"Loading NSForest results from {nsforest_path}")
+        nsforest_results = load_results(nsforest_path).sort_values(
+            "clusterName", ignore_index=True
+        )
+
+        gene_symbols |= set(collect_unique_gene_symbols(nsforest_results))
+
+        breakpoint()
+
+    gnm2ids = get_gene_name_to_ensembl_ids_map()
+    gene_ensembl_ids = collect_unique_gene_ensembl_ids(gene_symbols, gnm2ids)
+
+    gnm2id, _gid2nm = get_gene_name_to_and_from_entrez_id_maps(gene_symbols)
+    gene_entrez_ids = collect_unique_gene_entrez_ids(gene_symbols, gnm2id)
+
+    breakpoint()
+
+    return gene_symbols, gene_ensembl_ids, gene_entrez_ids
+
+
 def get_opentargets_results(nsforest_path, resources=RESOURCES, force=False):
     """Use the gget opentargets command to obtain the specified
     resources for each unique Ensembl gene id mapped from each gene
