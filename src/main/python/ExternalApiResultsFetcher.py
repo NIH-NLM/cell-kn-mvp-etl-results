@@ -6,7 +6,6 @@ from pathlib import Path
 import re
 import shutil
 
-import gget
 import requests
 
 from E_Utilities import get_data_for_gene_id
@@ -23,7 +22,10 @@ from LoaderUtilities import (
 )
 
 
-RESOURCES = [
+RESULTS_SOURCES = Path("../../../data/results-sources-2025-12-29.json")
+
+OPENTARGETS_BASE_URL = "https://api.platform.opentargets.org/api/v4/graphql"
+OPENTARGETS_RESOURCES = [
     "diseases",
     "drugs",
     "interactions",
@@ -32,66 +34,176 @@ RESOURCES = [
     "expression",
     "depmap",
 ]
-BASE_URL = "https://api.platform.opentargets.org/api/v4/graphql"
 
-NSFOREST_DIRPATH = Path("../../../data/results")
+CELLXGENE_PATH = Path("../../../data/cellxgene/cellxgene.json")
+OPENTARGETS_PATH = Path("../../../data/opentargets/opentargets.json")
+EBI_PATH = Path("../../../data/ebi/ebi.json")
+RXNAV_PATH = Path("../../../data/rxnav/rxnav.json")
+DRUGBANK_PATH = Path("../../../data/drugbank/drugbank.json")
+NCATS_PATH = Path("../../../data/ncats/ncats.json")
+GENE_PATH = Path("../../../data/gene/gene.json")
+UNIPROT_PATH = Path("../../../data/uniprot/uniprot.json")
+
 HUBMAP_DIRPATH = Path("../../../data/hubmap")
 HUBMAP_LATEST_URLS = [
     "https://lod.humanatlas.io/asct-b/allen-brain/latest/",
     "https://lod.humanatlas.io/asct-b/eye/latest/",
+    "https://lod.humanatlas.io/asct-b/kidney/latest/",
     "https://lod.humanatlas.io/asct-b/lung/latest/",
+    "https://lod.humanatlas.io/asct-b/pancreas/latest/",
 ]
 
-# TODO: Refactor to reduce massive redundancy
 
-
-def get_cellxgene_metadata(author_to_cl_path, force=False):
-    """Use the CELLxGENE curation API to fetch the metadata for the
-    collection and dataset corresponding to the manual author cell set
-    to CL term mapping results loaded from the specified path.
+def collect_results_sources_data():
+    """Collect paths to all NSForest results, and author to CL maps
+    identified in the results sources. Collect the dataset_version_id
+    used for creating the NSForest results. Collect the unique gene
+    symbols, Ensembl identifiers, and Entrez identifiers corresponding
+    to all NSForet results.
 
     Parameters
     ----------
-    author_to_cl_path : Path
-        Path to author to CL results
+    None
+
+    Returns
+    -------
+    nsforest_paths: list(Path)
+        List of paths to all NSForest results files
+    author_to_cl_paths: list(Path | None)
+        List of paths to all author to CL map files
+    dataset_version_ids: list(str)
+        List of the dataset version identifier corresponding to the
+        dataset used to generate the NSForest results, or the first
+        such identifier if more than one dataset was combined
+    gene_symbols: set(str)
+        Set of gene symbols found in all NSForest results
+    gene_ensembl_ids: set(str)
+        Set of Ensembl identifiers coooresponding to the gene symbols
+        found in all NSForest results
+    gene_entrez_ids: set(str)
+        Set of Entrez identifiers coooresponding to the gene symbols
+        found in all NSForest results
+    """
+    nsforest_paths = []
+    author_to_cl_paths = []
+    dataset_version_ids = []
+    gene_symbols = set()
+    gene_ensembl_ids = set()
+    gene_entrez_ids = set()
+
+    print(f"Loading results sources from {RESULTS_SOURCES}")
+    with open(RESULTS_SOURCES, "r") as fp:
+        results_sources = json.load(fp)
+
+    # Collect NSForest results paths
+    for results_source in results_sources:
+        print(f'Finding NSForest results in {results_source["nsforest_dirpath"]}')
+        nsforest_paths.extend(
+            [
+                Path(p).resolve()
+                for p in glob(
+                    str(
+                        Path(results_source["nsforest_dirpath"])
+                        / results_source["nsforest_pattern"]
+                    )
+                )
+            ]
+        )
+
+    # Collect dataset version identifiers and unique gene symbols
+    # considering all NSForest results
+    for nsforest_path in nsforest_paths:
+
+        # Collect author to cl map paths, and datset version identifiers
+        author_to_cl_path = None
+        dataset_version_id = None
+        match = re.search(results_source["author_pattern"], nsforest_path)
+        if match:
+            author = match.group(1)
+            author_to_cl_path = glob(
+                str(nsforest_path.parent / results_source["map-author-to-cl"])
+            )
+            if len(author_to_cl_path) != 0:
+                author_to_cl_path = Path(author_to_cl_path[0]).resolve()
+
+                # Load author to CL map, and assign dataset version identifier
+                print(f"Loading author to CL map from {author_to_cl_path}")
+                author_to_cl_results = load_results(author_to_cl_path)
+                dataset_version_id = author_to_cl_results["dataset_version_id"][
+                    0
+                ].split("--")[
+                    0
+                ]  # Some dataset_version_ids are a "--" separated list of dataset_version_ids
+
+        else:
+
+            # Parse dataset identifier within NSForest results path, and assign
+            match = re.search(
+                "([0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12})",
+                nsforest_path,
+            )
+            dataset_version_id = match.group(1)
+
+        author_to_cl_paths.append(author_to_cl_path)
+        dataset_version_ids.append(dataset_version_id)
+
+        # Collect unique gene symbols
+        print(f"Loading NSForest results from {nsforest_path}")
+        nsforest_results = load_results(nsforest_path).sort_values(
+            "clusterName", ignore_index=True
+        )
+        gene_symbols |= set(collect_unique_gene_symbols(nsforest_results))
+
+    # Collect unique gene identifiers
+    gene_ensembl_ids = collect_unique_gene_ensembl_ids(gene_symbols)
+    gene_entrez_ids = collect_unique_gene_entrez_ids(gene_symbols)
+
+    return (
+        nsforest_paths,
+        author_to_cl_paths,
+        dataset_version_ids,
+        gene_symbols,
+        gene_ensembl_ids,
+        gene_entrez_ids,
+    )
+
+
+def get_cellxgene_metadata(dataset_version_ids, force=False):
+    """Use the CELLxGENE curation API to fetch metadata for the
+    dataset version ids specified.
+
+    Parameters
+    ----------
+    dataset_version_ids: list(str)
+        List of the dataset version identifier corresponding to the
+        dataset used to generate the NSForest results, or the first
+        such identifier if more than one dataset was combined
     force : bool
         Flag to force fetching, or not
 
     Returns
     -------
-    cellxgene_path : Path
-        Path to cellxgene results
     cellxgene_results : list(dict)
         List of dictionaries containing cellxgene results
     """
     # Create, or load cellxgene results
-    cellxgene_path = Path(str(author_to_cl_path).replace(".csv", "-cellxgene.json"))
-    if not cellxgene_path.exists() or force:
+    if not CELLXGENE_PATH.exists() or force:
 
         # Create results
 
         cellxgene_results = []
 
-        print(f"Loading author to CL results from {author_to_cl_path}")
-        author_to_cl_results = load_results(author_to_cl_path)
-        collection_id = author_to_cl_results["collection_id"][0]
-        collection_version_id = author_to_cl_results["collection_version_id"][0]
-        datasets_ids = zip(
-            author_to_cl_results["dataset_id"][0].split("--"),
-            author_to_cl_results["dataset_version_id"][0].split("--"),
-        )
+        print(f"")
         base_url = "https://api.cellxgene.cziscience.com/curation/v1"
-        for dataset_id, dataset_version_id in datasets_ids:
+        for dataset_version_id in dataset_version_ids:
             dataset_results = {}
-            dataset_url = (
-                f"{base_url}/collections/{collection_id}/datasets/{dataset_id}"
-            )
+            dataset_url = f"{base_url}/dataset_versions/{dataset_version_id}"
             response = requests.get(dataset_url)
             if response.status_code == 200:
                 response_json = response.json()
 
                 print(
-                    f"Assigning cellxgene metadata for collection_id {collection_id} and dataset_id {dataset_id}"
+                    f"Assigning cellxgene metadata for dataset_version_id {dataset_version_id}"
                 )
                 dataset_results["Link_to_publication"] = None
                 dataset_results["Link_to_CELLxGENE_collection"] = None
@@ -121,115 +233,76 @@ def get_cellxgene_metadata(author_to_cl_path, force=False):
                 dataset_results["Disease_status"] = get_values_or_none(
                     response_json, "disease", ["label"]
                 )
-                dataset_results["Collection_ID"] = collection_id
-                dataset_results["Collection_version_ID"] = collection_version_id
-                dataset_results["Dataset_ID"] = dataset_id
+                dataset_results["Collection_ID"] = get_value_or_none(
+                    response_json, ["collection_id"]
+                )
+                dataset_results["Collection_version_ID"] = get_value_or_none(
+                    response_json, ["collection_version_id"]
+                )
+                dataset_results["Dataset_ID"] = get_value_or_none(
+                    response_json, ["dataset_id"]
+                )
                 dataset_results["Dataset_version_ID"] = dataset_version_id
                 dataset_results["Zenodo/Nextflow_workflow/Notebook"] = "TBC"
                 cellxgene_results.append(dataset_results)
 
             else:
                 print(
-                    f"Could not assign cellxgene metadata for collection_id {collection_id} and dataset_id {dataset_id}"
+                    f"Could not assign cellxgene metadata for dataset_version_id {dataset_version_id}"
                 )
 
-            print(f"Dumping cellxgene results to {cellxgene_path}")
-            with open(cellxgene_path, "w") as fp:
+            print(f"Dumping cellxgene results to {CELLXGENE_PATH}")
+            with open(CELLXGENE_PATH, "w") as fp:
                 json.dump(cellxgene_results, fp, indent=4)
 
     else:
 
         # Load results
 
-        print(f"Loading cellxgene results from {cellxgene_path}")
-        with open(cellxgene_path, "r") as fp:
+        print(f"Loading cellxgene results from {CELLXGENE_PATH}")
+        with open(CELLXGENE_PATH, "r") as fp:
             cellxgene_results = json.load(fp)
 
-    return cellxgene_path, cellxgene_results
+    return cellxgene_results
 
 
-def collect_all_unique_gene_symbols():
-
-    gene_symbols = set()
-
-    nsforest_paths = [
-        Path(p).resolve()
-        for p in glob(str(NSFOREST_DIRPATH / "cell-kn-mvp-nsforest-results-*.csv"))
-    ]
-    for nsforest_path in nsforest_paths:
-
-        print(f"Loading NSForest results from {nsforest_path}")
-        nsforest_results = load_results(nsforest_path).sort_values(
-            "clusterName", ignore_index=True
-        )
-
-        gene_symbols |= set(collect_unique_gene_symbols(nsforest_results))
-
-        breakpoint()
-
-    gnm2ids = get_gene_name_to_ensembl_ids_map()
-    gene_ensembl_ids = collect_unique_gene_ensembl_ids(gene_symbols, gnm2ids)
-
-    gnm2id, _gid2nm = get_gene_name_to_and_from_entrez_id_maps(gene_symbols)
-    gene_entrez_ids = collect_unique_gene_entrez_ids(gene_symbols, gnm2id)
-
-    breakpoint()
-
-    return gene_symbols, gene_ensembl_ids, gene_entrez_ids
-
-
-def get_opentargets_results(nsforest_path, resources=RESOURCES, force=False):
-    """Use the gget opentargets command to obtain the specified
-    resources for each unique Ensembl gene id mapped from each gene
-    symbol in the NSForest results loaded from the specified path. The
-    opentargets results are written out in batches to enable
-    restarting.
+def get_opentargets_results(
+    gene_ensembl_ids, resources=OPENTARGETS_RESOURCES, force=False
+):
+    """Use the Open Targets Platform GraphQL API to obtain the
+    specified resources for each gene Ensembl id specified. The Open
+    Targets results are written out in batches to enable restarting.
 
     Parameters
     ----------
-    nsforest_path : Path
-        Path to NSForest results
+    gene_ensembl_ids : list(str)
+        List of gene Ensembl identifiers
     resources : list(str)
-        List of resource names to use with the gget opentargets
-        command
+        List of resource names to use with the Open Targets Platform
+        GraphQL API query
     force : bool
         Flag to force fetching, or not
 
     Returns
     -------
-    opentargets_path : Path
-        Path to opentargets results
     opentargets_results : dict
         Dictionary containing opentargets results keyed by gene
         Ensembl id, then by resource
     """
     # Create, or load opentargets results
-    opentargets_path = Path(str(nsforest_path).replace(".csv", "-opentargets.json"))
-    if not opentargets_path.exists() or force:
+    if not OPENTARGETS_PATH.exists() or force:
 
-        # Initialize results, and collect unique gene symbols and Ensembl ids
+        # Initialize results
 
         opentargets_results = {}
 
-        print(f"Loading NSForest results from {nsforest_path}")
-        nsforest_results = load_results(nsforest_path).sort_values(
-            "clusterName", ignore_index=True
-        )
-
-        gene_symbols = collect_unique_gene_symbols(nsforest_results)
-        gnm2ids = get_gene_name_to_ensembl_ids_map()
-        gene_ensembl_ids = collect_unique_gene_ensembl_ids(gene_symbols, gnm2ids)
-
     else:
 
-        # Load results, and assign unique gene symbols and ids
+        # Load results
 
-        print(f"Loading opentargets results from {opentargets_path}")
-        with open(opentargets_path, "r") as fp:
+        print(f"Loading opentargets results from {OPENTARGETS_PATH}")
+        with open(OPENTARGETS_PATH, "r") as fp:
             opentargets_results = json.load(fp)
-
-        gene_symbols = opentargets_results["gene_symbols"]
-        gene_ensembl_ids = opentargets_results["gene_ensembl_ids"]
 
     # Consider each gene id, and setup to dump the results in
     # batches, and enable restarting
@@ -253,7 +326,7 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES, force=False):
                 query = gget_queries["target"]
                 query["variables"]["ensemblId"] = gene_ensembl_id
                 response = requests.post(
-                    BASE_URL,
+                    OPENTARGETS_BASE_URL,
                     json={
                         "query": query["query_string"],
                         "variables": query["variables"],
@@ -261,7 +334,7 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES, force=False):
                 )
                 response.raise_for_status()
                 print(
-                    f"Assigning gget opentargets resources for gene Ensembl id {gene_ensembl_id}"
+                    f"Assigning Open Targets resources for gene Ensembl id {gene_ensembl_id}"
                 )
                 data = json.loads(response.text)["data"]
                 opentargets_results[gene_ensembl_id]["target"] = {}
@@ -302,14 +375,14 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES, force=False):
 
             except Exception as exc:
                 print(
-                    f"Could not assign gget opentargets resources for gene Ensembl id {gene_ensembl_id}"
+                    f"Could not assign Open Targets resources for gene Ensembl id {gene_ensembl_id}"
                 )
                 opentargets_results[gene_ensembl_id]["target"] = {}
                 for resource in resources:
                     opentargets_results[gene_ensembl_id][resource] = {}
 
         else:
-            # print(f"Already assigned gget opentargets resources for gene Ensembl id {gene_ensembl_id}")
+            # print(f"Already assigned Open Targets resources for gene Ensembl id {gene_ensembl_id}")
             if gene_ensembl_id != gene_ensembl_ids[-1]:
                 continue
 
@@ -319,14 +392,13 @@ def get_opentargets_results(nsforest_path, resources=RESOURCES, force=False):
             do_dump = False
             n_in_batch = 0
 
-            opentargets_results["gene_symbols"] = gene_symbols
             opentargets_results["gene_ensembl_ids"] = gene_ensembl_ids
 
-            print(f"Dumping opentargets results to {opentargets_path}")
-            with open(opentargets_path, "w") as fp:
+            print(f"Dumping opentargets results to {OPENTARGETS_PATH}")
+            with open(OPENTARGETS_PATH, "w") as fp:
                 json.dump(opentargets_results, fp, indent=4)
 
-    return opentargets_path, opentargets_results
+    return opentargets_results
 
 
 def collect_unique_drug_names(opentargets_results):
@@ -354,40 +426,31 @@ def collect_unique_drug_names(opentargets_results):
     return list(drug_names)
 
 
-def get_ebi_results(opentargets_path, resources=RESOURCES, force=False):
-    """Use an EBI API endpoint for each unique drug name in the
-    opentargets results loaded from the specified path. The EBI
-    results are written out in batches to enable restarting.
+def get_ebi_results(force=False):
+    """Use an EBI API endpoint to obtain drug ontology data for each
+    unique drug name in the opentargets results. The EBI results are
+    written out in batches to enable restarting.
 
     Parameters
     ----------
-    opentargets_path : Path
-        Path to opentarget results
-    resources : list(str)
-        List of resource names to use with the gget opentargets
-        command
     force : bool
         Flag to force fetching, or not
 
     Returns
     -------
-    ebi_path : Path
-        Path to EBI results
     ebi_results : dict
         Dictionary containing EBI results keyed by drug name
     """
     # Create, or load EBI results
-    ebi_path = Path(str(opentargets_path).replace("opentargets", "ebi"))
-    if not ebi_path.exists() or force:
+    if not EBI_PATH.exists() or force:
 
         # Initialize results, and collect unique drug names
 
         ebi_results = {}
 
-        nsforest_path = Path(str(opentargets_path).replace("-opentargets.json", ".csv"))
-        opentargets_path, opentargets_results = get_opentargets_results(
-            nsforest_path, resources=resources
-        )
+        print(f"Loading opentargets results from {OPENTARGETS_PATH}")
+        with open(OPENTARGETS_PATH, "r") as fp:
+            opentargets_results = json.load(fp)
 
         drug_names = collect_unique_drug_names(opentargets_results)
 
@@ -395,8 +458,8 @@ def get_ebi_results(opentargets_path, resources=RESOURCES, force=False):
 
         # Load results, and assign unique drug names
 
-        print(f"Loading ebi results from {ebi_path}")
-        with open(ebi_path, "r") as fp:
+        print(f"Loading ebi results from {EBI_PATH}")
+        with open(EBI_PATH, "r") as fp:
             ebi_results = json.load(fp)
 
         drug_names = ebi_results["drug_names"]
@@ -439,48 +502,38 @@ def get_ebi_results(opentargets_path, resources=RESOURCES, force=False):
 
             ebi_results["drug_names"] = drug_names
 
-            print(f"Dumping ebi results to {ebi_path}")
-            with open(ebi_path, "w") as fp:
+            print(f"Dumping ebi results to {EBI_PATH}")
+            with open(EBI_PATH, "w") as fp:
                 json.dump(ebi_results, fp, indent=4)
 
-    return ebi_path, ebi_results
+    return ebi_results
 
 
-def get_rxnav_results(opentargets_path, resources=RESOURCES, force=False):
+def get_rxnav_results(force=False):
     """Use an RxNav API endpoint for each unique drug name in the
-    opentargets results loaded from the specified path. The RxNav
-    results are written out in batches to enable restarting.
+    opentargets results. The RxNav results are written out in batches
+    to enable restarting.
 
     Parameters
     ----------
-    opentargets_path : Path
-        Path to opentarget results
-    resources : list(str)
-        List of resource names to use with the gget opentargets
-        command
     force : bool
         Flag to force fetching, or not
 
     Returns
     -------
-    rxnav_path : Path
-        Path to rxnav results
     rxnav_results : dict
         Dictionary containing rxnav results keyed by drug name
     """
     # Create, or load RxNav results
-    rxnav_path = Path(str(opentargets_path).replace("opentargets", "rxnav"))
-    if not rxnav_path.exists() or force:
+    if not RXNAV_PATH.exists() or force:
 
         # Initialize results, and collect unique drug names
 
         rxnav_results = {}
 
-        nsforest_path = Path(str(opentargets_path).replace("-opentargets.json", ".csv"))
-
-        opentargets_path, opentargets_results = get_opentargets_results(
-            nsforest_path, resources=resources
-        )
+        print(f"Loading opentargets results from {OPENTARGETS_PATH}")
+        with open(OPENTARGETS_PATH, "r") as fp:
+            opentargets_results = json.load(fp)
 
         drug_names = collect_unique_drug_names(opentargets_results)
 
@@ -488,8 +541,8 @@ def get_rxnav_results(opentargets_path, resources=RESOURCES, force=False):
 
         # Load results, and assign unique drug names
 
-        print(f"Loading RxNav results from {rxnav_path}")
-        with open(rxnav_path, "r") as fp:
+        print(f"Loading RxNav results from {RXNAV_PATH}")
+        with open(RXNAV_PATH, "r") as fp:
             rxnav_results = json.load(fp)
 
         drug_names = rxnav_results["drug_names"]
@@ -567,11 +620,11 @@ def get_rxnav_results(opentargets_path, resources=RESOURCES, force=False):
 
             rxnav_results["drug_names"] = drug_names
 
-            print(f"Dumping RxNav results to {rxnav_path}")
-            with open(rxnav_path, "w") as fp:
+            print(f"Dumping RxNav results to {RXNAV_PATH}")
+            with open(RXNAV_PATH, "w") as fp:
                 json.dump(rxnav_results, fp, indent=4)
 
-    return rxnav_path, rxnav_results
+    return rxnav_results
 
 
 def get_prop_for_drug(rxnav_results, drug_name, prop_name):
@@ -610,27 +663,19 @@ def get_prop_for_drug(rxnav_results, drug_name, prop_name):
     return prop_value
 
 
-def get_drugbank_results(rxnav_path, resources=RESOURCES, force=False):
-    """Use the DrugBank website for each unique drug name in the
-    opentargets results loaded from the path corresponding to the
-    specified RxNav path. The DrugBank results are written out in
-    batches to enable restarting. Drug names are mapped to DrugBank
-    ids using the RxNav results.
+def get_drugbank_results(force=False):
+    """Use the DrugBank website for each unique drug name in the RxNav
+    results. The DrugBank results are written out in batches to enable
+    restarting. Drug names are mapped to DrugBank ids using the RxNav
+    results.
 
     Parameters
     ----------
-    rxnav_path : Path
-        Path to RxNav results
-    resources : list(str)
-        List of resource names to use with the gget opentargets
-        command
     force : bool
         Flag to force fetching, or not
 
     Returns
     -------
-    durgbank_path : Path
-        Path to DrugBank results
     drugbank_results : dict
         Dictionary containing RxNav results keyed by drug name
 
@@ -640,32 +685,25 @@ def get_drugbank_results(rxnav_path, resources=RESOURCES, force=False):
     website needs to be replaced by the DrugBank API, which requires a
     license.
     """
-    # Create, or load RxNav results
-    drugbank_path = Path(str(rxnav_path).replace("rxnav", "drugbank"))
-    if not drugbank_path.exists() or force:
+    print(f"Loading RxNav results from {RXNAV_PATH}")
+    with open(RXNAV_PATH, "r") as fp:
+        rxnav_results = json.load(fp)
+
+    # Create, or load DrugBank results
+    if not DRUGBANK_PATH.exists() or force:
 
         # Initialize results, and collect unique drug names
 
         drugbank_results = {}
 
-        opentargets_path = Path(str(rxnav_path).replace("rxnav", "opentargets"))
-
-        rxnav_path, rxnav_results = get_rxnav_results(
-            opentargets_path, resources=resources
-        )
-
-        opentargets_path, opentargets_results = get_opentargets_results(
-            opentargets_path, resources=resources
-        )
-
-        drug_names = collect_unique_drug_names(opentargets_results)
+        drug_names = rxnav_results["drug_names"]
 
     else:
 
         # Load results, and assign unique drug names
 
-        print(f"Loading DrugBank results from {drugbank_path}")
-        with open(drugbank_path, "r") as fp:
+        print(f"Loading DrugBank results from {DRUGBANK_PATH}")
+        with open(DRUGBANK_PATH, "r") as fp:
             drugbank_results = json.load(fp)
 
         drug_names = drugbank_results["drug_names"]
@@ -710,33 +748,25 @@ def get_drugbank_results(rxnav_path, resources=RESOURCES, force=False):
 
             drugbank_results["drug_names"] = drug_names
 
-            print(f"Dumping DrugBank results to {drugbank_path}")
-            with open(drugbank_path, "w") as fp:
+            print(f"Dumping DrugBank results to {DRUGBANK_PATH}")
+            with open(DRUGBANK_PATH, "w") as fp:
                 json.dump(drugbank_results, fp, indent=4)
 
-    return drugbank_path, drugbank_results
+    return drugbank_results
 
 
-def get_ncats_results(rxnav_path, resources=RESOURCES, force=False):
-    """Use the NCATS website for each unique drug name in the
-    opentargets results loaded from the path corresponding to the
-    specified RxNav path. The NCATS results are written out in batches
-    to enable restarting.
+def get_ncats_results(force=False):
+    """Use the NCATS website for each unique drug name in the RxNav
+    results. The NCATS results are written out in batches to enable
+    restarting.
 
     Parameters
     ----------
-    rxnav_path : Path
-        Path to RxNav results
-    resources : list
-        List of resource names to use with the gget opentargets
-        command
     force : bool
         Flag to force fetching, or not
 
     Returns
     -------
-    ncats_path : Path
-        Path to NCATS results
     ncats_results : dict
         Dictionary containing NCATS results keyed by drug name
 
@@ -746,32 +776,25 @@ def get_ncats_results(rxnav_path, resources=RESOURCES, force=False):
     website needs to be replaced by an NCATS API, which is currently
     unkown.
     """
+    print(f"Loading RxNav results from {RXNAV_PATH}")
+    with open(RXNAV_PATH, "r") as fp:
+        rxnav_results = json.load(fp)
+
     # Create, or load NCATS results
-    ncats_path = Path(str(rxnav_path).replace("rxnav", "ncats"))
-    if not ncats_path.exists() or force:
+    if not NCATS_PATH.exists() or force:
 
         # Initialize results, and collect unique drug names
 
         ncats_results = {}
 
-        opentargets_path = Path(str(rxnav_path).replace("rxnav", "opentargets"))
-
-        rxnav_path, rxnav_results = get_rxnav_results(
-            opentargets_path, resources=resources
-        )
-
-        opentargets_path, opentargets_results = get_opentargets_results(
-            opentargets_path, resources=resources
-        )
-
-        drug_names = collect_unique_drug_names(opentargets_results)
+        drug_names = rxnav_results["drug_names"]
 
     else:
 
         # Load results, and assign unique drug names
 
-        print(f"Loading Ncats results from {ncats_path}")
-        with open(ncats_path, "r") as fp:
+        print(f"Loading Ncats results from {NCATS_PATH}")
+        with open(NCATS_PATH, "r") as fp:
             ncats_results = json.load(fp)
 
         drug_names = ncats_results["drug_names"]
@@ -816,102 +839,86 @@ def get_ncats_results(rxnav_path, resources=RESOURCES, force=False):
 
             ncats_results["drug_names"] = drug_names
 
-            print(f"Dumping Ncats results to {ncats_path}")
-            with open(ncats_path, "w") as fp:
+            print(f"Dumping Ncats results to {NCATS_PATH}")
+            with open(NCATS_PATH, "w") as fp:
                 json.dump(ncats_results, fp, indent=4)
 
-    return ncats_path, ncats_results
+    return ncats_results
 
 
-def get_gene_results(nsforest_path, force=False):
-    """Use the E-Utilities to fetch Gene data for each gene symbol in
-    the NSForest results loaded from the specified path. The gene
-    results are written out in batches to enable restarting.
+def get_gene_results(gene_entrez_ids, force=False):
+    """Use the E-Utilities to fetch Gene data for each gene Entrez id
+    specified. The gene results are written out in batches to enable
+    restarting.
 
     Parameters
     ----------
-    nsforest_path : Path
-        Path to NSForest results
+    gene_entrez_ids : list(str)
+        List of gene Entrez identifiers
     force : bool
         Flag to force fetching, or not
 
     Returns
     -------
-    gene_path : Path
-        Path to gene results
     gene_results : dict
-        Dictionary containing gene results keyed by gene symbol
+        Dictionary containing gene results keyed by gene Entrez id
     """
     # Create, or load gene results
-    gene_path = Path(str(nsforest_path).replace(".csv", "-gene.json"))
-    if not gene_path.exists() or force:
+    if not GENE_PATH.exists() or force:
 
-        # Initialize results, and collect unique gene symbols and Entrez ids
+        # Initialize results
 
         gene_results = {}
 
-        print(f"Loading NSForest results from {nsforest_path}")
-        nsforest_results = load_results(nsforest_path).sort_values(
-            "clusterName", ignore_index=True
-        )
-
-        gene_symbols = collect_unique_gene_symbols(nsforest_results)
-        gnm2id, _gid2nm = get_gene_name_to_and_from_entrez_id_maps(gene_symbols)
-        gene_entrez_ids = collect_unique_gene_entrez_ids(gene_symbols, gnm2id)
-
     else:
 
-        # Load results, and assign unique gene symbols
+        # Load results
 
-        print(f"Loading gene results from {gene_path}")
-        with open(gene_path, "r") as fp:
+        print(f"Loading gene results from {GENE_PATH}")
+        with open(GENE_PATH, "r") as fp:
             gene_results = json.load(fp)
 
-        gene_symbols = gene_results["gene_symbols"]
-        gnm2id = gene_results["gnm2id"]
-        gene_entrez_ids = gene_results["gene_entrez_ids"]
-
-    # Consider each gene symbol, and setup to dump the results in
+    # Consider each gene Entrez id, and setup to dump the results in
     # batches, and enable restarting
-    total_size = len(gene_symbols)
+    total_size = len(gene_entrez_ids)
     n_so_far = 0
     do_dump = False
     batch_size = 25
     n_in_batch = 0
-    for gene_symbol in gene_symbols:
+    for gene_entrez_id in gene_entrez_ids:
         n_in_batch += 1
         n_so_far += 1
-        if gene_symbol not in gene_results:
+        if gene_entrez_id not in gene_results:
             print(
                 f"Fetched {n_in_batch}/{batch_size} in batch - {n_so_far}/{total_size} so far"
             )
             do_dump = True
             try:
-                print(f"Assigning gene data for gene symbol {gene_symbol}")
-                gene_results[gene_symbol] = get_data_for_gene_id(gnm2id[gene_symbol])
+                print(f"Assigning gene data for gene Entrez id {gene_entrez_id}")
+                gene_results[gene_entrez_id] = get_data_for_gene_id(gene_entrez_id)
 
             except Exception as exc:
-                print(f"Could not assign gene data for gene symbol {gene_symbol}")
-                gene_results[gene_symbol] = {}
+                print(f"Could not assign gene data for gene Entrez id {gene_entrez_id}")
+                gene_results[gene_entrez_id] = {}
 
         else:
-            # print(f"Already assigned gene data for gene symbol {gene_symbol}")
-            if gene_symbol != gene_symbols[-1]:
+            # print(f"Already assigned gene data for gene Entrez id {gene_entrez_id}")
+            if gene_entrez_id != gene_entrez_ids[-1]:
                 continue
 
-        if do_dump and (n_in_batch >= batch_size or gene_symbol == gene_symbols[-1]):
+        if do_dump and (
+            n_in_batch >= batch_size or gene_entrez_id == gene_entrez_ids[-1]
+        ):
             do_dump = False
             n_in_batch = 0
 
-            gene_results["gene_symbols"] = gene_symbols
-            gene_results["gnm2id"] = gnm2id
             gene_results["gene_entrez_ids"] = gene_entrez_ids
 
-            print(f"Dumping gene results to {gene_path}")
-            with open(gene_path, "w") as fp:
+            print(f"Dumping gene results to {GENE_PATH}")
+            with open(GENE_PATH, "w") as fp:
                 json.dump(gene_results, fp, indent=4)
 
-    return gene_path, gene_results
+    return gene_results
 
 
 def collect_unique_protein_accessions(gene_results):
@@ -931,48 +938,40 @@ def collect_unique_protein_accessions(gene_results):
     """
     protein_accessions = set()
 
-    for gene_symbol, gene_data in gene_results.items():
-        if (
-            gene_symbol in ["gene_symbols", "gnm2id", "gene_entrez_ids"]
-            or not gene_data
-        ):
+    for gene_entrez_id, gene_data in gene_results.items():
+        if gene_entrez_id == "gene_entrez_ids" or not gene_data:
             continue
         protein_accessions |= set([gene_data["UniProt_name"]])
 
     return list(protein_accessions)
 
 
-def get_uniprot_results(gene_path, force=False):
+def get_uniprot_results(force=False):
     """Use a UniProt API endpoint for each protein accession in the
-    gene results loaded from the specified path. The UniProt results
-    are written out in batches to enable restarting.
+    gene results. The UniProt results are written out in batches to
+    enable restarting.
 
     Parameters
     ----------
-    gene_path : Path
-        Path to gene results
     force : bool
         Flag to force fetching, or not
 
     Returns
     -------
-    uniprot_path : Path
-        Path to UniProt results
     uniprot_results : dict
         Dictionary containing UniProt results keyed by protein
         accession
     """
     # Create, or load UniProt results
-    uniprot_path = Path(str(gene_path).replace("gene", "uniprot"))
-    if not uniprot_path.exists() or force:
+    if not UNIPROT_PATH.exists() or force:
 
         # Initialize results, and collect unique protein accessions
 
         uniprot_results = {}
 
-        nsforest_path = Path(str(gene_path).replace("-gene.json", ".csv"))
-
-        gene_path, gene_results = get_gene_results(nsforest_path)
+        print(f"Loading gene results from {GENE_PATH}")
+        with open(GENE_PATH, "r") as fp:
+            gene_results = json.load(fp)
 
         protein_accessions = collect_unique_protein_accessions(gene_results)
 
@@ -980,8 +979,8 @@ def get_uniprot_results(gene_path, force=False):
 
         # Load results, and assign unique protein accessions
 
-        print(f"Loading uniprot results from {uniprot_path}")
-        with open(uniprot_path, "r") as fp:
+        print(f"Loading uniprot results from {UNIPROT_PATH}")
+        with open(UNIPROT_PATH, "r") as fp:
             uniprot_results = json.load(fp)
 
         protein_accessions = uniprot_results["protein_accessions"]
@@ -1081,11 +1080,11 @@ def get_uniprot_results(gene_path, force=False):
 
             uniprot_results["protein_accessions"] = protein_accessions
 
-            print(f"Dumping uniprot results to {uniprot_path}")
-            with open(uniprot_path, "w") as fp:
+            print(f"Dumping uniprot results to {UNIPROT_PATH}")
+            with open(UNIPROT_PATH, "w") as fp:
                 json.dump(uniprot_results, fp, indent=4)
 
-    return uniprot_path, uniprot_results
+    return uniprot_results
 
 
 def get_hubmap_json_urls():
@@ -1177,16 +1176,18 @@ def download_hubmap_data_tables():
 
 
 def main():
-    """For datasets corresponding to the Guo et al. 2023, Jorstad et
-    al. 2023, Li et al. 2023, and Sikkema, et al. 2023, publications,
-    use the CELLxGENE curation API to fetch the metadata for each
-    collection and dataset, and load NSForest results from processing
-    each dataset, then
+    """Collect paths to all NSForest results, and author to CL maps
+    identified in the results sources, dataset_version_id used for
+    creating the NSForest results, and the unique gene symbols,
+    Ensembl identifiers, and Entrez identifiers corresponding to all
+    NSForet results. Then:
 
-    - Use the gget opentargets command to obtain the diseases, drugs,
-      interactions, pharmacogenetics, tractability, expression, and
-      depmap resources for each unique gene id mapped from each gene
-      symbol in the NSForest results
+    - Use the CELLxGENE curation API to fetch metadata for each
+      dataset version id
+
+    - Use the Open Targets Platform GraphQL API to obtain the
+      diseases, drugs, interactions, pharmacogenetics, tractability,
+      expression, and depmap resources for each unique gene Ensembl id
 
     - Use an EBI API endpoint to obtain drug ontology data for each
       unique drug name in the opentargets results
@@ -1196,19 +1197,17 @@ def main():
       RXCUI, suggested spellings, prescribable drugs information, and
       drug properties
 
-    - [Use the DrugBank website for each unique drug name in the
-      opentargets results loaded from the path corresponding to the
-      specified RxNav path]
+    - Use the DrugBank website for each unique drug name in the RxNav
+      results
 
-    - [Use the NCATS website for each unique drug name in the
-      opentargets results loaded from the path corresponding to the
-      specified RxNav path]
+    - Use the NCATS website for each unique drug name in the
+      RxNav results
 
-    - Use the E-Utilities to fetch Gene data for each gene symbol in
-      the NSForest results
+    - Use the E-Utilities to fetch Gene data for each unique gene
+      Entrez id
 
     - Use a UniProt API endpoint for each protein accession in the
-      gene results to obtain protein data
+      gene results
 
     Download specified latest HuBMAP data table JSON files, archiving
     any earlier versions.
@@ -1219,18 +1218,9 @@ def main():
 
     Returns
     -------
-    opentargets_results : dict
-        Dictionary containing opentargets results keyed by gene id,
-        then by resource
-    ebi_results : dict
-        Dictionary containing EBI results keyed by drug name
-    rxnav_results : dict
-        Dictionary containing rxnav results keyed by drug name
-    uniprot_results : dict
-        Dictionary containing UniProt results keyed by protein
-        accession
+    None
     """
-    # Load NSForest results and fetch external API results
+    # Provide command line interface
     parser = argparse.ArgumentParser(description="Fetch External API Results")
     parser.add_argument(
         "-c",
@@ -1287,60 +1277,63 @@ def main():
     )
     args = parser.parse_args()
 
-    nsforest_paths = [
-        Path(p).resolve()
-        for p in glob(str(NSFOREST_DIRPATH / "cell-kn-mvp-nsforest-results-*.csv"))
-    ]
-    for nsforest_path in nsforest_paths:
+    # Collect paths to all NSForest results, and author to CL maps
+    # identified in the results sources. Collect the
+    # dataset_version_id used for creating the NSForest
+    # results. Collect the unique gene symbols, Ensembl identifiers,
+    # and Entrez identifiers corresponding to all NSForet results.
+    (
+        nsforest_paths,
+        author_to_cl_paths,
+        dataset_version_ids,
+        gene_symbols,
+        gene_ensembl_ids,
+        gene_entrez_ids,
+    ) = collect_results_sources_data()
 
-        # Map NSForest results filename to manual author cell set to
-        # CL term mapping filename
-        author = re.search("results-([a-zA-Z]*)", nsforest_path.name).group(1)
-        author_to_cl_path = Path(
-            glob(
-                str(NSFOREST_DIRPATH / f"cell-kn-mvp-map-author-to-cl-{author}-*.csv")
-            )[-1]
-        ).resolve()
+    # Use the CELLxGENE curation API for each dataset version id
+    # collected
+    _cellxgene_results = get_cellxgene_metadata(
+        dataset_version_ids, force=args.force_cellxgene or args.force_all
+    )
 
-        print(f"Fetching CELLxGENE results {author_to_cl_path}")
+    # Use the Open Targets Platform GraphQL API for each gene Ensembl
+    # id collected
+    _opentargets_results = get_opentargets_results(
+        gene_ensembl_ids, force=args.force_opentargets or args.force_all
+    )
 
-        get_cellxgene_metadata(
-            author_to_cl_path, force=args.force_cellxgene or args.force_all
-        )
+    # TODO: Restore if, and when results used to write tuples
+    # Use an EBI API endpoint for each unique drug name in the
+    # opentargets results
+    # _ebi_results = get_ebi_results(force=args.force_ebi or args.force_all)
 
-        print(f"Fetching results for {nsforest_path}")
+    # TODO: Restore if, and when results used to write tuples
+    # Use an RxNav API endpoint for each unique drug name in the
+    # opentargets results
+    # _rxnav_results = get_rxnav_results(force=args.force_rxnav or args.force_all)
 
-        opentargets_path, _opentargets_results = get_opentargets_results(
-            nsforest_path, force=args.force_opentargets or args.force_all
-        )
+    # TODO: Restore if API becomes available
+    # Use the DrugBank website for each unique drug name in the RxNav
+    # results
+    # _drugbank_results = get_drugbank_results(
+    #     force=args.force_drugbank or args.force_all
+    # )
 
-        # TODO: Restore if, and when results used to write tuples
-        # _ebi_path, _ebi_results = get_ebi_results(
-        #     opentargets_path, force=args.force_ebi or args.force_all
-        # )
+    # TODO: Restore if API becomes available
+    # Use the NCATS website for each unique drug name in the RxNav
+    # results
+    # _ncats_results = get_ncats_results(force=args.force_ncats or args.force_all)
 
-        # TODO: Restore if, and when results used to write tuples
-        # _rxnav_path, _rxnav_results = get_rxnav_results(
-        #     opentargets_path, force=args.force_rxnav or args.force_all
-        # )
+    # Use the E-Utilities to fetch Gene data for each unique gene
+    # Entrez id collected
+    _gene_results = get_gene_results(
+        gene_entrez_ids, force=args.force_gene or args.force_all
+    )
 
-        # TODO: Restore if API becomes available
-        # drugbank_path, drugbank_results = get_drugbank_results(
-        #     rxnav_path, force=args.force_drugbank or args.force_all
-        # )
-
-        # TODO: Restore if API becomes available
-        # ncats_path, ncats_results = get_ncats_results(
-        #     rxnav_path, force=args.force_ncats or args.force_all
-        # )
-
-        gene_path, _gene_results = get_gene_results(
-            nsforest_path, force=args.force_gene or args.force_all
-        )
-
-        _uniprot_path, _uniprot_results = get_uniprot_results(
-            gene_path, force=args.force_uniprot or args.force_all
-        )
+    # Use a UniProt API endpoint for each protein accession in the
+    # gene results
+    _uniprot_results = get_uniprot_results(force=args.force_uniprot or args.force_all)
 
     # Download specified latest HuBMAP data table JSON files
     download_hubmap_data_tables()
