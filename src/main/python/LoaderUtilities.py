@@ -1,5 +1,6 @@
 import ast
-import hashlib
+
+# import hashlib
 import json
 from pathlib import Path
 import random
@@ -28,6 +29,10 @@ RDF_NS = "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}"
 
 with open(Path("../../../data/obo/deprecated_terms.txt"), "r") as fp:
     DEPRECATED_TERMS = fp.read().splitlines()
+
+GENCODE_MAPPING = pd.read_parquet(
+    "../../../data/gencode/gencode.v49.annotation.parquet"
+)
 
 
 def get_uuid():
@@ -141,7 +146,9 @@ def map_gene_name_to_ensembl_ids(name, gnm2ids):
     list
         Gene Ensembl ids
     """
-    if name in gnm2ids.index:
+    if "ENSG" in name:
+        ids = [name]
+    elif name in gnm2ids.index:
         ids = gnm2ids.loc[name, "ensembl_gene_id"]
         if isinstance(ids, pd.core.series.Series):
             ids = ids.to_list()
@@ -198,6 +205,65 @@ def map_gene_ensembl_id_to_names(gid, gid2nms):
         print(f"Could not find gene names for gene Ensembl id: {gid}")
         names = []
     return names
+
+
+def get_gene_name_to_and_from_entrez_id_maps(gene_symbols, init_cache=False):
+    """Get gene name to Entrez id map, and its reverse. Cache results
+    after each success to prevent duplicate requests on restart.
+
+    Parameters
+    ----------
+    gene_symbols : list(str)
+        List of gene symbols
+    init_cache : bool
+        Flag to initialize cache, or not
+
+    Returns
+    -------
+    gnm2id : dict
+        Dictionary with name keys and id values
+    gid2nm : dict
+        Dictionary with id keys and name values
+    """
+    gnm2id = {}
+    gid2nm = {}
+
+    # Initialize a cache to prevent duplicate requests on restart
+    gene_symbols = sorted(set(gene_symbols))
+    cache_path = Path(f".cache/gene-name-to-and-from-entrez-id-maps.json")
+    if not init_cache and cache_path.exists():
+        with open(cache_path, "r") as fp:
+            cache = json.load(fp)
+        gnm2id = cache["gnm2id"]
+        gid2nm = cache["gid2nm"]
+
+    else:
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        cache = {}
+        cache["gnm2id"] = gnm2id
+        cache["gid2nm"] = gid2nm
+        with open(cache_path, "w") as fp:
+            json.dump(cache, fp, indent=4)
+
+    print("Creating gene name to and from Entrez id maps")
+    for gene_symbol in gene_symbols:
+
+        # Skip cached results
+        if gene_symbol in gnm2id:
+            continue
+
+        gene_id = find_gene_id_for_gene_name(gene_symbol)
+
+        gnm2id[gene_symbol] = gene_id
+        gid2nm[gene_id] = gene_symbol
+
+        # Cache current results
+        cache["gnm2id"] = gnm2id
+        cache["gid2nm"] = gid2nm
+        with open(cache_path, "w") as fp:
+            json.dump(cache, fp, indent=4)
+
+    return gnm2id, gid2nm
 
 
 def get_protein_ensembl_id_to_accession_map(protein_ids):
@@ -381,65 +447,7 @@ def collect_unique_gene_symbols(nsforest_results):
     return list(gene_symbols)
 
 
-def get_gene_name_to_and_from_entrez_id_maps(gene_symbols):
-    """Get gene name to Entrez id map, and its reverse. Cache results
-    after each success to prevent duplicate requests on restart.
-
-    Parameters
-    ----------
-    gene_symbols : list(str)
-        List of gene symbols
-
-    Returns
-    -------
-    gnm2id : dict
-        Dictionary with name keys and id values
-    gid2nm : dict
-        Dictionary with id keys and name values
-    """
-    gnm2id = {}
-    gid2nm = {}
-
-    # Initialize a cache to prevent duplicate requests on restart
-    hasher = hashlib.sha256()
-    gene_symbols = sorted(set(gene_symbols))
-    hasher.update(":".join(gene_symbols).encode("utf-8"))
-    cache_path = Path(f".cache/{hasher.hexdigest()}.json")
-    if cache_path.exists():
-        with open(cache_path, "r") as fp:
-            cache = json.load(fp)
-        gnm2id = cache["gnm2id"]
-        gid2nm = cache["gid2nm"]
-
-    else:
-        cache_path.parent.mkdir(parents=True, exist_ok=True)
-        cache = {}
-        cache["gnm2id"] = gnm2id
-        cache["gid2nm"] = gid2nm
-        with open(cache_path, "w") as fp:
-            json.dump(cache, fp, indent=4)
-
-    print("Creating gene name to and from Entrez id maps")
-    for gene_symbol in gene_symbols:
-
-        # Skip cached results
-        if gene_symbol in gnm2id:
-            continue
-
-        gene_id = find_gene_id_for_gene_name(gene_symbol)
-        gnm2id[gene_symbol] = gene_id
-        gid2nm[gene_id] = gene_symbol
-
-        # Cache current results
-        cache["gnm2id"] = gnm2id
-        cache["gid2nm"] = gid2nm
-        with open(cache_path, "w") as fp:
-            json.dump(cache, fp, indent=4)
-
-    return gnm2id, gid2nm
-
-
-def collect_unique_gene_ensembl_ids(gene_symbols, gnm2ids):
+def collect_unique_gene_ensembl_ids(gene_symbols):
     """Collect unique Ensembl gene ids corresponding to the specified
     list of gene symbols.
 
@@ -447,8 +455,6 @@ def collect_unique_gene_ensembl_ids(gene_symbols, gnm2ids):
     ----------
     gene_symbols : list(str)
         List of gene symbols
-    gnm2ids : pd.DataFrame
-        DataFrame indexed by gene name containing gene Ensembl id
 
     Returns
     -------
@@ -459,7 +465,18 @@ def collect_unique_gene_ensembl_ids(gene_symbols, gnm2ids):
 
     gene_symbols = set(gene_symbols)
     for gene_symbol in gene_symbols:
-        gene_ids |= set(map_gene_name_to_ensembl_ids(gene_symbol, gnm2ids))
+        if "ENSG" in gene_symbol:
+            gene_id = gene_symbol
+        else:
+            _gene_ids = GENCODE_MAPPING.loc[
+                GENCODE_MAPPING["gene_name"] == gene_symbol, "ensembl_id"
+            ]
+            if len(_gene_ids) == 0:
+                gene_id = None
+            else:
+                gene_id = _gene_ids.iloc[0]
+        if gene_id:
+            gene_ids.add(gene_id)
     print(
         f"Collected {len(gene_ids)} unique Ensembl gene ids for {len(gene_symbols)} unique gene symbols"
     )
@@ -467,7 +484,7 @@ def collect_unique_gene_ensembl_ids(gene_symbols, gnm2ids):
     return list(gene_ids)
 
 
-def collect_unique_gene_entrez_ids(gene_symbols, gnm2id):
+def collect_unique_gene_entrez_ids(gene_symbols):
     """Collect unique Entrez gene ids corresponding to the specified
     list of gene symbols.
 
@@ -475,8 +492,6 @@ def collect_unique_gene_entrez_ids(gene_symbols, gnm2id):
     ----------
     gene_symbols : list(str)
         List of gene symbols
-    gnm2id : dict
-        Dictionary with name keys and id values
 
     Returns
     -------
@@ -487,7 +502,18 @@ def collect_unique_gene_entrez_ids(gene_symbols, gnm2id):
 
     gene_symbols = set(gene_symbols)
     for gene_symbol in gene_symbols:
-        gene_id = gnm2id[gene_symbol]
+        if "ENSG" in gene_symbol:
+            _gene_ids = GENCODE_MAPPING.loc[
+                GENCODE_MAPPING["ensembl_id"] == gene_symbol, "entrez_id"
+            ]
+        else:
+            _gene_ids = GENCODE_MAPPING.loc[
+                GENCODE_MAPPING["gene_name"] == gene_symbol, "entrez_id"
+            ]
+        if len(_gene_ids) == 0:
+            gene_id = None
+        else:
+            gene_id = _gene_ids.iloc[0]
         if gene_id:
             gene_ids.add(gene_id)
     print(
