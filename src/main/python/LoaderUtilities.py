@@ -1,6 +1,5 @@
 import ast
 
-# import hashlib
 import json
 from pathlib import Path
 import random
@@ -29,10 +28,6 @@ RDF_NS = "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}"
 
 with open(Path("../../../data/obo/deprecated_terms.txt"), "r") as fp:
     DEPRECATED_TERMS = fp.read().splitlines()
-
-GENCODE_MAPPING = pd.read_parquet(
-    "../../../data/gencode/gencode.v49.annotation.parquet"
-)
 
 
 def get_uuid():
@@ -94,8 +89,8 @@ def hyphenate(iname):
     return oname
 
 
-def get_gene_names_and_ensembl_ids():
-    """Query BioMart to get gene names and Ensembl ids.
+def get_gene_names_and_ensembl_and_entrez_ids():
+    """Query BioMart to get gene names, and Ensembl and Entrez ids.
 
     Parameters
     ----------
@@ -104,11 +99,18 @@ def get_gene_names_and_ensembl_ids():
     Returns
     -------
     gnmsids : pd.DataFrame
-        DataFrame with columns containing gene names and Ensembl ids
+        DataFrame with columns containing gene names, and Ensembl and
+        Entrez ids
     """
-    print("Getting gene names and Ensembl ids from BioMart")
-    gnmsids = sc.queries.biomart_annotations(
-        "hsapiens", ["external_gene_name", "ensembl_gene_id"], use_cache=True
+    print("Getting gene names, and Ensembl and Entrez ids from BioMart")
+    gnmsids = (
+        sc.queries.biomart_annotations(
+            "hsapiens",
+            ["external_gene_name", "ensembl_gene_id", "entrezgene_id"],
+            use_cache=True,
+        )
+        .dropna()
+        .drop_duplicates()
     )
     return gnmsids
 
@@ -122,23 +124,23 @@ def get_gene_name_to_ensembl_ids_map():
 
     Returns
     -------
-    gnm2ids : pd.DataFrame
+    gene_name_to_ensembl_ids : pd.DataFrame
         DataFrame indexed by gene name containing gene Ensembl id
     """
     print("Creating gene name to Ensembl ids map")
-    gnmsids = get_gene_names_and_ensembl_ids()
-    gnm2ids = gnmsids.set_index("external_gene_name")
-    return gnm2ids
+    gnmsids = get_gene_names_and_ensembl_and_entrez_ids()
+    gene_name_to_ensembl_ids = gnmsids.set_index("external_gene_name")
+    return gene_name_to_ensembl_ids
 
 
-def map_gene_name_to_ensembl_ids(name, gnm2ids):
+def map_gene_name_to_ensembl_ids(name, gene_name_to_ensembl_ids):
     """Map a gene name to a gene Ensembl id list.
 
     Parameters
     ----------
     name : str
         Gene name
-    gnm2ids : pd.DataFrame
+    gene_name_to_ensembl_ids : pd.DataFrame
         DataFrame indexed by gene name containing gene Ensembl id
 
     Returns
@@ -146,10 +148,8 @@ def map_gene_name_to_ensembl_ids(name, gnm2ids):
     list
         Gene Ensembl ids
     """
-    if "ENSG" in name:
-        ids = [name]
-    elif name in gnm2ids.index:
-        ids = gnm2ids.loc[name, "ensembl_gene_id"]
+    if name in gene_name_to_ensembl_ids.index:
+        ids = gene_name_to_ensembl_ids.loc[name, "ensembl_gene_id"]
         if isinstance(ids, pd.core.series.Series):
             ids = ids.to_list()
         else:
@@ -170,23 +170,23 @@ def get_gene_ensembl_id_to_names_map():
 
     Returns
     -------
-    gid2nms : pd.DataFrame
+    gene_ensembl_id_to_names : pd.DataFrame
         DataFrame indexed by gene Ensembl ids containing gene names
     """
     print("Creating gene Ensembl id to names map")
-    gnmsids = get_gene_names_and_ensembl_ids()
-    gid2nms = gnmsids.set_index("ensembl_gene_id")
-    return gid2nms
+    gnmsids = get_gene_names_and_ensembl_and_entrez_ids()
+    gene_ensembl_id_to_names = gnmsids.set_index("ensembl_gene_id")
+    return gene_ensembl_id_to_names
 
 
-def map_gene_ensembl_id_to_names(gid, gid2nms):
+def map_gene_ensembl_id_to_names(gid, gene_ensembl_id_to_names):
     """Map a gene Ensembl id to a gene name list.
 
     Parameters
     ----------
     gid : str
         Gene Ensembl id
-    gid2nms : pd.DataFrame
+    gene_ensembl_id_to_names : pd.DataFrame
         DataFrame indexed by gene Ensembl id containing gene name
 
     Returns
@@ -194,8 +194,8 @@ def map_gene_ensembl_id_to_names(gid, gid2nms):
     list
         Gene names
     """
-    if gid in gid2nms.index:
-        names = gid2nms.loc[gid, "external_gene_name"]
+    if gid in gene_ensembl_id_to_names.index:
+        names = gene_ensembl_id_to_names.loc[gid, "external_gene_name"]
         if isinstance(names, pd.core.series.Series):
             names = names.to_list()
         else:
@@ -207,63 +207,96 @@ def map_gene_ensembl_id_to_names(gid, gid2nms):
     return names
 
 
-def get_gene_name_to_and_from_entrez_id_maps(gene_symbols, init_cache=False):
-    """Get gene name to Entrez id map, and its reverse. Cache results
-    after each success to prevent duplicate requests on restart.
+def get_gene_name_to_entrez_ids_map():
+    """Get gene name to Entrez ids map.
 
     Parameters
     ----------
-    gene_symbols : list(str)
-        List of gene symbols
-    init_cache : bool
-        Flag to initialize cache, or not
+    None
 
     Returns
     -------
-    gnm2id : dict
-        Dictionary with name keys and id values
-    gid2nm : dict
-        Dictionary with id keys and name values
+    gene_name_to_entrez_ids : pd.DataFrame
+        DataFrame indexed by gene name containing gene Entrez id
     """
-    gnm2id = {}
-    gid2nm = {}
+    print("Creating gene name to Entrez ids map")
+    gnmsids = get_gene_names_and_ensembl_and_entrez_ids()
+    gene_name_to_entrez_ids = gnmsids.set_index("external_gene_name")
+    return gene_name_to_entrez_ids
 
-    # Initialize a cache to prevent duplicate requests on restart
-    gene_symbols = sorted(set(gene_symbols))
-    cache_path = Path(f".cache/gene-name-to-and-from-entrez-id-maps.json")
-    if not init_cache and cache_path.exists():
-        with open(cache_path, "r") as fp:
-            cache = json.load(fp)
-        gnm2id = cache["gnm2id"]
-        gid2nm = cache["gid2nm"]
 
+def map_gene_name_to_entrez_ids(name, gene_name_to_entrez_ids):
+    """Map a gene name to a gene Entrez id list.
+
+    Parameters
+    ----------
+    name : str
+        Gene name
+    gene_name_to_entrez_ids : pd.DataFrame
+        DataFrame indexed by gene name containing gene Entrez id
+
+    Returns
+    -------
+    list
+        Gene Entrez ids
+    """
+    if name in gene_name_to_entrez_ids.index:
+        ids = gene_name_to_entrez_ids.loc[name, "entrezgene_id"]
+        if isinstance(ids, pd.core.series.Series):
+            ids = ids.to_list()
+        else:
+            ids = [ids]
+        # print(f"Mapped gene name {name} to Entrez ids {ids}")
     else:
-        cache_path.parent.mkdir(parents=True, exist_ok=True)
-        cache = {}
-        cache["gnm2id"] = gnm2id
-        cache["gid2nm"] = gid2nm
-        with open(cache_path, "w") as fp:
-            json.dump(cache, fp, indent=4)
+        print(f"Could not find gene Entrez ids for gene name: {name}")
+        ids = []
+    return ids
 
-    print("Creating gene name to and from Entrez id maps")
-    for gene_symbol in gene_symbols:
 
-        # Skip cached results
-        if gene_symbol in gnm2id:
-            continue
+def get_gene_entrez_id_to_names_map():
+    """Map gene Entrez id to names.
 
-        gene_id = find_gene_id_for_gene_name(gene_symbol)
+    Parameters
+    ----------
+    None
 
-        gnm2id[gene_symbol] = gene_id
-        gid2nm[gene_id] = gene_symbol
+    Returns
+    -------
+    gene_entrez_id_to_names : pd.DataFrame
+        DataFrame indexed by gene Entrez ids containing gene names
+    """
+    print("Creating gene Entrez id to names map")
+    gnmsids = get_gene_names_and_ensembl_and_entrez_ids()
+    gene_entrez_id_to_names = gnmsids.set_index("entrezgene_id")
+    return gene_entrez_id_to_names
 
-        # Cache current results
-        cache["gnm2id"] = gnm2id
-        cache["gid2nm"] = gid2nm
-        with open(cache_path, "w") as fp:
-            json.dump(cache, fp, indent=4)
 
-    return gnm2id, gid2nm
+def map_gene_entrez_id_to_names(gid, gene_entrez_id_to_names):
+    """Map a gene Entrez id to a gene name list.
+
+    Parameters
+    ----------
+    gid : str
+        Gene Entrez id
+    gene_entrez_id_to_names : pd.DataFrame
+        DataFrame indexed by gene Entrez id containing gene name
+
+    Returns
+    -------
+    list
+        Gene names
+    """
+    if gid in gene_entrez_id_to_names.index:
+        names = gene_entrez_id_to_names.loc[gid, "external_gene_name"]
+        if isinstance(names, pd.core.series.Series):
+            names = names.to_list()
+        else:
+            names = [names]
+        # print(f"Mapped gene Entrez id {gid} to names {names}")
+    else:
+        print(f"Could not find gene names for gene Entrez id: {gid}")
+        names = []
+    return names
 
 
 def get_protein_ensembl_id_to_accession_map(protein_ids):
@@ -423,8 +456,8 @@ def map_accession_to_protein_ensembl_id(accn, accn2ensp):
     return ensp
 
 
-def collect_unique_gene_symbols(nsforest_results):
-    """Collect unique gene symbols found in the NSForest results
+def collect_unique_gene_names(nsforest_results):
+    """Collect unique gene names found in the NSForest results
     marker or binary genes.
 
     Parameters
@@ -434,93 +467,105 @@ def collect_unique_gene_symbols(nsforest_results):
 
     Returns
     -------
-    gene_symbols : list(str)
-        List of unique gene symbols
+    gene_names : list(str)
+        List of unique gene names
     """
-    gene_symbols = set()
+    gene_names = set()
 
     for column in ["NSForest_markers", "binary_genes"]:
         for gene_list_str in nsforest_results[column]:
-            gene_symbols |= set(ast.literal_eval(gene_list_str))
+            gene_names |= set(ast.literal_eval(gene_list_str))
 
     # TODO: Return a set
-    return list(gene_symbols)
+    return list(gene_names)
 
 
-def collect_unique_gene_ensembl_ids(gene_symbols):
+def collect_unique_gene_ensembl_ids(gene_names):
     """Collect unique Ensembl gene ids corresponding to the specified
-    list of gene symbols.
+    list of gene names.
+
+    Note that if gene names are taken from NSForest results, gene
+    names might actually be Ensembl ids.
 
     Parameters
     ----------
-    gene_symbols : list(str)
-        List of gene symbols
+    gene_names : list(str)
+        List of gene names
 
     Returns
     -------
-    gene_ids : list(str)
+    gene_ensembl_ids : list(str)
         List of unique gene Ensembl ids
     """
-    gene_ids = set()
+    gene_ensembl_ids = set()
 
-    gene_symbols = set(gene_symbols)
-    for gene_symbol in gene_symbols:
-        if "ENSG" in gene_symbol:
-            gene_id = gene_symbol
+    gene_names = set(gene_names)
+    gene_name_to_ensembl_ids = get_gene_name_to_ensembl_ids_map()
+    for gene_name in gene_names:
+        if "ENSG" in gene_name:
+            gene_ensembl_id = gene_name
         else:
-            _gene_ids = GENCODE_MAPPING.loc[
-                GENCODE_MAPPING["gene_name"] == gene_symbol, "ensembl_id"
-            ]
-            if len(_gene_ids) == 0:
-                gene_id = None
+            _gene_ensembl_ids = map_gene_name_to_ensembl_ids(
+                gene_name, gene_name_to_ensembl_ids
+            )
+            if len(_gene_ensembl_ids) == 0:
+                gene_ensembl_id = None
             else:
-                gene_id = _gene_ids.iloc[0]
-        if gene_id:
-            gene_ids.add(gene_id)
+                gene_ensembl_id = _gene_ensembl_ids[0]
+        if gene_ensembl_id:
+            gene_ensembl_ids.add(gene_ensembl_id)
     print(
-        f"Collected {len(gene_ids)} unique Ensembl gene ids for {len(gene_symbols)} unique gene symbols"
+        f"Collected {len(gene_ensembl_ids)} unique Ensembl gene ids for {len(gene_names)} unique gene names"
     )
 
-    return list(gene_ids)
+    return list(gene_ensembl_ids)
 
 
-def collect_unique_gene_entrez_ids(gene_symbols):
+def collect_unique_gene_entrez_ids(gene_names):
     """Collect unique Entrez gene ids corresponding to the specified
-    list of gene symbols.
+    list of gene names.
+
+    Note that if gene names are taken from NSForest results, gene
+    names might actually be Ensembl ids.
 
     Parameters
     ----------
-    gene_symbols : list(str)
-        List of gene symbols
+    gene_names : list(str)
+        List of gene names
 
     Returns
     -------
     gene_ids : list(str)
         List of unique gene Entrez ids
     """
-    gene_ids = set()
+    gene_entrez_ids = set()
 
-    gene_symbols = set(gene_symbols)
-    for gene_symbol in gene_symbols:
-        if "ENSG" in gene_symbol:
-            _gene_ids = GENCODE_MAPPING.loc[
-                GENCODE_MAPPING["ensembl_id"] == gene_symbol, "entrez_id"
-            ]
+    gene_names = set(gene_names)
+    gene_ensembl_id_to_names = get_gene_ensembl_id_to_names_map()
+    gene_name_to_entrez_ids = get_gene_name_to_entrez_ids_map()
+    for gene_name in gene_names:
+        if "ENSG" in gene_name:
+            _gene_names = map_gene_ensembl_id_to_names(
+                gene_name, gene_ensembl_id_to_names
+            )
+            if len(_gene_names) == 0:
+                gene_name = None
+            else:
+                gene_name = _gene_names[0]
+        _gene_entrez_ids = map_gene_name_to_entrez_ids(
+            gene_name, gene_name_to_entrez_ids
+        )
+        if len(_gene_entrez_ids) == 0:
+            gene_entrez_id = None
         else:
-            _gene_ids = GENCODE_MAPPING.loc[
-                GENCODE_MAPPING["gene_name"] == gene_symbol, "entrez_id"
-            ]
-        if len(_gene_ids) == 0:
-            gene_id = None
-        else:
-            gene_id = _gene_ids.iloc[0]
-        if gene_id:
-            gene_ids.add(gene_id)
+            gene_entrez_id = _gene_entrez_ids[0]
+        if gene_entrez_id:
+            gene_entrez_ids.add(gene_entrez_id)
     print(
-        f"Collected {len(gene_ids)} unique Entrez gene ids for {len(gene_symbols)} unique gene symbols"
+        f"Collected {len(gene_entrez_ids)} unique Entrez gene ids for {len(gene_names)} unique gene names"
     )
 
-    return list(gene_ids)
+    return list(gene_entrez_ids)
 
 
 def get_efo_to_mondo_map():
