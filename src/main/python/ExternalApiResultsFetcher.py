@@ -14,9 +14,7 @@ from LoaderUtilities import (
     load_results,
     collect_unique_gene_ensembl_ids,
     collect_unique_gene_entrez_ids,
-    collect_unique_gene_symbols,
-    get_gene_name_to_and_from_entrez_id_maps,
-    get_gene_name_to_ensembl_ids_map,
+    collect_unique_gene_names,
     get_value_or_none,
     get_values_or_none,
 )
@@ -58,7 +56,7 @@ def collect_results_sources_data():
     """Collect paths to all NSForest results, and author to CL maps
     identified in the results sources. Collect the dataset_version_id
     used for creating the NSForest results. Collect the unique gene
-    symbols, Ensembl identifiers, and Entrez identifiers corresponding
+    names, Ensembl identifiers, and Entrez identifiers corresponding
     to all NSForet results.
 
     Parameters
@@ -75,19 +73,19 @@ def collect_results_sources_data():
         List of the dataset version identifier corresponding to the
         dataset used to generate the NSForest results, or the first
         such identifier if more than one dataset was combined
-    gene_symbols: set(str)
-        Set of gene symbols found in all NSForest results
+    gene_names: set(str)
+        Set of gene names found in all NSForest results
     gene_ensembl_ids: set(str)
-        Set of Ensembl identifiers coooresponding to the gene symbols
+        Set of Ensembl identifiers coooresponding to the gene names
         found in all NSForest results
     gene_entrez_ids: set(str)
-        Set of Entrez identifiers coooresponding to the gene symbols
+        Set of Entrez identifiers coooresponding to the gene names
         found in all NSForest results
     """
     nsforest_paths = []
     author_to_cl_paths = []
     dataset_version_ids = []
-    gene_symbols = set()
+    gene_names = set()
     gene_ensembl_ids = set()
     gene_entrez_ids = set()
 
@@ -95,74 +93,78 @@ def collect_results_sources_data():
     with open(RESULTS_SOURCES, "r") as fp:
         results_sources = json.load(fp)
 
-    # Collect NSForest results paths
     for results_source in results_sources:
+
         print(f'Finding NSForest results in {results_source["nsforest_dirpath"]}')
-        nsforest_paths.extend(
-            [
-                Path(p).resolve()
-                for p in glob(
+        _nsforest_paths = [
+            Path(p).resolve()
+            for p in glob(
+                str(
+                    Path(results_source["nsforest_dirpath"])
+                    / results_source["nsforest_pattern"]
+                )
+            )
+        ]
+        nsforest_paths.extend(_nsforest_paths)
+
+        # Collect dataset version identifiers and unique gene names
+        # considering all NSForest results
+        for _nsforest_path in _nsforest_paths:
+
+            print(
+                f"Finding author to cl map path, and dataset version id for {_nsforest_path}"
+            )
+            author_to_cl_path = None
+            dataset_version_id = None
+            match = re.search(results_source["author_pattern"], str(_nsforest_path))
+            if match:
+                author = match.group(1)
+                author_to_cl_path = glob(
                     str(
-                        Path(results_source["nsforest_dirpath"])
-                        / results_source["nsforest_pattern"]
+                        _nsforest_path.parent
+                        / results_source["mapping_pattern"].format(author=author)
                     )
                 )
-            ]
-        )
+                if len(author_to_cl_path) != 0:
+                    author_to_cl_path = Path(author_to_cl_path[0]).resolve()
 
-    # Collect dataset version identifiers and unique gene symbols
-    # considering all NSForest results
-    for nsforest_path in nsforest_paths:
+                    # Load author to CL map, and assign dataset version identifier
+                    print(f"Loading author to CL map from {author_to_cl_path}")
+                    author_to_cl_results = load_results(author_to_cl_path)
+                    dataset_version_id = author_to_cl_results["dataset_version_id"][
+                        0
+                    ].split("--")[
+                        0
+                    ]  # Some dataset_version_ids are a "--" separated list of dataset_version_ids
 
-        # Collect author to cl map paths, and datset version identifiers
-        author_to_cl_path = None
-        dataset_version_id = None
-        match = re.search(results_source["author_pattern"], nsforest_path)
-        if match:
-            author = match.group(1)
-            author_to_cl_path = glob(
-                str(nsforest_path.parent / results_source["map-author-to-cl"])
+            else:
+
+                # Parse dataset identifier within NSForest results path, and assign
+                match = re.search(
+                    "([0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12})",
+                    str(_nsforest_path),
+                )
+                dataset_version_id = match.group(1)
+
+            author_to_cl_paths.append(author_to_cl_path)
+            dataset_version_ids.append(dataset_version_id)
+
+            # Collect unique gene names
+            print(f"Loading NSForest results from {_nsforest_path}")
+            nsforest_results = load_results(_nsforest_path).sort_values(
+                "clusterName", ignore_index=True
             )
-            if len(author_to_cl_path) != 0:
-                author_to_cl_path = Path(author_to_cl_path[0]).resolve()
-
-                # Load author to CL map, and assign dataset version identifier
-                print(f"Loading author to CL map from {author_to_cl_path}")
-                author_to_cl_results = load_results(author_to_cl_path)
-                dataset_version_id = author_to_cl_results["dataset_version_id"][
-                    0
-                ].split("--")[
-                    0
-                ]  # Some dataset_version_ids are a "--" separated list of dataset_version_ids
-
-        else:
-
-            # Parse dataset identifier within NSForest results path, and assign
-            match = re.search(
-                "([0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12})",
-                nsforest_path,
-            )
-            dataset_version_id = match.group(1)
-
-        author_to_cl_paths.append(author_to_cl_path)
-        dataset_version_ids.append(dataset_version_id)
-
-        # Collect unique gene symbols
-        print(f"Loading NSForest results from {nsforest_path}")
-        nsforest_results = load_results(nsforest_path).sort_values(
-            "clusterName", ignore_index=True
-        )
-        gene_symbols |= set(collect_unique_gene_symbols(nsforest_results))
+            gene_names |= set(collect_unique_gene_names(nsforest_results))
 
     # Collect unique gene identifiers
-    gene_ensembl_ids = collect_unique_gene_ensembl_ids(gene_symbols)
-    gene_entrez_ids = collect_unique_gene_entrez_ids(gene_symbols)
+    gene_ensembl_ids = collect_unique_gene_ensembl_ids(gene_names)
+    gene_entrez_ids = collect_unique_gene_entrez_ids(gene_names)
 
     return (
         nsforest_paths,
         author_to_cl_paths,
         dataset_version_ids,
-        gene_symbols,
+        gene_names,
         gene_ensembl_ids,
         gene_entrez_ids,
     )
@@ -418,7 +420,7 @@ def collect_unique_drug_names(opentargets_results):
     drug_names = set()
 
     for gene_ensembl_id, resources in opentargets_results.items():
-        if gene_ensembl_id in ["gene_ensembl_ids", "gene_symbols"]:
+        if gene_ensembl_id == "gene_ensembl_ids":
             continue
         for drug in resources["drugs"]:
             drug_names.add(drug["approvedName"])
@@ -928,7 +930,7 @@ def collect_unique_protein_accessions(gene_results):
     Parameters
     ----------
     gene_results : dict
-        Dictionary containing gene results keyed by gene symbol
+        Dictionary containing gene results keyed by gene Entrez ids
 
     Returns
     -------
@@ -1178,7 +1180,7 @@ def download_hubmap_data_tables():
 def main():
     """Collect paths to all NSForest results, and author to CL maps
     identified in the results sources, dataset_version_id used for
-    creating the NSForest results, and the unique gene symbols,
+    creating the NSForest results, and the unique gene names,
     Ensembl identifiers, and Entrez identifiers corresponding to all
     NSForet results. Then:
 
@@ -1280,13 +1282,13 @@ def main():
     # Collect paths to all NSForest results, and author to CL maps
     # identified in the results sources. Collect the
     # dataset_version_id used for creating the NSForest
-    # results. Collect the unique gene symbols, Ensembl identifiers,
+    # results. Collect the unique gene names, Ensembl identifiers,
     # and Entrez identifiers corresponding to all NSForet results.
     (
         nsforest_paths,
         author_to_cl_paths,
         dataset_version_ids,
-        gene_symbols,
+        gene_names,
         gene_ensembl_ids,
         gene_entrez_ids,
     ) = collect_results_sources_data()
