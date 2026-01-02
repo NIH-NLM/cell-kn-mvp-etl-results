@@ -1,34 +1,34 @@
 from glob import glob
 import json
 from pathlib import Path
-import re
 
 from rdflib.term import Literal, URIRef
 
 from ExternalApiResultsFetcher import (
-    RESOURCES,
-    NSFOREST_DIRPATH,
+    OPENTARGETS_RESOURCES,
+    OPENTARGETS_PATH,
+    GENE_PATH,
+    UNIPROT_PATH,
     HUBMAP_DIRPATH,
-    get_gene_results,
-    get_opentargets_results,
-    get_uniprot_results,
 )
 from LoaderUtilities import (
     DEPRECATED_TERMS,
     PURLBASE,
     RDFSBASE,
+    collect_results_sources_data,
     get_chembl_to_pubchem_map,
     get_efo_to_mondo_map,
     get_gene_ensembl_id_to_names_map,
-    load_results,
+    get_gene_entrez_id_to_names_map,
+    get_gene_name_to_entrez_ids_map,
     map_chembl_to_pubchem,
     map_efo_to_mondo,
     map_gene_ensembl_id_to_names,
+    map_gene_entrez_id_to_names,
+    map_gene_name_to_entrez_ids,
     map_protein_ensembl_id_to_accession,
 )
 
-
-NSFOREST_DIRPATH = Path("../../../data/results")
 TUPLES_DIRPATH = Path("../../../data/tuples")
 
 
@@ -92,16 +92,13 @@ def get_protein_term(protein_id, ensp2accn):
     return protein_term
 
 
-def create_tuples_from_opentargets(opentargets_path, summarize=False):
-    """Creates tuples from the result of using the gget opentargets
-    command to obtain resources for each unique gene id mapped from
-    each gene symbol from corresponding NSForest results. If
-    summnarizing, retain the first gene id only.
+def create_tuples_from_opentargets(summarize=False):
+    """Creates tuples from the result of using the Open Targets
+    Platform GraphQL API to obtain resources for gene Ensembl ids. If
+    summnarizing, retain the first gene Ensembl id only.
 
     Parameters
     ----------
-    opentargets_path : Path
-        Path to opentargets results
     summarize : bool
         Flag to summarize results, or not
 
@@ -116,15 +113,19 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
     tuples = []
 
     # Load the opentargets results
-    nsforest_path = Path(str(opentargets_path).replace("-opentargets.json", ".csv"))
-    opentargets_path, opentargets_results = get_opentargets_results(nsforest_path)
+    print(f"Loading opentargets results from {OPENTARGETS_PATH}")
+    with open(OPENTARGETS_PATH, "r") as fp:
+        opentargets_results = json.load(fp)
 
     # Load the Gene results to obtain the UniProt names corresponding
-    # to gene symbols
-    _gene_path, gene_results = get_gene_results(nsforest_path)
+    # to gene names
+    print(f"Loading gene results from {GENE_PATH}")
+    with open(GENE_PATH, "r") as fp:
+        gene_results = json.load(fp)
 
     # Load mappings
-    gid2nms = get_gene_ensembl_id_to_names_map()
+    gene_ensembl_id_to_names = get_gene_ensembl_id_to_names_map()
+    gene_name_to_entrez_ids = get_gene_name_to_entrez_ids_map()
     efo2mondo = get_efo_to_mondo_map()
     chembl2pubchem = get_chembl_to_pubchem_map()
 
@@ -132,11 +133,12 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
     if summarize:
 
         # Find a gene id with all resources, and a valid disease and interaction
+        gene_ensembl_id = None
         for gene_ensembl_id in opentargets_results["gene_ensembl_ids"]:
 
             # Find a gene id for which all resources are not empty
             is_empty = False
-            for resource in RESOURCES:
+            for resource in OPENTARGETS_RESOURCES:
                 if len(opentargets_results[gene_ensembl_id][resource]) < 3:
                     is_empty = True
                     break
@@ -168,12 +170,12 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
         gene_ensembl_ids = [gene_ensembl_id]
         results = {}
         results[gene_ensembl_id] = opentargets_results[gene_ensembl_id]
-        results[gene_ensembl_id]["symbol"] = map_gene_ensembl_id_to_names(
-            gene_ensembl_id, gid2nms
+        results[gene_ensembl_id]["name"] = map_gene_ensembl_id_to_names(
+            gene_ensembl_id, gene_ensembl_id_to_names
         )[0]
 
         # Retain the first three results for each resource
-        for resource in RESOURCES:
+        for resource in OPENTARGETS_RESOURCES:
             results[gene_ensembl_id][resource] = results[gene_ensembl_id][resource][0:3]
 
     else:
@@ -184,11 +186,24 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
 
     for gene_ensembl_id in gene_ensembl_ids:
 
-        # Map gene id to gene name
-        gene_symbol = map_gene_ensembl_id_to_names(gene_ensembl_id, gid2nms)[0]
+        # Map gene Ensembl id to gene name and Entrez id
+        gene_name = map_gene_ensembl_id_to_names(
+            gene_ensembl_id, gene_ensembl_id_to_names
+        )
+        if gene_name == []:
+            continue
+        else:
+            gene_name = gene_name[0]
+        gene_entrez_id = map_gene_name_to_entrez_ids(
+            gene_name, gene_name_to_entrez_ids
+        )
+        if gene_entrez_id == []:
+            continue
+        else:
+            gene_entrez_id = gene_entrez_id[0]
 
         # Follow term naming convention for parsing
-        gs_term = f"GS_{gene_symbol}"  # gene_ensembl_id.replace("ENSG", "GS_")
+        gs_term = f"GS_{gene_name}"  # gene_ensembl_id.replace("ENSG", "GS_")
 
         # == Gene relations
 
@@ -281,11 +296,11 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
 
             # Drug_product, MOLECULARLY_INTERACTS_WITH, Protein
             if (
-                "UniProt_name" in gene_results[gene_symbol]
-                and gene_results[gene_symbol]["UniProt_name"]
+                "UniProt_name" in gene_results[gene_entrez_id]
+                and gene_results[gene_entrez_id]["UniProt_name"]
             ):
                 # Map gene name to protein uniprot name
-                pr_term = f"PR_{gene_results[gene_symbol]['UniProt_name']}"
+                pr_term = f"PR_{gene_results[gene_entrez_id]['UniProt_name']}"
                 tuples.append(
                     (
                         URIRef(f"{PURLBASE}/{chembl_term}"),
@@ -409,9 +424,7 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
                     URIRef(f"{PURLBASE}/{chembl_term}"),
                     URIRef(f"{RDFSBASE}#Link_to_UniProt_ID"),
                     Literal(
-                        remove_protocols(
-                            gene_results[gene_symbol]["Link_to_UniProt_ID"]
-                        )
+                        remove_protocols(gene_results[gene_entrez_id]["Link_to_UniProt_ID"])
                     ),
                 )
             )
@@ -615,16 +628,13 @@ def create_tuples_from_opentargets(opentargets_path, summarize=False):
     return tuples, results
 
 
-def create_tuples_from_gene(gene_path, summarize=False):
+def create_tuples_from_gene(summarize=False):
     """Creates tuples from the result of using the E-Utilities to
-    fetch Gene data for each gene symbol in the NSForest results
-    loaded from the specified path. If summnarizing, retain the first
-    gene symbol only.
+    fetch Gene data for gene names. If summnarizing, retain the first
+    gene name only.
 
     Parameters
     ----------
-    gene_path : Path
-        Path to gene results
     summarize : bool
         Flag to summarize results, or not
 
@@ -633,31 +643,36 @@ def create_tuples_from_gene(gene_path, summarize=False):
     tuples : list(tuple(str))
         List of tuples (triples or quadruples) created
     results : dict
-        Dictionary containg Gene results keyed by gene symbol
+        Dictionary containg Gene results keyed by gene name
     """
     tuples = []
 
     # Load the Gene results
-    nsforest_path = Path(str(gene_path).replace("-gene.json", ".csv"))
-    _gene_path, gene_results = get_gene_results(nsforest_path)
+    print(f"Loading gene results from {GENE_PATH}")
+    with open(GENE_PATH, "r") as fp:
+        gene_results = json.load(fp)
 
-    # Assign gene symbols to consider
+    # Load mappings
+    gene_entrez_id_to_names = get_gene_entrez_id_to_names_map()
+
+    # Assign gene names to consider
     if summarize:
 
-        # Find a gene symbol for which results are not empty
-        for gene_symbol in gene_results["gene_symbols"]:
-            if not gene_results[gene_symbol]:
+        # Find a gene name for which results are not empty
+        gene_entrez_id = None
+        for gene_entrez_id in gene_results["gene_entrez_ids"]:
+            if not gene_results[gene_entrez_id]:
                 break
 
-        # Consider selected gene symbol
-        gene_symbols = [gene_symbol]
+        # Consider selected gene name
+        gene_entrez_ids = [gene_entrez_id]
         results = {}
-        results[gene_symbol] = gene_results[gene_symbol]
+        results[gene_entrez_id] = gene_results[gene_entrez_id]
 
     else:
 
-        # Consider all gene symbols
-        gene_symbols = gene_results["gene_symbols"]
+        # Consider all gene names
+        gene_entrez_ids = gene_results["gene_entrez_ids"]
         results = gene_results
 
     keys = [
@@ -673,21 +688,26 @@ def create_tuples_from_gene(gene_path, summarize=False):
         "UniProt_name",
         "mRNA_(NM)_and_protein_(NP)_sequences",
     ]
-    for gene_symbol in gene_symbols:
-        if not results[gene_symbol]:
-            # Skip empty gene symbol
+    for gene_entrez_id in gene_entrez_ids:
+        if not results[gene_entrez_id]:
+            # Skip empty gene name
             continue
-        gs_term = f"GS_{gene_symbol}"
+
+        # Map gene Entrez id to gene name
+        gene_name = map_gene_entrez_id_to_names(
+            gene_entrez_id, gene_entrez_id_to_names
+        )[0]
+        gs_term = f"GS_{gene_name}"
 
         # == Gene relations
 
         # Gene, PRODUCES, Protein
         if (
-            "UniProt_name" in gene_results[gene_symbol]
-            and gene_results[gene_symbol]["UniProt_name"]
+            "UniProt_name" in gene_results[gene_entrez_id]
+            and gene_results[gene_entrez_id]["UniProt_name"]
         ):
             # Map gene name to protein uniprot name
-            pr_term = f"PR_{gene_results[gene_symbol]['UniProt_name']}"
+            pr_term = f"PR_{gene_results[gene_entrez_id]['UniProt_name']}"
             tuples.append(
                 (
                     URIRef(f"{PURLBASE}/{gs_term}"),
@@ -707,28 +727,25 @@ def create_tuples_from_gene(gene_path, summarize=False):
         # == Gene annotations
 
         for key in keys:
-            if key in gene_results[gene_symbol] and gene_results[gene_symbol][key]:
+            if key in gene_results[gene_entrez_id] and gene_results[gene_entrez_id][key]:
                 tuples.append(
                     (
                         URIRef(f"{PURLBASE}/{gs_term}"),
                         URIRef(f"{RDFSBASE}#{key.replace(' ', '_')}"),
-                        Literal(remove_protocols(gene_results[gene_symbol][key])),
+                        Literal(remove_protocols(gene_results[gene_entrez_id][key])),
                     )
                 )
 
     return tuples, results
 
 
-def create_tuples_from_uniprot(uniprot_path, summarize=False):
+def create_tuples_from_uniprot(summarize=False):
     """Creates tuples from the result of using a UniProt API endpoint
-    for each protein accession in the gene results corresponding to
-    the specified path. If summarizing, retain the first protein
+    for protein accessions. If summarizing, retain the first protein
     accession only.
 
     Parameters
     ----------
-    uniprot_path : Path
-        Path to uniprot results
     summarize : bool
         Flag to summarize results, or not
 
@@ -742,8 +759,9 @@ def create_tuples_from_uniprot(uniprot_path, summarize=False):
     tuples = []
 
     # Load the UniProt results
-    gene_path = Path(str(uniprot_path).replace("uniprot", "gene"))
-    _uniprot_path, uniprot_results = get_uniprot_results(gene_path)
+    print(f"Loading uniprot results from {UNIPROT_PATH}")
+    with open(UNIPROT_PATH, "r") as fp:
+        uniprot_results = json.load(fp)
 
     # Assign protein accessions to consider
     if summarize:
@@ -922,50 +940,18 @@ def remove_protocols(value):
     return value
 
 
-def get_cl_terms(author_to_cl_results):
-    """Create a set of clean CL terms from the given author to CL results.
-
-    Parameters
-    ----------
-    author_cl_results : pd.DataFrame
-        DataFrame containing author to CL results
-
-    Returns
-    -------
-    set(str)
-        Set of clean CL terms
-    """
-    return set(
-        author_to_cl_results.loc[
-            author_to_cl_results["cell_ontology_id"].str.contains("CL"),
-            "cell_ontology_id",
-        ]
-        .str.replace("http://purl.obolibrary.org/obo/", "")
-        .str.replace("https://purl.obolibrary.org/obo/", "")
-    )
-
-
 def main(summarize=False):
-    """Load results from
+    """Load results from:
 
-    - using the gget opentargets command to obtain the diseases,
-      drugs, interactions, pharmacogenetics, tractability, expression,
-      and depmap resources for each unique gene id mapped from each
-      gene symbol in the NSForest results from processing datasets
-      corresponding to the Guo et al. 2023, Li et al. 2023, and
-      Sikkema, et al. 2023 publications,
+    - Using the Open Targets Platform GraphQL API to obtain the
+      diseases, drugs, interactions, pharmacogenetics, tractability,
+      expression, and depmap resources for each unique gene Ensembl id
 
-    - using an EBI API endpoint to obtain drug ontology data for each
-      unique drug name in the opentargets results,
+    - Using the E-Utilities to fetch Gene data for each unique gene
+      Entrez id
 
-    - using an RxNav API endpoint for each unique drug name in the
-      opentargets results to obtain the mapping from drug name to
-      RXCUI, suggested spellings, prescribable drugs information, and
-      drug properties, and
-
-    - using a UniProt API endpoint for each protein id in the
-      opentargets results to obtain other protein ids, descriptions,
-      and comments
+    - Using a UniProt API endpoint for each protein accession in the
+      gene results
 
     Also, load data tables from HuBMAP.
 
@@ -985,77 +971,49 @@ def main(summarize=False):
     -------
     None
     """
-    # Load results from external API fetch and create tuples
-    cl_terms = None
-    nsforest_paths = [
-        Path(p).resolve()
-        for p in glob(str(NSFOREST_DIRPATH / "cell-kn-mvp-nsforest-results-*.csv"))
-    ]
-    for nsforest_path in nsforest_paths:
+    # Collect paths to all NSForest results, and author cell set to CL
+    # term mappings identified in the results sources. Collect the
+    # dataset_version_id used for creating the NSForest
+    # results. Collect the unique gene names, Ensembl identifiers, and
+    # Entrez identifiers corresponding to all NSForet results.
+    (
+        _nsforest_paths,
+        _author_to_cl_paths,
+        _dataset_version_ids,
+        cl_terms,
+        _gene_names,
+        _gene_ensembl_ids,
+        _gene_entrez_ids,
+    ) = collect_results_sources_data()
+    
+    print(f"Creating tuples from {OPENTARGETS_PATH}")
+    opentargets_tuples, opentargets_results = create_tuples_from_opentargets(
+        summarize=summarize
+    )
+    tuples_to_load = opentargets_tuples.copy()
 
-        # Collect all CL terms identified in all author to CL results
-        author = re.search("results-([a-zA-Z]*)", nsforest_path.name).group(1)
-        author_to_cl_path = Path(
-            glob(
-                str(NSFOREST_DIRPATH / f"cell-kn-mvp-map-author-to-cl-{author}-*.csv")
-            )[-1]
-        ).resolve()
-        author_to_cl_results = load_results(author_to_cl_path)
-        if cl_terms is None:
-            cl_terms = get_cl_terms(author_to_cl_results)
+    print(f"Creating tuples from {GENE_PATH}")
+    gene_tuples, gene_results = create_tuples_from_gene(summarize=summarize)
+    tuples_to_load.extend(gene_tuples)
 
-        else:
-            cl_terms = cl_terms.union(get_cl_terms(author_to_cl_results))
+    print(f"Creating tuples from {UNIPROT_PATH}")
+    uniprot_tuples, uniprot_results = create_tuples_from_uniprot(summarize=summarize)
+    tuples_to_load.extend(uniprot_tuples)
 
-        opentargets_path = Path(str(nsforest_path).replace(".csv", "-opentargets.json"))
+    if summarize:
+        output_dirpath = TUPLES_DIRPATH / "summaries"
 
-        print(f"Creating tuples from {opentargets_path}")
-        opentargets_tuples, opentargets_results = create_tuples_from_opentargets(
-            opentargets_path, summarize=summarize
-        )
-        tuples_to_load = opentargets_tuples.copy()
+    else:
+        output_dirpath = TUPLES_DIRPATH
 
-        gene_path = Path(str(nsforest_path).replace(".csv", "-gene.json"))
-
-        print(f"Creating tuples from {gene_path}")
-
-        gene_tuples, gene_results = create_tuples_from_gene(
-            gene_path, summarize=summarize
-        )
-        tuples_to_load.extend(gene_tuples)
-
-        uniprot_path = Path(str(nsforest_path).replace(".csv", "-uniprot.json"))
-
-        print(f"Creating tuples from {uniprot_path}")
-
-        uniprot_tuples, uniprot_results = create_tuples_from_uniprot(
-            uniprot_path, summarize=summarize
-        )
-        tuples_to_load.extend(uniprot_tuples)
-
+    with open(output_dirpath / "cell-kn-mvp-external-api-results.json", "w") as f:
+        data = {}
         if summarize:
-            output_dirpath = TUPLES_DIRPATH / "summaries"
-
-        else:
-            output_dirpath = TUPLES_DIRPATH
-
-        with open(
-            output_dirpath
-            / nsforest_path.name.replace("nsforest-results", "external-api").replace(
-                ".csv", ".json"
-            ),
-            "w",
-        ) as f:
-            data = {}
-            if summarize:
-                data["opentargets"] = opentargets_results
-                data["uniprot"] = uniprot_results
-                data["gene"] = gene_results
-            data["tuples"] = tuples_to_load
-            json.dump(data, f, indent=4)
-
-        if summarize:
-            break
+            data["opentargets"] = opentargets_results
+            data["uniprot"] = uniprot_results
+            data["gene"] = gene_results
+        data["tuples"] = tuples_to_load
+        json.dump(data, f, indent=4)
 
     # Load data from HuBMAP and create tuples
     if not summarize:
