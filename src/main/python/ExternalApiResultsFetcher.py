@@ -12,15 +12,13 @@ from E_Utilities import get_data_for_gene_id
 from OpenTargetsGGetQueries import gget_queries
 from LoaderUtilities import (
     load_results,
+    collect_results_sources_data,
     collect_unique_gene_ensembl_ids,
     collect_unique_gene_entrez_ids,
     collect_unique_gene_names,
     get_value_or_none,
     get_values_or_none,
 )
-
-
-RESULTS_SOURCES = Path("../../../data/results-sources-2025-12-29.json")
 
 OPENTARGETS_BASE_URL = "https://api.platform.opentargets.org/api/v4/graphql"
 OPENTARGETS_RESOURCES = [
@@ -1178,11 +1176,11 @@ def download_hubmap_data_tables():
 
 
 def main():
-    """Collect paths to all NSForest results, and author to CL maps
-    identified in the results sources, dataset_version_id used for
-    creating the NSForest results, and the unique gene names,
-    Ensembl identifiers, and Entrez identifiers corresponding to all
-    NSForet results. Then:
+    """Collect paths to all NSForest results, and author cell set to
+    CL term mappings identified in the results sources,
+    dataset_version_id used for creating the NSForest results, and the
+    unique gene names, Ensembl identifiers, and Entrez identifiers
+    corresponding to all NSForet results. Then:
 
     - Use the CELLxGENE curation API to fetch metadata for each
       dataset version id
@@ -1279,63 +1277,60 @@ def main():
     )
     args = parser.parse_args()
 
-    # Collect paths to all NSForest results, and author to CL maps
-    # identified in the results sources. Collect the
+    # Collect paths to all NSForest results, and author cell set to CL
+    # term mappings identified in the results sources. Collect the
     # dataset_version_id used for creating the NSForest
-    # results. Collect the unique gene names, Ensembl identifiers,
-    # and Entrez identifiers corresponding to all NSForet results.
+    # results. Collect the unique gene names, Ensembl identifiers, and
+    # Entrez identifiers corresponding to all NSForet results.
     (
-        nsforest_paths,
-        author_to_cl_paths,
+        _nsforest_paths,
+        _author_to_cl_paths,
         dataset_version_ids,
-        gene_names,
+        _cl_terms,
+        _gene_names,
         gene_ensembl_ids,
         gene_entrez_ids,
     ) = collect_results_sources_data()
 
     # Use the CELLxGENE curation API for each dataset version id
     # collected
-    _cellxgene_results = get_cellxgene_metadata(
+    get_cellxgene_metadata(
         dataset_version_ids, force=args.force_cellxgene or args.force_all
     )
 
     # Use the Open Targets Platform GraphQL API for each gene Ensembl
     # id collected
-    _opentargets_results = get_opentargets_results(
+    get_opentargets_results(
         gene_ensembl_ids, force=args.force_opentargets or args.force_all
     )
 
     # TODO: Restore if, and when results used to write tuples
     # Use an EBI API endpoint for each unique drug name in the
     # opentargets results
-    # _ebi_results = get_ebi_results(force=args.force_ebi or args.force_all)
+    # get_ebi_results(force=args.force_ebi or args.force_all)
 
     # TODO: Restore if, and when results used to write tuples
     # Use an RxNav API endpoint for each unique drug name in the
     # opentargets results
-    # _rxnav_results = get_rxnav_results(force=args.force_rxnav or args.force_all)
+    # get_rxnav_results(force=args.force_rxnav or args.force_all)
 
     # TODO: Restore if API becomes available
     # Use the DrugBank website for each unique drug name in the RxNav
     # results
-    # _drugbank_results = get_drugbank_results(
-    #     force=args.force_drugbank or args.force_all
-    # )
+    # get_drugbank_results(force=args.force_drugbank or args.force_all)
 
     # TODO: Restore if API becomes available
     # Use the NCATS website for each unique drug name in the RxNav
     # results
-    # _ncats_results = get_ncats_results(force=args.force_ncats or args.force_all)
+    # get_ncats_results(force=args.force_ncats or args.force_all)
 
     # Use the E-Utilities to fetch Gene data for each unique gene
     # Entrez id collected
-    _gene_results = get_gene_results(
-        gene_entrez_ids, force=args.force_gene or args.force_all
-    )
+    get_gene_results(gene_entrez_ids, force=args.force_gene or args.force_all)
 
     # Use a UniProt API endpoint for each protein accession in the
     # gene results
-    _uniprot_results = get_uniprot_results(force=args.force_uniprot or args.force_all)
+    get_uniprot_results(force=args.force_uniprot or args.force_all)
 
     # Download specified latest HuBMAP data table JSON files
     download_hubmap_data_tables()
