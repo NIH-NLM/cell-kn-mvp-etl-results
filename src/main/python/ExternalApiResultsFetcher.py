@@ -31,16 +31,6 @@ OPENTARGETS_RESOURCES = [
     "depmap",
 ]
 
-CELLXGENE_PATH = Path("../../../data/cellxgene/cellxgene.json")
-OPENTARGETS_PATH = Path("../../../data/opentargets/opentargets.json")
-EBI_PATH = Path("../../../data/ebi/ebi.json")
-RXNAV_PATH = Path("../../../data/rxnav/rxnav.json")
-DRUGBANK_PATH = Path("../../../data/drugbank/drugbank.json")
-NCATS_PATH = Path("../../../data/ncats/ncats.json")
-GENE_PATH = Path("../../../data/gene/gene.json")
-UNIPROT_PATH = Path("../../../data/uniprot/uniprot.json")
-
-HUBMAP_DIRPATH = Path("../../../data/hubmap")
 HUBMAP_LATEST_URLS = [
     "https://lod.humanatlas.io/asct-b/allen-brain/latest/",
     "https://lod.humanatlas.io/asct-b/eye/latest/",
@@ -49,123 +39,16 @@ HUBMAP_LATEST_URLS = [
     "https://lod.humanatlas.io/asct-b/pancreas/latest/",
 ]
 
-
-def collect_results_sources_data():
-    """Collect paths to all NSForest results, and author to CL maps
-    identified in the results sources. Collect the dataset_version_id
-    used for creating the NSForest results. Collect the unique gene
-    names, Ensembl identifiers, and Entrez identifiers corresponding
-    to all NSForet results.
-
-    Parameters
-    ----------
-    None
-
-    Returns
-    -------
-    nsforest_paths: list(Path)
-        List of paths to all NSForest results files
-    author_to_cl_paths: list(Path | None)
-        List of paths to all author to CL map files
-    dataset_version_ids: list(str)
-        List of the dataset version identifier corresponding to the
-        dataset used to generate the NSForest results, or the first
-        such identifier if more than one dataset was combined
-    gene_names: set(str)
-        Set of gene names found in all NSForest results
-    gene_ensembl_ids: set(str)
-        Set of Ensembl identifiers coooresponding to the gene names
-        found in all NSForest results
-    gene_entrez_ids: set(str)
-        Set of Entrez identifiers coooresponding to the gene names
-        found in all NSForest results
-    """
-    nsforest_paths = []
-    author_to_cl_paths = []
-    dataset_version_ids = []
-    gene_names = set()
-    gene_ensembl_ids = set()
-    gene_entrez_ids = set()
-
-    print(f"Loading results sources from {RESULTS_SOURCES}")
-    with open(RESULTS_SOURCES, "r") as fp:
-        results_sources = json.load(fp)
-
-    for results_source in results_sources:
-
-        print(f'Finding NSForest results in {results_source["nsforest_dirpath"]}')
-        _nsforest_paths = [
-            Path(p).resolve()
-            for p in glob(
-                str(
-                    Path(results_source["nsforest_dirpath"])
-                    / results_source["nsforest_pattern"]
-                )
-            )
-        ]
-        nsforest_paths.extend(_nsforest_paths)
-
-        # Collect dataset version identifiers and unique gene names
-        # considering all NSForest results
-        for _nsforest_path in _nsforest_paths:
-
-            print(
-                f"Finding author to cl map path, and dataset version id for {_nsforest_path}"
-            )
-            author_to_cl_path = None
-            dataset_version_id = None
-            match = re.search(results_source["author_pattern"], str(_nsforest_path))
-            if match:
-                author = match.group(1)
-                author_to_cl_path = glob(
-                    str(
-                        _nsforest_path.parent
-                        / results_source["mapping_pattern"].format(author=author)
-                    )
-                )
-                if len(author_to_cl_path) != 0:
-                    author_to_cl_path = Path(author_to_cl_path[0]).resolve()
-
-                    # Load author to CL map, and assign dataset version identifier
-                    print(f"Loading author to CL map from {author_to_cl_path}")
-                    author_to_cl_results = load_results(author_to_cl_path)
-                    dataset_version_id = author_to_cl_results["dataset_version_id"][
-                        0
-                    ].split("--")[
-                        0
-                    ]  # Some dataset_version_ids are a "--" separated list of dataset_version_ids
-
-            else:
-
-                # Parse dataset identifier within NSForest results path, and assign
-                match = re.search(
-                    "([0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12})",
-                    str(_nsforest_path),
-                )
-                dataset_version_id = match.group(1)
-
-            author_to_cl_paths.append(author_to_cl_path)
-            dataset_version_ids.append(dataset_version_id)
-
-            # Collect unique gene names
-            print(f"Loading NSForest results from {_nsforest_path}")
-            nsforest_results = load_results(_nsforest_path).sort_values(
-                "clusterName", ignore_index=True
-            )
-            gene_names |= set(collect_unique_gene_names(nsforest_results))
-
-    # Collect unique gene identifiers
-    gene_ensembl_ids = collect_unique_gene_ensembl_ids(gene_names)
-    gene_entrez_ids = collect_unique_gene_entrez_ids(gene_names)
-
-    return (
-        nsforest_paths,
-        author_to_cl_paths,
-        dataset_version_ids,
-        gene_names,
-        gene_ensembl_ids,
-        gene_entrez_ids,
-    )
+EXTERNAL_DIRPATH = Path("../../../data/external")
+CELLXGENE_PATH = EXTERNAL_DIRPATH / "cellxgene.json"
+OPENTARGETS_PATH = EXTERNAL_DIRPATH / "opentargets.json"
+EBI_PATH = EXTERNAL_DIRPATH / "ebi.json"
+RXNAV_PATH = EXTERNAL_DIRPATH / "rxnav.json"
+DRUGBANK_PATH = EXTERNAL_DIRPATH / "drugbank.json"
+NCATS_PATH = EXTERNAL_DIRPATH / "ncats.json"
+GENE_PATH = EXTERNAL_DIRPATH / "gene.json"
+UNIPROT_PATH = EXTERNAL_DIRPATH / "uniprot.json"
+HUBMAP_DIRPATH = EXTERNAL_DIRPATH / "hubmap"
 
 
 def get_cellxgene_metadata(dataset_version_ids, force=False):
