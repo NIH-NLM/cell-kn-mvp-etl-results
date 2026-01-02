@@ -159,9 +159,9 @@ def normalize_term(annotation, term, mesh2mondo):
         return map_mesh_to_mondo(annotation[f"{term}_identifier"], mesh2mondo)
 
     elif atype == "Gene":
-        gene_symbol = annotation[f"{term}_name"].replace("Myelin basic protein", "MBP")
-        if gene_symbol == gene_symbol.upper():
-            return "GS_" + gene_symbol
+        gene_name = annotation[f"{term}_name"].replace("Myelin basic protein", "MBP")
+        if gene_name == gene_name.upper():
+            return "GS_" + gene_name
         else:
             return None
 
