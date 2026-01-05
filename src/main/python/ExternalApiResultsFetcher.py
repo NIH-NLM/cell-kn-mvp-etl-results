@@ -195,9 +195,10 @@ def get_opentargets_results(
     batch_size = 25
     n_in_batch = 0
     for gene_ensembl_id in gene_ensembl_ids:
-        n_in_batch += 1
         n_so_far += 1
+
         if gene_ensembl_id not in opentargets_results:
+            n_in_batch += 1
             print(
                 f"Fetched {n_in_batch}/{batch_size} in batch - {n_so_far}/{total_size} so far"
             )
@@ -355,9 +356,10 @@ def get_ebi_results(force=False):
     batch_size = 25
     n_in_batch = 0
     for drug_name in drug_names:
-        n_in_batch += 1
         n_so_far += 1
+
         if drug_name not in ebi_results:
+            n_in_batch += 1
             print(
                 f"Fetched {n_in_batch}/{batch_size} in batch - {n_so_far}/{total_size} so far"
             )
@@ -438,9 +440,10 @@ def get_rxnav_results(force=False):
     batch_size = 25
     n_in_batch = 0
     for drug_name in drug_names:
-        n_in_batch += 1
         n_so_far += 1
+
         if drug_name not in rxnav_results:
+            n_in_batch += 1
             print(
                 f"Fetched {n_in_batch}/{batch_size} in batch - {n_so_far}/{total_size} so far"
             )
@@ -599,9 +602,10 @@ def get_drugbank_results(force=False):
     batch_size = 25
     n_in_batch = 0
     for drug_name in drug_names:
-        n_in_batch += 1
         n_so_far += 1
+
         if drug_name not in drugbank_results:
+            n_in_batch += 1
             print(
                 f"Fetched {n_in_batch}/{batch_size} in batch - {n_so_far}/{total_size} so far"
             )
@@ -690,9 +694,10 @@ def get_ncats_results(force=False):
     batch_size = 25
     n_in_batch = 0
     for drug_name in drug_names:
-        n_in_batch += 1
         n_so_far += 1
+
         if drug_name not in ncats_results:
+            n_in_batch += 1
             print(
                 f"Fetched {n_in_batch}/{batch_size} in batch - {n_so_far}/{total_size} so far"
             )
@@ -769,9 +774,10 @@ def get_gene_results(gene_entrez_ids, force=False):
     batch_size = 25
     n_in_batch = 0
     for gene_entrez_id in gene_entrez_ids:
-        n_in_batch += 1
         n_so_far += 1
+
         if gene_entrez_id not in gene_results:
+            n_in_batch += 1
             print(
                 f"Fetched {n_in_batch}/{batch_size} in batch - {n_so_far}/{total_size} so far"
             )
@@ -876,9 +882,10 @@ def get_uniprot_results(force=False):
     batch_size = 25
     n_in_batch = 0
     for protein_accession in protein_accessions:
-        n_in_batch += 1
         n_so_far += 1
+
         if protein_accession not in uniprot_results:
+            n_in_batch += 1
             print(
                 f"Fetched {n_in_batch}/{batch_size} in batch - {n_so_far}/{total_size} so far"
             )
