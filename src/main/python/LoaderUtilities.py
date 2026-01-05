@@ -78,13 +78,13 @@ def collect_results_sources_data():
         List of the dataset version identifier corresponding to the
         dataset used to generate the NSForest results, or the first
         such identifier if more than one dataset was combined
-    gene_names: set(str)
-        Set of gene names found in all NSForest results
-    gene_ensembl_ids: set(str)
-        Set of Ensembl identifiers coooresponding to the gene names
+    gene_names: list(str)
+        List of gene names found in all NSForest results
+    gene_ensembl_ids: list(str)
+        List of Ensembl identifiers coooresponding to the gene names
         found in all NSForest results
-    gene_entrez_ids: set(str)
-        Set of Entrez identifiers coooresponding to the gene names
+    gene_entrez_ids: list(str)
+        List of Entrez identifiers coooresponding to the gene names
         found in all NSForest results
     """
     nsforest_paths = []
@@ -611,8 +611,9 @@ def map_accession_to_protein_ensembl_id(accn, accn2ensp):
 
 
 def collect_unique_gene_names(nsforest_results):
-    """Collect unique gene names found in the NSForest results
-    marker or binary genes.
+    """Collect unique gene names found in the NSForest results marker
+    or binary genes. Return these values as a sorted list for
+    restarting.
 
     Parameters
     ----------
@@ -630,13 +631,13 @@ def collect_unique_gene_names(nsforest_results):
         for gene_list_str in nsforest_results[column]:
             gene_names |= set(ast.literal_eval(gene_list_str))
 
-    # TODO: Return a set
-    return list(gene_names)
+    return sorted(gene_names)
 
 
 def collect_unique_gene_ensembl_ids(gene_names):
     """Collect unique Ensembl gene ids corresponding to the specified
-    list of gene names.
+    list of gene names. Return these values as a sorted list for
+    restarting.
 
     Note that if gene names are taken from NSForest results, gene
     names might actually be Ensembl ids.
@@ -672,12 +673,13 @@ def collect_unique_gene_ensembl_ids(gene_names):
         f"Collected {len(gene_ensembl_ids)} unique Ensembl gene ids for {len(gene_names)} unique gene names"
     )
 
-    return list(gene_ensembl_ids)
+    return sorted(gene_ensembl_ids)
 
 
 def collect_unique_gene_entrez_ids(gene_names):
     """Collect unique Entrez gene ids corresponding to the specified
-    list of gene names.
+    list of gene names. Return these values as a sorted list for
+    restarting.
 
     Note that if gene names are taken from NSForest results, gene
     names might actually be Ensembl ids.
@@ -720,7 +722,7 @@ def collect_unique_gene_entrez_ids(gene_names):
         f"Collected {len(gene_entrez_ids)} unique Entrez gene ids for {len(gene_names)} unique gene names"
     )
 
-    return list(gene_entrez_ids)
+    return sorted(gene_entrez_ids)
 
 
 def get_efo_to_mondo_map():
