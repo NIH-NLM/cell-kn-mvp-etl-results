@@ -30,6 +30,7 @@ RDF_NS = "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}"
 with open(Path("../../../data/obo/deprecated_terms.txt"), "r") as fp:
     DEPRECATED_TERMS = fp.read().splitlines()
 
+MIN_CLUSTER_SIZE = 10
 
 RESULTS_SOURCES_PATH = Path("../../../data/results-sources-2026-01-06.json")
 
@@ -612,8 +613,8 @@ def map_accession_to_protein_ensembl_id(accn, accn2ensp):
 
 def collect_unique_gene_names(nsforest_results):
     """Collect unique gene names found in the NSForest results marker
-    or binary genes. Return these values as a sorted list for
-    restarting.
+    or binary genes. Exclude clusters smaller than the minimum
+    size. Return these values as a sorted list for restarting.
 
     Parameters
     ----------
@@ -628,7 +629,9 @@ def collect_unique_gene_names(nsforest_results):
     gene_names = set()
 
     for column in ["NSForest_markers", "binary_genes"]:
-        for gene_list_str in nsforest_results[column]:
+        for gene_list_str in nsforest_results.loc[
+            nsforest_results["clusterSize"] >= MIN_CLUSTER_SIZE, column
+        ]:
             gene_names |= set(ast.literal_eval(gene_list_str))
 
     return sorted(gene_names)

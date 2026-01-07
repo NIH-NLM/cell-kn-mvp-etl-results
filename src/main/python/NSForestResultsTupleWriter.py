@@ -5,6 +5,7 @@ from pathlib import Path
 from rdflib.term import Literal, URIRef
 
 from LoaderUtilities import (
+    MIN_CLUSTER_SIZE,
     PURLBASE,
     RDFSBASE,
     collect_results_sources_data,
@@ -17,7 +18,7 @@ TUPLES_DIRPATH = Path("../../../data/tuples")
 
 def create_tuples_from_nsforest(results):
     """Creates tuples from NSForest results consistent with schema
-    v0.7.
+    v0.7. Exclude clusters smaller than the minimum size.
 
     Parameters
     ----------
@@ -36,6 +37,8 @@ def create_tuples_from_nsforest(results):
         uuid = row["uuid"]
         cluster_name = hyphenate(row["clusterName"])
         cluster_size = row["clusterSize"]
+        if cluster_size < MIN_CLUSTER_SIZE:
+            continue
         binary_genes = ast.literal_eval(row["binary_genes"])
         nsforest_markers = ast.literal_eval(row["NSForest_markers"])
         cs_term = f"CS_{cluster_name}-{uuid}"
