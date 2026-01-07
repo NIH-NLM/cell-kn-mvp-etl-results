@@ -48,6 +48,7 @@ query target($ensemblId: String!) {
           description
           maximumClinicalTrialPhase
           isApproved
+          hasBeenWithdrawn
           synonyms
           tradeNames
           name
@@ -221,6 +222,7 @@ query diseases($ensemblId: String!) {
           description
           maximumClinicalTrialPhase
           isApproved
+          hasBeenWithdrawn
           synonyms
           tradeNames
           name
