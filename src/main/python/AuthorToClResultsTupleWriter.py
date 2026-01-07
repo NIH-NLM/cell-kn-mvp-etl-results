@@ -1,22 +1,21 @@
 import ast
-from glob import glob
 import json
 from pathlib import Path
-import re
 from urllib.parse import urlparse
 
 from rdflib.term import Literal, URIRef
 
 from E_Utilities import get_data_for_pmid
+from ExternalApiResultsFetcher import CELLXGENE_PATH
 from LoaderUtilities import (
     DEPRECATED_TERMS,
     PURLBASE,
     RDFSBASE,
+    collect_results_sources_data,
     load_results,
     hyphenate,
 )
 
-NSFOREST_DIRPATH = Path("../../../data/results")
 TUPLES_DIRPATH = Path("../../../data/tuples")
 
 
@@ -28,8 +27,8 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
     ----------
     author_to_cl_results : pd.DataFrame
         DataFrame containing author to CL results
-    cellxgene_results : list(dict)
-        List of dictionaries containing cellxgene results
+    cellxgene_results : dict
+        Dictionary containing cellxgene results
 
     Returns
     -------
@@ -104,7 +103,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
         "Zenodo/Nextflow_workflow/Notebook",
     ]
     for key in keys:
-        value = cellxgene_results[0][key]
+        value = cellxgene_results[key]
         if isinstance(value, str):
             value = value.replace("https://", "")
         tuples.append(
@@ -309,7 +308,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             "Dataset_name",
         ]
         for key in keys:
-            value = cellxgene_results[0][key]
+            value = cellxgene_results[key]
             if isinstance(value, str):
                 value = value.replace("https://", "")
             tuples.append(
@@ -432,11 +431,11 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
 
 
 def main(summarize=False):
-    """Load manual author cell set to CL term mapping for the NSForest
-    results from processing datasets corresponding to the Guo et
-    al. 2023, Li et al. 2023, and Sikkema, et al. 2023 publications,
-    create tuples consistent with schema v0.7, and write the result to
-    a JSON file. If summarizing, retain the first row only, and
+    """Collect paths to all NSForest results, and author cell set to
+    CL term mappings identified in the results sources, and
+    dataset_version_id used for creating the NSForest results in order
+    to create tuples consistent with schema v0.7, and write the result
+    to a JSON file. If summarizing, retain the first row only, and
     include results in output.
 
     Parameters
@@ -448,11 +447,36 @@ def main(summarize=False):
     -------
     None
     """
-    nsforest_paths = [
-        Path(p).resolve()
-        for p in glob(str(NSFOREST_DIRPATH / "cell-kn-mvp-nsforest-results-*.csv"))
-    ]
-    for nsforest_path in nsforest_paths:
+    # Collect paths to all NSForest results, and author cell set to CL
+    # term mappings identified in the results sources, and load the
+    # CELLxGENE results.
+    (
+        nsforest_paths,
+        author_to_cl_paths,
+        _dataset_version_ids,
+        _cl_terms,
+        _gene_names,
+        _gene_ensembl_ids,
+        _gene_entrez_ids,
+    ) = collect_results_sources_data()
+    with open(CELLXGENE_PATH, "r") as fp:
+        cellxgene_results_sets = json.load(fp)
+    for author_to_cl_path, nsforest_path, cellxgene_results in zip(
+        author_to_cl_paths, nsforest_paths, cellxgene_results_sets
+    ):
+        if author_to_cl_path == []:
+            print(
+                f"No author cell set to CL term map for NSForest results {nsforest_path}"
+            )
+            continue
+
+        # Load author cell set to CL term mapping, dropping "uuid"
+        # column in order to merge "uuid" column from NSForest results
+        author_to_cl_results = (
+            load_results(author_to_cl_path)
+            .sort_values("author_cell_set", ignore_index=True)
+            .drop(columns=["uuid"])
+        )
 
         # Load NSForest results
         nsforest_results = load_results(nsforest_path).sort_values(
@@ -460,22 +484,6 @@ def main(summarize=False):
         )
         if summarize:
             nsforest_results = nsforest_results.head(1)
-
-        # Map NSForest results filename to manual author cell set to
-        # CL term mapping filename, then load mapping results,
-        # dropping "uuid" column in order to merge "uuid" column from
-        # NSForest results
-        author = re.search("results-([a-zA-Z]*)", nsforest_path.name).group(1)
-        author_to_cl_path = Path(
-            glob(
-                str(NSFOREST_DIRPATH / f"cell-kn-mvp-map-author-to-cl-{author}-*.csv")
-            )[-1]
-        ).resolve()
-        author_to_cl_results = (
-            load_results(author_to_cl_path)
-            .sort_values("author_cell_set", ignore_index=True)
-            .drop(columns=["uuid"])
-        )
 
         # Merge NSForest results with manual author cell set to CL
         # term mapping since author cell sets may not align exactly
@@ -486,11 +494,6 @@ def main(summarize=False):
             left_on="author_cell_set",
             right_on="clusterName",
         )
-
-        # Load CELLxGENE results
-        cellxgene_path = Path(str(author_to_cl_path).replace(".csv", "-cellxgene.json"))
-        with open(cellxgene_path, "r") as fp:
-            cellxgene_results = json.load(fp)
 
         print(f"Creating tuples from {author_to_cl_path}")
         author_to_cl_tuples = create_tuples_from_author_to_cl(

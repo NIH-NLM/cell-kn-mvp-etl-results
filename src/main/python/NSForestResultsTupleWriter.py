@@ -1,14 +1,17 @@
 import ast
-from glob import glob
 import json
 from pathlib import Path
 
-import pandas as pd
 from rdflib.term import Literal, URIRef
 
-from LoaderUtilities import load_results, hyphenate, PURLBASE, RDFSBASE
+from LoaderUtilities import (
+    PURLBASE,
+    RDFSBASE,
+    collect_results_sources_data,
+    hyphenate,
+    load_results,
+)
 
-NSFOREST_DIRPATH = Path("../../../data/results")
 TUPLES_DIRPATH = Path("../../../data/tuples")
 
 
@@ -181,8 +184,8 @@ def create_tuples_from_nsforest(results):
                 (
                     URIRef(f"{PURLBASE}/{cs_term}"),
                     URIRef(f"{PURLBASE}/{bmc_term}"),
-                    URIRef(f"{RDFSBASE}#PPV"),  # [STAT:0000416]
-                    Literal(str(row["PPV"])),
+                    URIRef(f"{RDFSBASE}#Precision"),  # [STAT:0000416]
+                    Literal(str(row["precision"])),
                 ),
             ]
         )
@@ -245,11 +248,10 @@ def create_tuples_from_nsforest(results):
 
 
 def main(summarize=False):
-    """Load NSForest results from processing datasets corresponding to
-    the Guo et al. 2023, Li et al. 2023, and Sikkema, et al. 2023
-    publications, create tuples consistent with schema v0.7, and write
-    the result to a JSON file. If summarizing, retain the first row
-    only, and include results in output.
+    """Laod NSForest results identified in the results sources, create
+    tuples consistent with schema v0.7, and write the result to a JSON
+    file. If summarizing, retain the first row only, and include
+    results in output.
 
     Parameters
     ----------
@@ -260,10 +262,21 @@ def main(summarize=False):
     -------
     None
     """
-    nsforest_paths = [
-        Path(p).resolve()
-        for p in glob(str(NSFOREST_DIRPATH / "cell-kn-mvp-nsforest-results-*.csv"))
-    ]
+
+    # Collect paths to all NSForest results, and author cell set to CL
+    # term mappings identified in the results sources. Collect the
+    # dataset_version_id used for creating the NSForest
+    # results. Collect the unique gene names, Ensembl identifiers, and
+    # Entrez identifiers corresponding to all NSForet results.
+    (
+        nsforest_paths,
+        _author_to_cl_paths,
+        _dataset_version_ids,
+        _cl_terms,
+        _gene_names,
+        _gene_ensembl_ids,
+        _gene_entrez_ids,
+    ) = collect_results_sources_data()
     for nsforest_path in nsforest_paths:
 
         # Load NSForest results
