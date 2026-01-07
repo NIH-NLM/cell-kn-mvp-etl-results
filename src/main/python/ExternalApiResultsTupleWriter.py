@@ -212,7 +212,6 @@ def create_tuples_from_opentargets(summarize=False):
             if mondo_term is None:
                 continue
             if disease["score"] < 0.5:
-                # Skip diseases with low evidence scores
                 continue
 
             # == Disease relations
@@ -438,7 +437,6 @@ def create_tuples_from_opentargets(summarize=False):
 
         for pharmacogenetic in results[gene_ensembl_id]["pharmacogenetics"]:
             if pharmacogenetic["variantRsId"] is None:
-                # Skip pharmacogenetics missing an id
                 continue
 
             # Follow term naming convention for parsing
@@ -486,7 +484,6 @@ def create_tuples_from_opentargets(summarize=False):
             for pharmacogenetic_drug in pharmacogenetic["drugs"]:
                 # TODO: Check drug trial phase when available
                 if pharmacogenetic_drug["drugId"] is None:
-                    # Skip pharmacogenetic drugs missing an id
                     continue
 
                 # Follow term naming convention for parsing
@@ -576,7 +573,6 @@ def create_tuples_from_opentargets(summarize=False):
 
         for expression in results[gene_ensembl_id]["expression"]:
             if expression["tissue"]["id"][0:7] != "UBERON_":
-                # Skip expressions for tissue not in UBERON
                 continue
             exp_term = expression["tissue"]["id"]
             if exp_term in DEPRECATED_TERMS:
@@ -697,7 +693,6 @@ def create_tuples_from_gene(summarize=False):
     ]
     for gene_entrez_id in gene_entrez_ids:
         if not results[gene_entrez_id]:
-            # Skip empty gene name
             continue
 
         # Map gene Entrez id to gene name
@@ -843,7 +838,6 @@ def create_tuples_from_hubmap(hubmap_path, cl_terms):
     anatomical_structures = hubmap_data["data"]["anatomical_structures"]
     for anatomical_structure in anatomical_structures:
         if not key_set.issubset(set(anatomical_structure.keys())):
-            # Skip anatomical structure without the needed keys
             continue
 
         # Get the subject UBERON term
@@ -886,7 +880,6 @@ def create_tuples_from_hubmap(hubmap_path, cl_terms):
     cell_types = hubmap_data["data"]["cell_types"]
     for cell_type in cell_types:
         if not key_set.issubset(set(cell_type.keys())):
-            # Skip cell types without the needed keys
             continue
 
         # Get the CL term
