@@ -9,6 +9,7 @@ from E_Utilities import get_data_for_pmid
 from ExternalApiResultsFetcher import CELLXGENE_PATH
 from LoaderUtilities import (
     DEPRECATED_TERMS,
+    MIN_CLUSTER_SIZE,
     PURLBASE,
     RDFSBASE,
     collect_results_sources_data,
@@ -21,7 +22,8 @@ TUPLES_DIRPATH = Path("../../../data/tuples")
 
 def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
     """Creates tuples from manual author cell set to CL term mapping
-    consistent with schema v0.7.
+    consistent with schema v0.7. Exclude clusters smaller than the
+    minimum size.
 
     Parameters
     ----------
@@ -162,6 +164,9 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
         if uberon_term in DEPRECATED_TERMS:
             print(f"Warning: UBERON term {uberon_term} deprecated")
         author_cell_set = hyphenate(row["author_cell_set"])
+        cluster_size = row["clusterSize"]
+        if cluster_size < MIN_CLUSTER_SIZE:
+            continue
         cs_term = f"CS_{author_cell_set}-{uuid}"
         bmc_term = f"BMC_{uuid}"
         bgs_term = f"BGS_{uuid}"
@@ -489,7 +494,7 @@ def main(summarize=False):
         # term mapping since author cell sets may not align exactly
         author_to_cl_results = author_to_cl_results.merge(
             nsforest_results[
-                ["clusterName", "NSForest_markers", "binary_genes", "uuid"]
+                ["clusterName", "clusterSize", "NSForest_markers", "binary_genes", "uuid"]
             ].copy(),
             left_on="author_cell_set",
             right_on="clusterName",
