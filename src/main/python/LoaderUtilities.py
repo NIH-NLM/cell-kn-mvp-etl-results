@@ -31,7 +31,7 @@ with open(Path("../../../data/obo/deprecated_terms.txt"), "r") as fp:
     DEPRECATED_TERMS = fp.read().splitlines()
 
 
-RESULTS_SOURCES_PATH = Path("../../../data/results-sources-2026-01-01.json")
+RESULTS_SOURCES_PATH = Path("../../../data/results-sources-2026-01-06.json")
 
 
 def get_cl_terms(author_to_cl_results):
