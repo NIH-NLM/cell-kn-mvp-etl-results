@@ -268,6 +268,7 @@ def create_tuples_from_opentargets(summarize=False):
                 mondo_term is None
                 or drug["drug"]["maximumClinicalTrialPhase"] < 3
                 or not drug["drug"]["isApproved"]
+                or drug["drug"]["hasBeenWithdrawn"]
             ):
                 continue
             # TODO: Test disease score
@@ -405,6 +406,11 @@ def create_tuples_from_opentargets(summarize=False):
                         URIRef(f"{PURLBASE}/{chembl_term}"),
                         URIRef(f"{RDFSBASE}#Approved"),
                         Literal(str(drug["drug"]["isApproved"])),
+                    ),
+                    (
+                        URIRef(f"{PURLBASE}/{chembl_term}"),
+                        URIRef(f"{RDFSBASE}#Withdrawn"),
+                        Literal(str(drug["drug"]["hasBeenWithdrawn"])),
                     ),
                 ]
             )
