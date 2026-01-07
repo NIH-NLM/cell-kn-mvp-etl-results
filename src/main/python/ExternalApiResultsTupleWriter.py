@@ -317,21 +317,22 @@ def create_tuples_from_opentargets(summarize=False):
                     )
                 )
 
-            for indication in drug["drug"]["indications"]["rows"]:
-                mondo_term = get_mondo_term(indication["disease"]["id"], efo2mondo)
-                if mondo_term is None or indication["maxPhaseForIndication"] < 4:
-                    continue
-                # TODO: Test disease score
+            if drug["drug"]["indications"]:
+                for indication in drug["drug"]["indications"]["rows"]:
+                    mondo_term = get_mondo_term(indication["disease"]["id"], efo2mondo)
+                    if mondo_term is None or indication["maxPhaseForIndication"] < 4:
+                        continue
+                    # TODO: Test disease score
 
-                # == Indications annotations
+                    # == Indications annotations
 
-                tuples.append(
-                    (
-                        URIRef(f"{PURLBASE}/{chembl_term}"),
-                        URIRef(f"{RDFSBASE}#Indications"),
-                        Literal(mondo_term),
-                    ),
-                )
+                    tuples.append(
+                        (
+                            URIRef(f"{PURLBASE}/{chembl_term}"),
+                            URIRef(f"{RDFSBASE}#Indications"),
+                            Literal(mondo_term),
+                        ),
+                    )
 
             for drug_trial_id in drug["ctIds"]:
 
