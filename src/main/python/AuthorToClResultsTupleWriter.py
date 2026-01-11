@@ -457,6 +457,7 @@ def main(summarize=False):
     # CELLxGENE results.
     (
         nsforest_paths,
+        _silhouette_paths,
         author_to_cl_paths,
         _dataset_version_ids,
         _cl_terms,

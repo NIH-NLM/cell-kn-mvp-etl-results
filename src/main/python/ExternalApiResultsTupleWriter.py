@@ -978,6 +978,7 @@ def main(summarize=False):
     # Entrez identifiers corresponding to all NSForet results.
     (
         _nsforest_paths,
+        _silhouette_paths,
         _author_to_cl_paths,
         _dataset_version_ids,
         cl_terms,

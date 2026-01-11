@@ -59,11 +59,12 @@ def get_cl_terms(author_to_cl_results):
 
 
 def collect_results_sources_data():
-    """Collect paths to all NSForest results, and author cell set to
-    CL term mappings identified in the results sources. Collect the
-    dataset_version_id used for creating the NSForest results. Collect
-    the unique gene names, Ensembl identifiers, and Entrez identifiers
-    corresponding to all NSForet results.
+    """Collect paths to all NSForest results, silhouette scores, and
+    author cell set to CL term mappings identified in the results
+    sources. Collect the dataset_version_id used for creating the
+    NSForest results. Collect the unique gene names, Ensembl
+    identifiers, and Entrez identifiers corresponding to all NSForet
+    results.
 
     Parameters
     ----------
@@ -73,6 +74,8 @@ def collect_results_sources_data():
     -------
     nsforest_paths: list(Path)
         List of paths to all NSForest results files
+    silhouette_paths: list(Path)
+        List of paths to all silhouette scores files
     author_to_cl_paths: list(Path | None)
         List of paths to all author cell set to CL term mapping files
     dataset_version_ids: list(str)
@@ -89,6 +92,7 @@ def collect_results_sources_data():
         found in all NSForest results
     """
     nsforest_paths = []
+    silhouette_paths = []
     author_to_cl_paths = []
     dataset_version_ids = []
     cl_terms = set()
@@ -114,21 +118,53 @@ def collect_results_sources_data():
         ]
         nsforest_paths.extend(_nsforest_paths)
 
-        # Collect dataset version identifiers and unique gene names
-        # considering all NSForest results
+        # Collect paths to silhouette scores and author cell set to CL
+        # term mappings, dataset version identifiers and unique gene
+        # names considering all NSForest results
         for _nsforest_path in _nsforest_paths:
             print(
-                f"Finding author cell set to CL term mapping path, and dataset version id for {_nsforest_path}"
+                f"Finding silhouette scores and author cell set to CL term mapping paths, and dataset version id for {_nsforest_path}"
             )
+            silhouette_path = None
             author_to_cl_path = None
             dataset_version_id = None
-            match = re.search(results_source["author_pattern"], str(_nsforest_path))
+            match = re.search(
+                results_source["identity_pattern"], str(_nsforest_path.name)
+            )
             if match:
-                author = match.group(1)
+                # TODO: Put this information in the results_source.json file?
+                if len(match.groups()) == 2:
+                    tissue = ""
+                    author = match.group(1)
+                    year = match.group(2)
+
+                elif len(match.groups()) == 3:
+                    tissue = match.group(1)
+                    author = match.group(2)
+                    year = match.group(3)
+
+                else:
+                    raise Exception("Unexpected number of groups")
+
+                # Find path to silhouette scores
+                silhouette_path = glob(
+                    str(
+                        Path(results_source["silhouette_dirpath"])
+                        / results_source["silhouette_pattern"].format(
+                            tissue=tissue, author=author, year=year
+                        )
+                    )
+                )
+                if len(silhouette_path) != 0:
+                    silhouette_path = Path(silhouette_path[0]).resolve()
+
+                # Find path to author cell set to CL term mappings
                 author_to_cl_path = glob(
                     str(
                         _nsforest_path.parent
-                        / results_source["mapping_pattern"].format(author=author)
+                        / results_source["mapping_pattern"].format(
+                            tissue=tissue, author=author, year=year
+                        )
                     )
                 )
                 if len(author_to_cl_path) != 0:
@@ -153,10 +189,11 @@ def collect_results_sources_data():
                     # path, and assign
                     match = re.search(
                         "([0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12})",
-                        str(_nsforest_path),
+                        str(_nsforest_path.name),
                     )
                     dataset_version_id = match.group(1)
 
+            silhouette_paths.append(silhouette_path)
             author_to_cl_paths.append(author_to_cl_path)
             dataset_version_ids.append(dataset_version_id)
 
@@ -173,6 +210,7 @@ def collect_results_sources_data():
 
     return (
         nsforest_paths,
+        silhouette_paths,
         author_to_cl_paths,
         dataset_version_ids,
         cl_terms,
