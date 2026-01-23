@@ -32,7 +32,6 @@ OPENTARGETS_RESOURCES = [
 ]
 
 RESULTS_SOURCES = Path("../../../data/results-sources-2025-12-29.json")
-
 HUBMAP_DIRPATH = Path("../../../data/hubmap")
 HUBMAP_LATEST_URLS = [
     "https://lod.humanatlas.io/asct-b/allen-brain/latest/",
