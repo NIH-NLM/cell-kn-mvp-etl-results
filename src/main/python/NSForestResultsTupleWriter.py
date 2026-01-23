@@ -132,6 +132,11 @@ def create_tuples_from_nsforest(results):
             [
                 (
                     URIRef(f"{PURLBASE}/{cs_term}"),
+                    URIRef(f"{RDFSBASE}#F_beta_confidence_score"),  # [STAT:0000663]
+                    Literal(str(row["f_score"])),
+                ),
+                (
+                    URIRef(f"{PURLBASE}/{cs_term}"),
                     URIRef(f"{RDFSBASE}#Total_cell_count"),
                     Literal(str(cluster_size)),
                 ),
