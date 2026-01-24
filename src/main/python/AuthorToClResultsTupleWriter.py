@@ -31,7 +31,8 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
     author_to_cl_results : pd.DataFrame
         DataFrame containing author to CL results
     cellxgene_results : dict
-        Dictionary containing cellxgene results
+        Dictionaries containing cellxgene results dictionaries keyed
+        by dataset_version_id
 
     Returns
     -------
@@ -41,12 +42,11 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
     tuples = []
 
     # Nodes for these results
-    csd_terms = [
-        f"CSD_{ds_id}" for ds_id in author_to_cl_results["dataset_id"][0].split("--")
-    ]
+    dataset_version_ids = author_to_cl_results["dataset_id"][0].split("--")
     pub_term = f"PUB_{author_to_cl_results['DOI'][0].replace('/', '-')}"
     ds_term = f"DS_{author_to_cl_results['dataset_source'][0]}"
-    for csd_term in csd_terms:
+    for dataset_version_id in dataset_version_ids:
+        csd_term = f"CSD_{dataset_version_id}"
 
         # Cell_set_dataset_Ind, SOURCE, Publication_Ind
         # IAO:0000100, dc:source, IAO:0000311
@@ -70,15 +70,15 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
         # IAO:0000100, rdf:type, IAO:0000100
         tuples.append(
             (
-                URIRef(f"{PURLBASE}/csd_term"),
+                URIRef(f"{PURLBASE}/{csd_term}"),
                 URIRef(f"{RDFSBASE}/rdf#type"),
-                URIRef(f"{PURLBASE}/ds_term"),
+                URIRef(f"{PURLBASE}/{ds_term}"),
             )
         )
         tuples.append(
             (
-                URIRef(f"{PURLBASE}/csd_term"),
-                URIRef(f"{PURLBASE}/ds_term"),
+                URIRef(f"{PURLBASE}/{csd_term}"),
+                URIRef(f"{PURLBASE}/{ds_term}"),
                 URIRef(f"{RDFSBASE}#Source"),
                 Literal("Manual Mapping"),
             )
@@ -109,7 +109,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             "Zenodo/Nextflow_workflow/Notebook",
         ]
         for key in keys:
-            value = cellxgene_results[key]
+            value = cellxgene_results[dataset_version_id][key]
             if isinstance(value, str):
                 value = value.replace("https://", "")
             tuples.append(
@@ -212,7 +212,8 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             )
         )
 
-        for csd_term in csd_terms:
+        for dataset_version_id in dataset_version_ids:
+            csd_term = f"CSD_{dataset_version_id}"
 
             # Cell_type_Class, HAS_EXEMPLAR_DATA, Cell_set_dataset_Ind
             # CL:0000000, RO:0015001, IAO:0000100
@@ -291,7 +292,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{bmc_term}"),
-                URIRef(f"{PURLBASE}/IS_CHARACTERIZING_MARKER_SET_FOR"),
+                URIRef(f"{PURLBASE}/RO_0015004"),
                 URIRef(f"{PURLBASE}/{cl_term}"),
             )
         )
@@ -319,7 +320,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             "Dataset_name",
         ]
         for key in keys:
-            value = cellxgene_results[key]
+            value = cellxgene_results[dataset_version_id][key]
             if isinstance(value, str):
                 value = value.replace("https://", "")
             tuples.append(
@@ -444,10 +445,10 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
 def main(summarize=False):
     """Collect paths to all NSForest results, and author cell set to
     CL term mappings identified in the results sources, and
-    dataset_version_id used for creating the NSForest results in order
-    to create tuples consistent with schema v0.7, and write the result
-    to a JSON file. If summarizing, retain the first row only, and
-    include results in output.
+    dataset_version_ids used for creating each NSForest results path
+    in order to create tuples consistent with schema v0.7, and write
+    the result to a JSON file. If summarizing, retain the first row
+    only, and include results in output.
 
     Parameters
     ----------
@@ -472,10 +473,8 @@ def main(summarize=False):
         _gene_entrez_ids,
     ) = collect_results_sources_data()
     with open(CELLXGENE_PATH, "r") as fp:
-        cellxgene_results_sets = json.load(fp)
-    for author_to_cl_path, nsforest_path, cellxgene_results in zip(
-        author_to_cl_paths, nsforest_paths, cellxgene_results_sets
-    ):
+        cellxgene_results = json.load(fp)
+    for author_to_cl_path, nsforest_path in zip(author_to_cl_paths, nsforest_paths):
         if author_to_cl_path == []:
             print(
                 f"No author cell set to CL term map for NSForest results {nsforest_path}"

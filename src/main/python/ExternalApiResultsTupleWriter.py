@@ -998,8 +998,8 @@ def main(summarize=False):
     """
     # Collect paths to all NSForest results, and author cell set to CL
     # term mappings identified in the results sources. Collect the
-    # dataset_version_id used for creating the NSForest
-    # results. Collect the unique gene names, Ensembl identifiers, and
+    # dataset_version_ids used for creating the NSForest results
+    # paths. Collect the unique gene names, Ensembl identifiers, and
     # Entrez identifiers corresponding to all NSForet results.
     (
         _nsforest_paths,

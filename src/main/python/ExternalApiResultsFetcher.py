@@ -60,23 +60,24 @@ def get_cellxgene_metadata(dataset_version_ids, force=False):
     Parameters
     ----------
     dataset_version_ids: list(str)
-        List of the dataset version identifier corresponding to the
-        dataset used to generate the NSForest results, or the first
-        such identifier if more than one dataset was combined
+        List of the dataset version identifiers corresponding to the
+        datasets used to generate each NSForest results path
+        datasets used to generate each NSForest results path
     force : bool
         Flag to force fetching, or not
 
     Returns
     -------
-    cellxgene_results : list(dict)
-        List of dictionaries containing cellxgene results
+    cellxgene_results : dict
+         Dictionaries containing cellxgene results keyed by
+         dataset_version_id
     """
     # Create, or load cellxgene results
     if not CELLXGENE_PATH.exists() or force:
 
         # Create results
 
-        cellxgene_results = []
+        cellxgene_results = {}
 
         print(f"")
         base_url = "https://api.cellxgene.cziscience.com/curation/v1"
@@ -129,7 +130,7 @@ def get_cellxgene_metadata(dataset_version_ids, force=False):
                 )
                 dataset_results["Dataset_version_ID"] = dataset_version_id
                 dataset_results["Zenodo/Nextflow_workflow/Notebook"] = "TBC"
-                cellxgene_results.append(dataset_results)
+                cellxgene_results[dataset_version_id] = dataset_results
 
             else:
                 print(
@@ -1072,9 +1073,9 @@ def download_hubmap_data_tables():
 def main():
     """Collect paths to all NSForest results, and author cell set to
     CL term mappings identified in the results sources,
-    dataset_version_id used for creating the NSForest results, and the
-    unique gene names, Ensembl identifiers, and Entrez identifiers
-    corresponding to all NSForet results. Then:
+    dataset_version_ids used for creating the NSForest results paths,
+    and the unique gene names, Ensembl identifiers, and Entrez
+    identifiers corresponding to all NSForet results. Then:
 
     - Use the CELLxGENE curation API to fetch metadata for each
       dataset version id
@@ -1173,8 +1174,8 @@ def main():
 
     # Collect paths to all NSForest results, and author cell set to CL
     # term mappings identified in the results sources. Collect the
-    # dataset_version_id used for creating the NSForest
-    # results. Collect the unique gene names, Ensembl identifiers, and
+    # dataset_version_ids used for creating the NSForest results
+    # paths. Collect the unique gene names, Ensembl identifiers, and
     # Entrez identifiers corresponding to all NSForet results.
     (
         _nsforest_paths,
