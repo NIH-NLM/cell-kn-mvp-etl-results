@@ -217,28 +217,29 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
                 URIRef(f"{PURLBASE}/{cs_term}"),
                 URIRef(f"{PURLBASE}/{bgs_term}"),
                 URIRef(f"{RDFSBASE}#Source"),
-                Literal("Manual Mapping"),
+                Literal("NSForest"),
             )
         )
 
         # Biomarker_combination_Ind, IS_CHARACTERIZING_MARKER_SET_FOR, Cell_type_Class
         # TODO: Update and use RO term
         # -, RO:0015004, CL:0000000
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{bmc_term}"),
-                URIRef(f"{PURLBASE}/RO_0015004"),
-                URIRef(f"{PURLBASE}/{cl_term}"),
-            )
-        )
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{bmc_term}"),
-                URIRef(f"{PURLBASE}/{cl_term}"),
-                URIRef(f"{RDFSBASE}#Source"),
-                Literal("Manual Mapping"),
-            )
-        )
+        # NOTE: Removed to resolve issue 106
+        # tuples.append(
+        #     (
+        #         URIRef(f"{PURLBASE}/{bmc_term}"),
+        #         URIRef(f"{PURLBASE}/RO_0015004"),
+        #         URIRef(f"{PURLBASE}/{cl_term}"),
+        #     )
+        # )
+        # tuples.append(
+        #     (
+        #         URIRef(f"{PURLBASE}/{bmc_term}"),
+        #         URIRef(f"{PURLBASE}/{cl_term}"),
+        #         URIRef(f"{RDFSBASE}#Source"),
+        #         Literal("Manual Mapping"),
+        #     )
+        # )
 
         # Node annotations
         tuples.append(
