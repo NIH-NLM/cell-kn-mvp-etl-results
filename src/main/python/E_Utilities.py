@@ -67,7 +67,7 @@ def get_data_for_pmid(pmid, do_write=False):
     data = {}
 
     # Fetch from PubMed
-    print(f"Getting title for PMID: '{pmid}'")
+    print(f"Getting data for PMID: '{pmid}'")
     fetch_url = EUTILS_URL + "efetch.fcgi"
     params = {
         "db": "pubmed",

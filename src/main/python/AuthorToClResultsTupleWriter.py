@@ -41,51 +41,11 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
     """
     tuples = []
 
-    # Nodes for these results
-    dataset_version_ids = author_to_cl_results["dataset_id"][0].split("--")
-    pub_term = f"PUB_{author_to_cl_results['DOI'][0].replace('/', '-')}"
-    ds_term = f"DS_{author_to_cl_results['dataset_source'][0]}"
+    # CSD node annotations
+    dataset_version_ids = author_to_cl_results["dataset_version_id"][0].split("--")
+    pmid_data = get_data_for_pmid(author_to_cl_results["PMID"][0])
     for dataset_version_id in dataset_version_ids:
         csd_term = f"CSD_{dataset_version_id}"
-
-        # Cell_set_dataset_Ind, SOURCE, Publication_Ind
-        # IAO:0000100, dc:source, IAO:0000311
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{csd_term}"),
-                URIRef(f"{RDFSBASE}/dc#Source"),
-                URIRef(f"{PURLBASE}/{pub_term}"),
-            )
-        )
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{csd_term}"),
-                URIRef(f"{PURLBASE}/{pub_term}"),
-                URIRef(f"{RDFSBASE}#Source"),
-                Literal("Manual Mapping"),
-            )
-        )
-
-        # Cell_set_dataset_Ind, INSTANCE_OF, Cell_set_dataset_Class
-        # IAO:0000100, rdf:type, IAO:0000100
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{csd_term}"),
-                URIRef(f"{RDFSBASE}/rdf#type"),
-                URIRef(f"{PURLBASE}/{ds_term}"),
-            )
-        )
-        tuples.append(
-            (
-                URIRef(f"{PURLBASE}/{csd_term}"),
-                URIRef(f"{PURLBASE}/{ds_term}"),
-                URIRef(f"{RDFSBASE}#Source"),
-                Literal("Manual Mapping"),
-            )
-        )
-
-        # CSD node annotations
-        pmid_data = get_data_for_pmid(author_to_cl_results["PMID"][0])
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{csd_term}"),
@@ -93,32 +53,6 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
                 Literal(pmid_data["Citation"]),
             )
         )
-        keys = [
-            "Link_to_publication",
-            "Link_to_CELLxGENE_collection",
-            "Link_to_CELLxGENE_dataset",
-            "Dataset_name",
-            "Number_of_cells",
-            "Organism",
-            "Tissue",
-            "Disease_status",
-            "Collection_ID",
-            "Collection_version_ID",
-            "Dataset_ID",
-            "Dataset_version_ID",
-            "Zenodo/Nextflow_workflow/Notebook",
-        ]
-        for key in keys:
-            value = cellxgene_results[dataset_version_id][key]
-            if isinstance(value, str):
-                value = value.replace("https://", "")
-            tuples.append(
-                (
-                    URIRef(f"{PURLBASE}/{csd_term}"),
-                    URIRef(f"{RDFSBASE}#{key.replace(' ', '_')}"),
-                    Literal(value),
-                )
-            )
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{csd_term}"),
@@ -128,6 +62,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
         )
 
     # PUB node annotations
+    pub_term = f"PUB_{author_to_cl_results['DOI'][0].replace('/', '-')}"
     for key in pmid_data.keys():
         tuples.append(
             (
