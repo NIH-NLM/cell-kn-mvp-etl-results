@@ -674,21 +674,22 @@ def create_tuples_from_opentargets(summarize=False):
             # == Expression relations
 
             # Gene, EXPRESSED_IN, Anatomical_structure
-            tuples.append(
-                (
-                    URIRef(f"{PURLBASE}/{gs_term}"),
-                    URIRef(f"{RDFSBASE}#EXPRESSED_IN"),
-                    URIRef(f"{PURLBASE}/{exp_term}"),
-                )
-            )
-            tuples.append(
-                (
-                    URIRef(f"{PURLBASE}/{gs_term}"),
-                    URIRef(f"{PURLBASE}/{exp_term}"),
-                    URIRef(f"{RDFSBASE}#Source"),
-                    Literal("Open Targets"),
-                )
-            )
+            # NOTE: Removed to resolve issue 105
+            # tuples.append(
+            #     (
+            #         URIRef(f"{PURLBASE}/{gs_term}"),
+            #         URIRef(f"{RDFSBASE}#EXPRESSED_IN"),
+            #         URIRef(f"{PURLBASE}/{exp_term}"),
+            #     )
+            # )
+            # tuples.append(
+            #     (
+            #         URIRef(f"{PURLBASE}/{gs_term}"),
+            #         URIRef(f"{PURLBASE}/{exp_term}"),
+            #         URIRef(f"{RDFSBASE}#Source"),
+            #         Literal("Open Targets"),
+            #     )
+            # )
 
             # == Gene to Anatomical_structure edge annotations
 

@@ -358,21 +358,22 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
 
             # Gene_Class, EXPRESSED_IN, Anatomical_structure_Class
             # SO:0000704, RO:0002206, UBERON:0001062
-            tuples.append(
-                (
-                    URIRef(f"{PURLBASE}/{gs_term}"),
-                    URIRef(f"{PURLBASE}/RO_0002206"),
-                    URIRef(f"{PURLBASE}/{uberon_term}"),
-                )
-            )
-            tuples.append(
-                (
-                    URIRef(f"{PURLBASE}/{gs_term}"),
-                    URIRef(f"{PURLBASE}/{uberon_term}"),
-                    URIRef(f"{RDFSBASE}#Source"),
-                    Literal("Manual Mapping"),
-                )
-            )
+            # NOTE: Removed to resolve issue 105
+            # tuples.append(
+            #     (
+            #         URIRef(f"{PURLBASE}/{gs_term}"),
+            #         URIRef(f"{PURLBASE}/RO_0002206"),
+            #         URIRef(f"{PURLBASE}/{uberon_term}"),
+            #     )
+            # )
+            # tuples.append(
+            #     (
+            #         URIRef(f"{PURLBASE}/{gs_term}"),
+            #         URIRef(f"{PURLBASE}/{uberon_term}"),
+            #         URIRef(f"{RDFSBASE}#Source"),
+            #         Literal("Manual Mapping"),
+            #     )
+            # )
 
     return tuples
 
