@@ -693,34 +693,35 @@ def create_tuples_from_opentargets(summarize=False):
 
             # == Gene to Anatomical_structure edge annotations
 
-            tuples.extend(
-                [
-                    (
-                        URIRef(f"{PURLBASE}/{gs_term}"),
-                        URIRef(f"{PURLBASE}/{exp_term}"),
-                        URIRef(f"{RDFSBASE}#RNA_zscore"),
-                        Literal(str(expression["rna"]["zscore"])),
-                    ),
-                    (
-                        URIRef(f"{PURLBASE}/{gs_term}"),
-                        URIRef(f"{PURLBASE}/{exp_term}"),
-                        URIRef(f"{RDFSBASE}#RNA_value"),
-                        Literal(str(expression["rna"]["value"])),
-                    ),
-                    (
-                        URIRef(f"{PURLBASE}/{gs_term}"),
-                        URIRef(f"{PURLBASE}/{exp_term}"),
-                        URIRef(f"{RDFSBASE}#RNA_unit"),
-                        Literal(str(expression["rna"]["unit"])),
-                    ),
-                    (
-                        URIRef(f"{PURLBASE}/{gs_term}"),
-                        URIRef(f"{PURLBASE}/{exp_term}"),
-                        URIRef(f"{RDFSBASE}#RNA_level"),
-                        Literal(str(expression["rna"]["level"])),
-                    ),
-                ]
-            )
+            # NOTE: Removed to resolve issue 105
+            # tuples.extend(
+            #     [
+            #         (
+            #             URIRef(f"{PURLBASE}/{gs_term}"),
+            #             URIRef(f"{PURLBASE}/{exp_term}"),
+            #             URIRef(f"{RDFSBASE}#RNA_zscore"),
+            #             Literal(str(expression["rna"]["zscore"])),
+            #         ),
+            #         (
+            #             URIRef(f"{PURLBASE}/{gs_term}"),
+            #             URIRef(f"{PURLBASE}/{exp_term}"),
+            #             URIRef(f"{RDFSBASE}#RNA_value"),
+            #             Literal(str(expression["rna"]["value"])),
+            #         ),
+            #         (
+            #             URIRef(f"{PURLBASE}/{gs_term}"),
+            #             URIRef(f"{PURLBASE}/{exp_term}"),
+            #             URIRef(f"{RDFSBASE}#RNA_unit"),
+            #             Literal(str(expression["rna"]["unit"])),
+            #         ),
+            #         (
+            #             URIRef(f"{PURLBASE}/{gs_term}"),
+            #             URIRef(f"{PURLBASE}/{exp_term}"),
+            #             URIRef(f"{RDFSBASE}#RNA_level"),
+            #             Literal(str(expression["rna"]["level"])),
+            #         ),
+            #     ]
+            # )
 
     return tuples, results
 
