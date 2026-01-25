@@ -5,6 +5,7 @@ from pathlib import Path
 from rdflib.term import Literal, URIRef
 
 from ExternalApiResultsFetcher import (
+    CELLXGENE_PATH,
     OPENTARGETS_RESOURCES,
     OPENTARGETS_PATH,
     GENE_PATH,
@@ -90,6 +91,98 @@ def get_protein_term(protein_id, ensp2accn):
         protein_term = f"PR_{accession}"
 
     return protein_term
+
+
+def create_tuples_from_cellxgene(summarize=False):
+    """Creates tuples from the result of using the CELLxGENE curation
+    API to fetch metadata for dataset version ids. If summnarizing,
+    retain the first dataset only.
+
+    Parameters
+    ----------
+    summarize : bool
+        Flag to summarize results, or not
+
+    Returns
+    -------
+    tuples : list(tuple(str))
+        List of tuples (triples or quadruples) created
+    results : dict
+        Dictionary containg cellxgene results keyed by dataset version
+        id
+    """
+    tuples = []
+
+    # Load the cellxgene results
+    print(f"Loading cellxgene results from {CELLXGENE_PATH}")
+    with open(CELLXGENE_PATH, "r") as fp:
+        cellxgene_results = json.load(fp)
+
+    # Assign datasets to consider
+    if summarize:
+
+        # Consider the first dataset only
+        results = {}
+        for dataset_version_id, dataset_metadata in cellxgene_results.items():
+            results[dataset_version_id] = dataset_metadata
+
+    else:
+
+        # Consider all datasets
+        results = cellxgene_results
+
+    # Create tuples for each dataset
+    for dataset_version_id, dataset_metadata in results.items():
+        csd_term = f"CSD_{dataset_version_id}"
+        pub_term = f"PUB_{dataset_metadata['Link_to_publication']}"
+
+        # Cell_set_dataset_Ind, SOURCE, Publication_Ind
+        # IAO:0000100, dc:source, IAO:0000311
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{csd_term}"),
+                URIRef(f"{RDFSBASE}/dc#Source"),
+                URIRef(f"{PURLBASE}/{pub_term}"),
+            )
+        )
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{csd_term}"),
+                URIRef(f"{PURLBASE}/{pub_term}"),
+                URIRef(f"{RDFSBASE}#Source"),
+                Literal("Manual Mapping"),
+            )
+        )
+
+        # CSD node annotations
+        keys = [
+            "Link_to_publication",
+            "Link_to_CELLxGENE_collection",
+            "Link_to_CELLxGENE_dataset",
+            "Dataset_name",
+            "Number_of_cells",
+            "Organism",
+            "Tissue",
+            "Disease_status",
+            "Collection_ID",
+            "Collection_version_ID",
+            "Dataset_ID",
+            "Dataset_version_ID",
+            "Zenodo/Nextflow_workflow/Notebook",
+        ]
+        for key in keys:
+            value = cellxgene_results[dataset_version_id][key]
+            if isinstance(value, str):
+                value = value.replace("https://", "")
+            tuples.append(
+                (
+                    URIRef(f"{PURLBASE}/{csd_term}"),
+                    URIRef(f"{RDFSBASE}#{key.replace(' ', '_')}"),
+                    Literal(value),
+                )
+            )
+
+    return tuples, results
 
 
 def create_tuples_from_opentargets(summarize=False):
@@ -1012,11 +1105,17 @@ def main(summarize=False):
         _gene_entrez_ids,
     ) = collect_results_sources_data()
 
+    print(f"Creating tuples from {CELLXGENE_PATH}")
+    cellxgene_tuples, cellxgene_results = create_tuples_from_cellxgene(
+        summarize=summarize
+    )
+    tuples_to_load = cellxgene_tuples.copy()
+
     print(f"Creating tuples from {OPENTARGETS_PATH}")
     opentargets_tuples, opentargets_results = create_tuples_from_opentargets(
         summarize=summarize
     )
-    tuples_to_load = opentargets_tuples.copy()
+    tuples_to_load.extend(opentargets_tuples)
 
     print(f"Creating tuples from {GENE_PATH}")
     gene_tuples, gene_results = create_tuples_from_gene(summarize=summarize)
@@ -1035,6 +1134,7 @@ def main(summarize=False):
     with open(output_dirpath / "cell-kn-mvp-external-api-results.json", "w") as f:
         data = {}
         if summarize:
+            data["cellxgene"] = cellxgene_results
             data["opentargets"] = opentargets_results
             data["uniprot"] = uniprot_results
             data["gene"] = gene_results
