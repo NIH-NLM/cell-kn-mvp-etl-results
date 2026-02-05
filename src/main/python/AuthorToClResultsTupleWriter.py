@@ -41,10 +41,11 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
     """
     tuples = []
 
-    # CSD node annotations
     dataset_version_ids = author_to_cl_results["dataset_version_id"][0].split("--")
     pmid_data = get_data_for_pmid(author_to_cl_results["PMID"][0])
     for dataset_version_id in dataset_version_ids:
+
+        # CSD node annotations
         csd_term = f"CSD_{dataset_version_id}"
         tuples.append(
             (
@@ -61,37 +62,37 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             )
         )
 
-    # PUB node annotations
-    pub_term = f"PUB_{author_to_cl_results['DOI'][0].replace('/', '-')}"
-    for key in pmid_data.keys():
+        # PUB node annotations
+        pub_term = f"PUB_{dataset_version_id}"
+        for key in pmid_data.keys():
+            tuples.append(
+                (
+                    URIRef(f"{PURLBASE}/{pub_term}"),
+                    URIRef(f"{RDFSBASE}#{key.capitalize().replace(' ', '_')}"),
+                    Literal(pmid_data[key]),
+                )
+            )
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{pub_term}"),
-                URIRef(f"{RDFSBASE}#{key.capitalize().replace(' ', '_')}"),
-                Literal(pmid_data[key]),
+                URIRef(f"{RDFSBASE}#PMID"),
+                Literal(str(author_to_cl_results["PMID"][0])),
             )
         )
-    tuples.append(
-        (
-            URIRef(f"{PURLBASE}/{pub_term}"),
-            URIRef(f"{RDFSBASE}#PMID"),
-            Literal(str(author_to_cl_results["PMID"][0])),
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{pub_term}"),
+                URIRef(f"{RDFSBASE}#PMCID"),
+                Literal(str(author_to_cl_results["PMCID"][0])),
+            )
         )
-    )
-    tuples.append(
-        (
-            URIRef(f"{PURLBASE}/{pub_term}"),
-            URIRef(f"{RDFSBASE}#PMCID"),
-            Literal(str(author_to_cl_results["PMCID"][0])),
+        tuples.append(
+            (
+                URIRef(f"{PURLBASE}/{pub_term}"),
+                URIRef(f"{RDFSBASE}#DOI"),
+                Literal(author_to_cl_results["DOI"][0]),
+            )
         )
-    )
-    tuples.append(
-        (
-            URIRef(f"{PURLBASE}/{pub_term}"),
-            URIRef(f"{RDFSBASE}#DOI"),
-            Literal(author_to_cl_results["DOI"][0]),
-        )
-    )
 
     # Nodes for each cell type or cell set
     for _, row in author_to_cl_results.iterrows():

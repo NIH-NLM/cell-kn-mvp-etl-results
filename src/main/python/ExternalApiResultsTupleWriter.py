@@ -134,7 +134,7 @@ def create_tuples_from_cellxgene(summarize=False):
     # Create tuples for each dataset
     for dataset_version_id, dataset_metadata in results.items():
         csd_term = f"CSD_{dataset_version_id}"
-        pub_term = f"PUB_{dataset_metadata['Link_to_publication']}"
+        pub_term = f"PUB_{dataset_version_id}"
 
         # Cell_set_dataset_Ind, SOURCE, Publication_Ind
         # IAO:0000100, dc:source, IAO:0000311
