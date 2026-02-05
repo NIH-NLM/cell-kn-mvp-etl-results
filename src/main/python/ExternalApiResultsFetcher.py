@@ -78,21 +78,38 @@ def get_cellxgene_metadata(dataset_version_ids, force=False):
 
         cellxgene_results = {}
 
-        print(f"")
+        print("Creating cellxgene results")
         base_url = "https://api.cellxgene.cziscience.com/curation/v1"
         for dataset_version_id in dataset_version_ids:
+
             dataset_results = {}
             dataset_url = f"{base_url}/dataset_versions/{dataset_version_id}"
             response = requests.get(dataset_url)
             if response.status_code == 200:
-                response_json = response.json()
+                dataset_json = response.json()
 
                 print(
                     f"Assigning cellxgene metadata for dataset_version_id {dataset_version_id}"
                 )
+                dataset_results["Dataset_version_ID"] = dataset_version_id
+                dataset_results["Dataset_ID"] = get_value_or_none(
+                    dataset_json, ["dataset_id"]
+                )
+                dataset_results["Collection_version_ID"] = get_value_or_none(
+                    dataset_json, ["collection_version_id"]
+                )
+                dataset_results["Collection_ID"] = get_value_or_none(
+                    dataset_json, ["collection_id"]
+                )
                 dataset_results["Link_to_publication"] = None
                 dataset_results["Link_to_CELLxGENE_collection"] = None
-                citation = get_value_or_none(response_json, ["citation"])
+                citation = get_value_or_none(dataset_json, ["citation"])
+                if not citation:
+                    collection_url = f"{base_url}/collections/{dataset_results['Collection_ID']}/datasets/{dataset_results['Dataset_ID']}"
+                    response = requests.get(collection_url)
+                    if response.status_code == 200:
+                        collection_json = response.json()
+                    citation = get_value_or_none(collection_json, ["citation"])
                 if citation:
                     m = re.search(r"Publication:\s*(\S*)\s*Dataset Version:", citation)
                     if m:
@@ -100,38 +117,29 @@ def get_cellxgene_metadata(dataset_version_ids, force=False):
                     m = re.search(r"Collection:\s*(\S*)$", citation)
                     if m:
                         dataset_results["Link_to_CELLxGENE_collection"] = m.group(1)
-                dataset_results["Link_to_CELLxGENE_dataset"] = response_json["assets"][
+                dataset_results["Link_to_CELLxGENE_dataset"] = dataset_json["assets"][
                     0
                 ]["url"]
                 dataset_results["Dataset_name"] = get_value_or_none(
-                    response_json, ["title"]
+                    dataset_json, ["title"]
                 )
                 dataset_results["Number_of_cells"] = get_value_or_none(
-                    response_json, ["cell_count"]
+                    dataset_json, ["cell_count"]
                 )
                 dataset_results["Organism"] = get_values_or_none(
-                    response_json, "organism", ["label"]
+                    dataset_json, "organism", ["label"]
                 )
                 dataset_results["Tissue"] = get_values_or_none(
-                    response_json, "tissue", ["label"]
+                    dataset_json, "tissue", ["label"]
                 )
                 dataset_results["Disease_status"] = get_values_or_none(
-                    response_json, "disease", ["label"]
+                    dataset_json, "disease", ["label"]
                 )
-                dataset_results["Collection_ID"] = get_value_or_none(
-                    response_json, ["collection_id"]
-                )
-                dataset_results["Collection_version_ID"] = get_value_or_none(
-                    response_json, ["collection_version_id"]
-                )
-                dataset_results["Dataset_ID"] = get_value_or_none(
-                    response_json, ["dataset_id"]
-                )
-                dataset_results["Dataset_version_ID"] = dataset_version_id
                 dataset_results["Zenodo/Nextflow_workflow/Notebook"] = "TBC"
                 cellxgene_results[dataset_version_id] = dataset_results
 
             else:
+
                 print(
                     f"Could not assign cellxgene metadata for dataset_version_id {dataset_version_id}"
                 )
