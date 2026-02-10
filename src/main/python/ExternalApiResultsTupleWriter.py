@@ -194,9 +194,7 @@ def create_tuples_from_opentargets(summarize=False):
             continue
         else:
             gene_name = gene_name[0]
-        gene_entrez_id = map_gene_name_to_entrez_ids(
-            gene_name, gene_name_to_entrez_ids
-        )
+        gene_entrez_id = map_gene_name_to_entrez_ids(gene_name, gene_name_to_entrez_ids)
         if gene_entrez_id == []:
             continue
         else:
@@ -430,7 +428,9 @@ def create_tuples_from_opentargets(summarize=False):
                     URIRef(f"{PURLBASE}/{chembl_term}"),
                     URIRef(f"{RDFSBASE}#Link_to_UniProt_ID"),
                     Literal(
-                        remove_protocols(gene_results[gene_entrez_id]["Link_to_UniProt_ID"])
+                        remove_protocols(
+                            gene_results[gene_entrez_id]["Link_to_UniProt_ID"]
+                        )
                     ),
                 )
             )
@@ -664,7 +664,7 @@ def create_tuples_from_gene(summarize=False):
         # Find a gene name for which results are not empty
         gene_entrez_id = None
         for gene_entrez_id in gene_results["gene_entrez_ids"]:
-            if not gene_results[gene_entrez_id]:
+            if len(gene_results[gene_entrez_id]) > 0:
                 break
 
         # Consider selected gene name
@@ -729,7 +729,10 @@ def create_tuples_from_gene(summarize=False):
         # == Gene annotations
 
         for key in keys:
-            if key in gene_results[gene_entrez_id] and gene_results[gene_entrez_id][key]:
+            if (
+                key in gene_results[gene_entrez_id]
+                and gene_results[gene_entrez_id][key]
+            ):
                 tuples.append(
                     (
                         URIRef(f"{PURLBASE}/{gs_term}"),
@@ -770,7 +773,7 @@ def create_tuples_from_uniprot(summarize=False):
 
         # Find a protein accession for which results are not empty
         for protein_accession in uniprot_results["protein_accessions"]:
-            if not uniprot_results[protein_accession]:
+            if len(uniprot_results[protein_accession]) > 0:
                 break
 
         # Consider selected protein accession
@@ -811,7 +814,7 @@ def create_tuples_from_uniprot(summarize=False):
     return tuples, results
 
 
-def create_tuples_from_hubmap(hubmap_path, cl_terms):
+def create_tuples_from_hubmap(hubmap_path, cl_terms, summarize=False):
     """Creates tuples from HuBMAP data tables.
 
     Parameters
@@ -820,6 +823,8 @@ def create_tuples_from_hubmap(hubmap_path, cl_terms):
         Path to HuBMAP data table JSON file
     cl_terms : set(str)
         Set of all CL terms identified in all author to CL results
+    summarize : bool
+        Flag to summarize results, or not
 
     Returns
     -------
@@ -836,6 +841,7 @@ def create_tuples_from_hubmap(hubmap_path, cl_terms):
 
     key_set = set(["id", "ccf_part_of"])
     anatomical_structures = hubmap_data["data"]["anatomical_structures"]
+    found_anatomical_structure_relation = False
     for anatomical_structure in anatomical_structures:
         if not key_set.issubset(set(anatomical_structure.keys())):
             continue
@@ -873,11 +879,18 @@ def create_tuples_from_hubmap(hubmap_path, cl_terms):
                     Literal("HuBMAP"),
                 )
             )
+            if summarize:
+                found_anatomical_structure_relation = True
+                break
+
+        if summarize and found_anatomical_structure_relation:
+            break
 
     # Consider each cell type which has a CL term related to an UBERON
     # term
     key_set = set(["id", "ccf_located_in"])
     cell_types = hubmap_data["data"]["cell_types"]
+    found_cell_type_anatomical_structure_relation = False
     for cell_type in cell_types:
         if not key_set.issubset(set(cell_type.keys())):
             continue
@@ -917,6 +930,17 @@ def create_tuples_from_hubmap(hubmap_path, cl_terms):
                     Literal("HuBMAP"),
                 )
             )
+            if summarize:
+                found_cell_type_anatomical_structure_relation = True
+                break
+
+        if summarize and found_cell_type_anatomical_structure_relation:
+            break
+
+    if summarize:
+        hubmap_data = {}
+        hubmap_data["cell_type"] = cell_type
+        hubmap_data["anatomical_structure"] = anatomical_structure
 
     return tuples, hubmap_data
 
@@ -965,7 +989,8 @@ def main(summarize=False):
 
     Parameters
     ----------
-    None
+    summarize : bool
+        Flag to summarize results, or not
 
     Returns
     -------
@@ -986,7 +1011,7 @@ def main(summarize=False):
         _gene_ensembl_ids,
         _gene_entrez_ids,
     ) = collect_results_sources_data()
-    
+
     print(f"Creating tuples from {OPENTARGETS_PATH}")
     opentargets_tuples, opentargets_results = create_tuples_from_opentargets(
         summarize=summarize
@@ -1017,17 +1042,20 @@ def main(summarize=False):
         json.dump(data, f, indent=4)
 
     # Load data from HuBMAP and create tuples
-    if not summarize:
-        hubmap_paths = [Path(p).resolve() for p in glob(str(HUBMAP_DIRPATH / "*.json"))]
-        for hubmap_path in hubmap_paths:
-            print(f"Creating tuples from {hubmap_path}")
-            hubmap_tuples, _hubmap_data = create_tuples_from_hubmap(
-                hubmap_path, cl_terms
-            )
-            with open(TUPLES_DIRPATH / f"hubmap-{hubmap_path.name}", "w") as f:
-                data = {}
-                data["tuples"] = hubmap_tuples
-                json.dump(data, f, indent=4)
+    hubmap_paths = [Path(p).resolve() for p in glob(str(HUBMAP_DIRPATH / "*.json"))]
+    for hubmap_path in hubmap_paths:
+        print(f"Creating tuples from {hubmap_path}")
+        hubmap_tuples, hubmap_data = create_tuples_from_hubmap(
+            hubmap_path, cl_terms, summarize=summarize
+        )
+        with open(output_dirpath / f"hubmap-{hubmap_path.name}", "w") as f:
+            data = {}
+            if summarize:
+                data["hubmap"] = hubmap_data
+            data["tuples"] = hubmap_tuples
+            json.dump(data, f, indent=4)
+        if summarize:
+            break
 
 
 if __name__ == "__main__":
