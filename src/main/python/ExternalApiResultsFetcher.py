@@ -11,6 +11,7 @@ import requests
 from E_Utilities import get_data_for_gene_id
 from OpenTargetsGGetQueries import gget_queries
 from LoaderUtilities import (
+    EXTERNAL_DIRPATH,
     load_results,
     collect_results_sources_data,
     collect_unique_gene_ensembl_ids,
@@ -41,7 +42,6 @@ HUBMAP_LATEST_URLS = [
     "https://lod.humanatlas.io/asct-b/pancreas/latest/",
 ]
 
-EXTERNAL_DIRPATH = Path("../../../data/external")
 CELLXGENE_PATH = EXTERNAL_DIRPATH / "cellxgene.json"
 OPENTARGETS_PATH = EXTERNAL_DIRPATH / "opentargets.json"
 EBI_PATH = EXTERNAL_DIRPATH / "ebi.json"

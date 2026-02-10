@@ -33,6 +33,9 @@ with open(Path("../../../data/obo/deprecated_terms.txt"), "r") as fp:
 MIN_CLUSTER_SIZE = 10
 
 RESULTS_SOURCES_PATH = Path("../../../data/results-sources-2026-01-06.json")
+EXTERNAL_DIRPATH = Path("../../../data/external")
+BIOMART_DIRPATH = EXTERNAL_DIRPATH / "biomart"
+GENE_MAPPING_PATH = BIOMART_DIRPATH / "gene_mapping.csv"
 
 
 def get_cl_terms(author_to_cl_results):
@@ -280,7 +283,8 @@ def hyphenate(iname):
 
 
 def get_gene_names_and_ensembl_and_entrez_ids():
-    """Query BioMart to get gene names, and Ensembl and Entrez ids.
+    """Query BioMart to get gene names, and Ensembl and Entrez
+    ids. Write the mapping to a file if needed.
 
     Parameters
     ----------
@@ -305,6 +309,9 @@ def get_gene_names_and_ensembl_and_entrez_ids():
     gene_names_and_ids["entrezgene_id"] = (
         gene_names_and_ids["entrezgene_id"].astype(int).astype(str)
     )
+    if not GENE_MAPPING_PATH.exists():
+        BIOMART_DIRPATH.mkdir(parents=True, exist_ok=True)
+        gene_names_and_ids.to_csv(GENE_MAPPING_PATH)
     return gene_names_and_ids
 
 
