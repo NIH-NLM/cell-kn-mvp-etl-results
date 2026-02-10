@@ -31,6 +31,8 @@ OPENTARGETS_RESOURCES = [
     "depmap",
 ]
 
+RESULTS_SOURCES = Path("../../../data/results-sources-2025-12-29.json")
+HUBMAP_DIRPATH = Path("../../../data/hubmap")
 HUBMAP_LATEST_URLS = [
     "https://lod.humanatlas.io/asct-b/allen-brain/latest/",
     "https://lod.humanatlas.io/asct-b/eye/latest/",
@@ -1176,6 +1178,7 @@ def main():
     # Entrez identifiers corresponding to all NSForet results.
     (
         _nsforest_paths,
+        _silhouette_path,
         _author_to_cl_paths,
         dataset_version_ids,
         _cl_terms,

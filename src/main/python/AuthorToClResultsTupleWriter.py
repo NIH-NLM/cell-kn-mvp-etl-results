@@ -457,6 +457,7 @@ def main(summarize=False):
     # CELLxGENE results.
     (
         nsforest_paths,
+        _silhouette_paths,
         author_to_cl_paths,
         _dataset_version_ids,
         _cl_terms,
@@ -488,7 +489,8 @@ def main(summarize=False):
             "clusterName", ignore_index=True
         )
         if summarize:
-            nsforest_results = nsforest_results.head(1)
+            # Work around for Li
+            nsforest_results = nsforest_results.head(4).tail(1)
 
         # Merge NSForest results with manual author cell set to CL
         # term mapping since author cell sets may not align exactly

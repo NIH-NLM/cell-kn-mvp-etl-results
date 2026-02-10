@@ -39,6 +39,10 @@ def create_tuples_from_nsforest(results):
         cluster_size = row["clusterSize"]
         if cluster_size < MIN_CLUSTER_SIZE:
             continue
+        if "median_silhouette" in row:
+            median_silhouette = row["median_silhouette"]
+        else:
+            median_silhouette = None
         binary_genes = ast.literal_eval(row["binary_genes"])
         nsforest_markers = ast.literal_eval(row["NSForest_markers"])
         cs_term = f"CS_{cluster_name}-{uuid}"
@@ -143,6 +147,14 @@ def create_tuples_from_nsforest(results):
                 ),
             ]
         )
+        if median_silhouette:
+            tuples.append(
+                (
+                    URIRef(f"{PURLBASE}/{cs_term}"),
+                    URIRef(f"{RDFSBASE}#Median_silhouette_score"),
+                    Literal(str(median_silhouette)),
+                ),
+            )
 
         # Binary_gene_set, -, binary_genes
         tuples.append(
@@ -273,6 +285,7 @@ def main(summarize=False):
     # Entrez identifiers corresponding to all NSForet results.
     (
         nsforest_paths,
+        silhouette_paths,
         _author_to_cl_paths,
         _dataset_version_ids,
         _cl_terms,
@@ -280,7 +293,7 @@ def main(summarize=False):
         _gene_ensembl_ids,
         _gene_entrez_ids,
     ) = collect_results_sources_data()
-    for nsforest_path in nsforest_paths:
+    for nsforest_path, silhouette_path in zip(nsforest_paths, silhouette_paths):
 
         # Load NSForest results
         nsforest_results = load_results(nsforest_path).sort_values(
@@ -288,6 +301,22 @@ def main(summarize=False):
         )
         if summarize:
             nsforest_results = nsforest_results.head(1)
+
+        if silhouette_path != []:
+
+            # Load silhouette scores
+            cluster_header = nsforest_results.loc[0, "cluster_header"]
+            silhouette_scores = load_results(silhouette_path).sort_values(
+                cluster_header, ignore_index=True
+            )
+
+            # Merge silhouette scores with NSForest results since author
+            # cell sets may not align exactly
+            nsforest_results = nsforest_results.merge(
+                silhouette_scores[[cluster_header, "median_silhouette"]].copy(),
+                left_on="clusterName",
+                right_on=cluster_header,
+            )
 
         print(f"Creating tuples from {nsforest_path}")
         nsforest_tuples = create_tuples_from_nsforest(nsforest_results)
