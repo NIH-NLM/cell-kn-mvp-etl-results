@@ -64,8 +64,8 @@ def get_cl_terms(author_to_cl_results):
 def collect_results_sources_data():
     """Collect paths to all NSForest results, silhouette scores, and
     author cell set to CL term mappings identified in the results
-    sources. Collect the dataset_version_id used for creating the
-    NSForest results. Collect the unique gene names, Ensembl
+    sources. Collect all dataset_version_ids used for creating each
+    NSForest results path. Collect the unique gene names, Ensembl
     identifiers, and Entrez identifiers corresponding to all NSForet
     results.
 
@@ -82,9 +82,8 @@ def collect_results_sources_data():
     author_to_cl_paths: list(Path | None)
         List of paths to all author cell set to CL term mapping files
     dataset_version_ids: list(str)
-        List of the dataset version identifier corresponding to the
-        dataset used to generate the NSForest results, or the first
-        such identifier if more than one dataset was combined
+        List of the dataset version identifiers corresponding to the
+        datasets used to generate each NSForest results path
     gene_names: list(str)
         List of gene names found in all NSForest results
     gene_ensembl_ids: list(str)
@@ -130,7 +129,7 @@ def collect_results_sources_data():
             )
             silhouette_path = None
             author_to_cl_path = None
-            dataset_version_id = None
+            dataset_version_id_list = []
             match = re.search(
                 results_source["identity_pattern"], str(_nsforest_path.name)
             )
@@ -179,11 +178,9 @@ def collect_results_sources_data():
                         f"Loading author cell set to CL term mapping from {author_to_cl_path}"
                     )
                     author_to_cl_results = load_results(author_to_cl_path)
-                    dataset_version_id = author_to_cl_results["dataset_version_id"][
-                        0
-                    ].split("--")[
-                        0
-                    ]  # Some dataset_version_ids are a "--" separated list of dataset_version_ids
+                    dataset_version_id_list = author_to_cl_results[
+                        "dataset_version_id"
+                    ][0].split("--")
                     cl_terms = cl_terms.union(get_cl_terms(author_to_cl_results))
 
                 else:
@@ -194,11 +191,11 @@ def collect_results_sources_data():
                         "([0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12})",
                         str(_nsforest_path.name),
                     )
-                    dataset_version_id = match.group(1)
+                    dataset_version_id_list = [match.group(1)]
 
             silhouette_paths.append(silhouette_path)
             author_to_cl_paths.append(author_to_cl_path)
-            dataset_version_ids.append(dataset_version_id)
+            dataset_version_ids.extend(dataset_version_id_list)
 
             # Collect unique gene names
             print(f"Loading NSForest results from {_nsforest_path}")

@@ -55,3 +55,4 @@ build/
 __pycache__/
 data/
 docs/java/
+ncbi-datasets-openapi/

@@ -32,7 +32,6 @@ OPENTARGETS_RESOURCES = [
     "depmap",
 ]
 
-RESULTS_SOURCES = Path("../../../data/results-sources-2025-12-29.json")
 HUBMAP_DIRPATH = Path("../../../data/hubmap")
 HUBMAP_LATEST_URLS = [
     "https://lod.humanatlas.io/asct-b/allen-brain/latest/",
@@ -60,39 +59,57 @@ def get_cellxgene_metadata(dataset_version_ids, force=False):
     Parameters
     ----------
     dataset_version_ids: list(str)
-        List of the dataset version identifier corresponding to the
-        dataset used to generate the NSForest results, or the first
-        such identifier if more than one dataset was combined
+        List of the dataset version identifiers corresponding to the
+        datasets used to generate each NSForest results path
+        datasets used to generate each NSForest results path
     force : bool
         Flag to force fetching, or not
 
     Returns
     -------
-    cellxgene_results : list(dict)
-        List of dictionaries containing cellxgene results
+    cellxgene_results : dict
+         Dictionaries containing cellxgene results keyed by
+         dataset_version_id
     """
     # Create, or load cellxgene results
     if not CELLXGENE_PATH.exists() or force:
 
         # Create results
 
-        cellxgene_results = []
+        cellxgene_results = {}
 
-        print(f"")
+        print("Creating cellxgene results")
         base_url = "https://api.cellxgene.cziscience.com/curation/v1"
         for dataset_version_id in dataset_version_ids:
+
             dataset_results = {}
             dataset_url = f"{base_url}/dataset_versions/{dataset_version_id}"
             response = requests.get(dataset_url)
             if response.status_code == 200:
-                response_json = response.json()
+                dataset_json = response.json()
 
                 print(
                     f"Assigning cellxgene metadata for dataset_version_id {dataset_version_id}"
                 )
+                dataset_results["Dataset_version_ID"] = dataset_version_id
+                dataset_results["Dataset_ID"] = get_value_or_none(
+                    dataset_json, ["dataset_id"]
+                )
+                dataset_results["Collection_version_ID"] = get_value_or_none(
+                    dataset_json, ["collection_version_id"]
+                )
+                dataset_results["Collection_ID"] = get_value_or_none(
+                    dataset_json, ["collection_id"]
+                )
                 dataset_results["Link_to_publication"] = None
                 dataset_results["Link_to_CELLxGENE_collection"] = None
-                citation = get_value_or_none(response_json, ["citation"])
+                citation = get_value_or_none(dataset_json, ["citation"])
+                if not citation:
+                    collection_url = f"{base_url}/collections/{dataset_results['Collection_ID']}/datasets/{dataset_results['Dataset_ID']}"
+                    response = requests.get(collection_url)
+                    if response.status_code == 200:
+                        collection_json = response.json()
+                    citation = get_value_or_none(collection_json, ["citation"])
                 if citation:
                     m = re.search(r"Publication:\s*(\S*)\s*Dataset Version:", citation)
                     if m:
@@ -100,38 +117,29 @@ def get_cellxgene_metadata(dataset_version_ids, force=False):
                     m = re.search(r"Collection:\s*(\S*)$", citation)
                     if m:
                         dataset_results["Link_to_CELLxGENE_collection"] = m.group(1)
-                dataset_results["Link_to_CELLxGENE_dataset"] = response_json["assets"][
+                dataset_results["Link_to_CELLxGENE_dataset"] = dataset_json["assets"][
                     0
                 ]["url"]
                 dataset_results["Dataset_name"] = get_value_or_none(
-                    response_json, ["title"]
+                    dataset_json, ["title"]
                 )
                 dataset_results["Number_of_cells"] = get_value_or_none(
-                    response_json, ["cell_count"]
+                    dataset_json, ["cell_count"]
                 )
                 dataset_results["Organism"] = get_values_or_none(
-                    response_json, "organism", ["label"]
+                    dataset_json, "organism", ["label"]
                 )
                 dataset_results["Tissue"] = get_values_or_none(
-                    response_json, "tissue", ["label"]
+                    dataset_json, "tissue", ["label"]
                 )
                 dataset_results["Disease_status"] = get_values_or_none(
-                    response_json, "disease", ["label"]
+                    dataset_json, "disease", ["label"]
                 )
-                dataset_results["Collection_ID"] = get_value_or_none(
-                    response_json, ["collection_id"]
-                )
-                dataset_results["Collection_version_ID"] = get_value_or_none(
-                    response_json, ["collection_version_id"]
-                )
-                dataset_results["Dataset_ID"] = get_value_or_none(
-                    response_json, ["dataset_id"]
-                )
-                dataset_results["Dataset_version_ID"] = dataset_version_id
                 dataset_results["Zenodo/Nextflow_workflow/Notebook"] = "TBC"
-                cellxgene_results.append(dataset_results)
+                cellxgene_results[dataset_version_id] = dataset_results
 
             else:
+
                 print(
                     f"Could not assign cellxgene metadata for dataset_version_id {dataset_version_id}"
                 )
@@ -1072,9 +1080,9 @@ def download_hubmap_data_tables():
 def main():
     """Collect paths to all NSForest results, and author cell set to
     CL term mappings identified in the results sources,
-    dataset_version_id used for creating the NSForest results, and the
-    unique gene names, Ensembl identifiers, and Entrez identifiers
-    corresponding to all NSForet results. Then:
+    dataset_version_ids used for creating the NSForest results paths,
+    and the unique gene names, Ensembl identifiers, and Entrez
+    identifiers corresponding to all NSForet results. Then:
 
     - Use the CELLxGENE curation API to fetch metadata for each
       dataset version id
@@ -1173,8 +1181,8 @@ def main():
 
     # Collect paths to all NSForest results, and author cell set to CL
     # term mappings identified in the results sources. Collect the
-    # dataset_version_id used for creating the NSForest
-    # results. Collect the unique gene names, Ensembl identifiers, and
+    # dataset_version_ids used for creating the NSForest results
+    # paths. Collect the unique gene names, Ensembl identifiers, and
     # Entrez identifiers corresponding to all NSForet results.
     (
         _nsforest_paths,
