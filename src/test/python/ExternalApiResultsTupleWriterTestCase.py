@@ -7,7 +7,11 @@ sys.path.insert(0, str(Path("../../main/python").resolve()))
 
 import pandas as pd
 
-from ExternalApiResultsTupleWriter import get_mondo_term, get_protein_term, remove_protocols
+from ExternalApiResultsTupleWriter import (
+    get_mondo_term,
+    get_protein_term,
+    remove_protocols,
+)
 
 
 class RemoveProtocolsTestCase(unittest.TestCase):

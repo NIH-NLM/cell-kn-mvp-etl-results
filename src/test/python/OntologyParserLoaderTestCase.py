@@ -18,9 +18,7 @@ ARANGODB_DIR = Path(__file__).parent / "arangodb"
 ARANGO_URL = "http://localhost:8529"
 
 # Test data directory containing macrophage.owl and ro.owl
-TEST_OBO_DIR = (
-    Path(__file__).parents[2].parent / "src" / "test" / "data" / "obo"
-)
+TEST_OBO_DIR = Path(__file__).parents[2].parent / "src" / "test" / "data" / "obo"
 
 
 class OntologyParserLoaderUnitTestCase(unittest.TestCase):
@@ -358,9 +356,14 @@ class OntologyParserLoaderUnitTestCase(unittest.TestCase):
         vc = {}
         ec = {}
         edge = opl.create_or_get_edge(
-            vc, ec,
-            "CL", "0000235", "CL_0000235",
-            "CL", "0000113", "CL_0000113",
+            vc,
+            ec,
+            "CL",
+            "0000235",
+            "CL_0000235",
+            "CL",
+            "0000113",
+            "CL_0000113",
             "subClassOf",
         )
         self.assertIsNotNone(edge)
@@ -375,12 +378,26 @@ class OntologyParserLoaderUnitTestCase(unittest.TestCase):
         vc = {}
         ec = {}
         e1 = opl.create_or_get_edge(
-            vc, ec, "CL", "0000235", "CL_0000235",
-            "CL", "0000113", "CL_0000113", "subClassOf",
+            vc,
+            ec,
+            "CL",
+            "0000235",
+            "CL_0000235",
+            "CL",
+            "0000113",
+            "CL_0000113",
+            "subClassOf",
         )
         e2 = opl.create_or_get_edge(
-            vc, ec, "CL", "0000235", "CL_0000235",
-            "CL", "0000113", "CL_0000113", "subClassOf",
+            vc,
+            ec,
+            "CL",
+            "0000235",
+            "CL_0000235",
+            "CL",
+            "0000113",
+            "CL_0000113",
+            "subClassOf",
         )
         self.assertIs(e1, e2)
 
@@ -453,7 +470,9 @@ class OntologyParserLoaderTestCase(unittest.TestCase):
         opl.main(parameters=["--test"])
 
         # Connect to ArangoDB
-        db = arango_client.db("Cell-KN-v1.5", username="root", password=arango_root_password)
+        db = arango_client.db(
+            "Cell-KN-v1.5", username="root", password=arango_root_password
+        )
         graph = db.graph("CL-Test")
 
         # Get the actual macrophage vertex

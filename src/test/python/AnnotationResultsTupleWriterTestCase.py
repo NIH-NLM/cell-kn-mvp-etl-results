@@ -41,9 +41,7 @@ class NormalizeTermTestCase(unittest.TestCase):
 
     def test_assay(self):
         """Replaces colon with underscore."""
-        ann = self._make_annotation(
-            "subject", "Assay", "some assay", "EFO:0002772"
-        )
+        ann = self._make_annotation("subject", "Assay", "some assay", "EFO:0002772")
         result = normalize_term(ann, "subject", self.mesh2mondo)
         self.assertEqual(result, "EFO_0002772")
 
@@ -62,9 +60,7 @@ class NormalizeTermTestCase(unittest.TestCase):
 
     def test_cell_set(self):
         """Builds CS_ term with hyphenated name and subject identifier prefix."""
-        ann = self._make_annotation(
-            "subject", "Cell_set", "T cells alpha", "some-id"
-        )
+        ann = self._make_annotation("subject", "Cell_set", "T cells alpha", "some-id")
         ann["subject_identifier"] = "uuid123-rest"
         result = normalize_term(ann, "subject", self.mesh2mondo)
         self.assertEqual(result, "CS_T-cells-alpha-uuid123")
@@ -91,9 +87,7 @@ class NormalizeTermTestCase(unittest.TestCase):
 
     def test_cell_type_no_skos(self):
         """Works without skos:related tag."""
-        ann = self._make_annotation(
-            "object", "Cell_type", "macrophage", "CL:0000235"
-        )
+        ann = self._make_annotation("object", "Cell_type", "macrophage", "CL:0000235")
         result = normalize_term(ann, "object", self.mesh2mondo)
         self.assertEqual(result, "CL_0000235")
 
@@ -101,9 +95,7 @@ class NormalizeTermTestCase(unittest.TestCase):
 
     def test_disease_maps_mesh_to_mondo(self):
         """Maps MESH identifier to MONDO term."""
-        ann = self._make_annotation(
-            "object", "Disease", "some disease", "MESH:D008264"
-        )
+        ann = self._make_annotation("object", "Disease", "some disease", "MESH:D008264")
         result = normalize_term(ann, "object", self.mesh2mondo)
         self.assertEqual(result, "MONDO_0004992")
 
@@ -119,17 +111,13 @@ class NormalizeTermTestCase(unittest.TestCase):
 
     def test_gene_uppercase(self):
         """Uppercase gene name returns GS_ prefixed term."""
-        ann = self._make_annotation(
-            "subject", "Gene", "TP53", "some-id"
-        )
+        ann = self._make_annotation("subject", "Gene", "TP53", "some-id")
         result = normalize_term(ann, "subject", self.mesh2mondo)
         self.assertEqual(result, "GS_TP53")
 
     def test_gene_mixed_case_returns_none(self):
         """Mixed case gene name returns None."""
-        ann = self._make_annotation(
-            "subject", "Gene", "Tp53", "some-id"
-        )
+        ann = self._make_annotation("subject", "Gene", "Tp53", "some-id")
         result = normalize_term(ann, "subject", self.mesh2mondo)
         self.assertIsNone(result)
 
@@ -145,41 +133,31 @@ class NormalizeTermTestCase(unittest.TestCase):
 
     def test_publication_known_pmid_jorstad(self):
         """Known PMID 37824655 returns correct DOI-based term."""
-        ann = self._make_annotation(
-            "object", "Publication", "Jorstad", "37824655"
-        )
+        ann = self._make_annotation("object", "Publication", "Jorstad", "37824655")
         result = normalize_term(ann, "object", self.mesh2mondo)
         self.assertEqual(result, "PUB_doi.org/10.1126/science.adf6812")
 
     def test_publication_known_pmid_guo(self):
         """Known PMID 37516747 returns correct DOI-based term."""
-        ann = self._make_annotation(
-            "object", "Publication", "Guo", "37516747"
-        )
+        ann = self._make_annotation("object", "Publication", "Guo", "37516747")
         result = normalize_term(ann, "object", self.mesh2mondo)
         self.assertEqual(result, "PUB_doi.org/10.1038/s41467-023-40173-5")
 
     def test_publication_known_pmid_sikkema(self):
         """Known PMID 37291214 returns correct DOI-based term."""
-        ann = self._make_annotation(
-            "object", "Publication", "Sikkema", "37291214"
-        )
+        ann = self._make_annotation("object", "Publication", "Sikkema", "37291214")
         result = normalize_term(ann, "object", self.mesh2mondo)
         self.assertEqual(result, "PUB_doi.org/10.1038/s41591-023-02327-2")
 
     def test_publication_known_pmid_li(self):
         """Known PMID 38014002 returns correct DOI-based term."""
-        ann = self._make_annotation(
-            "object", "Publication", "Li", "38014002"
-        )
+        ann = self._make_annotation("object", "Publication", "Li", "38014002")
         result = normalize_term(ann, "object", self.mesh2mondo)
         self.assertEqual(result, "PUB_doi.org/10.1101/2023.11.07.566105")
 
     def test_publication_unknown_pmid_returns_none(self):
         """Unknown PMID returns None."""
-        ann = self._make_annotation(
-            "object", "Publication", "Unknown", "99999999"
-        )
+        ann = self._make_annotation("object", "Publication", "Unknown", "99999999")
         result = normalize_term(ann, "object", self.mesh2mondo)
         self.assertIsNone(result)
 
@@ -187,9 +165,7 @@ class NormalizeTermTestCase(unittest.TestCase):
 
     def test_unicode_gamma_delta_replacement(self):
         """Unicode gamma-delta characters are replaced."""
-        ann = self._make_annotation(
-            "subject", "Gene", "\u03b3\u03b4", "some-id"
-        )
+        ann = self._make_annotation("subject", "Gene", "\u03b3\u03b4", "some-id")
         result = normalize_term(ann, "subject", self.mesh2mondo)
         # "gamma-delta" is mixed case so Gene branch returns None
         self.assertIsNone(result)
@@ -198,9 +174,7 @@ class NormalizeTermTestCase(unittest.TestCase):
 
     def test_unicode_minus_sign_replacement(self):
         """Unicode minus sign is replaced with hyphen."""
-        ann = self._make_annotation(
-            "subject", "Gene", "CD4\u2212", "some\u2212id"
-        )
+        ann = self._make_annotation("subject", "Gene", "CD4\u2212", "some\u2212id")
         # Verify replacements happened
         normalize_term(ann, "subject", self.mesh2mondo)
         self.assertNotIn("\u2212", ann["subject_name"])
