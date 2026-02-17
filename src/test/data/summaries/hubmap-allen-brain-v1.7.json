@@ -1,0 +1,61 @@
+{
+    "hubmap": {
+        "cell_type": {
+            "id": "CL:0000236",
+            "ccf_pref_label": "B cell",
+            "ccf_asctb_type": "CT",
+            "ccf_is_provisional": false,
+            "conforms_to": "CellType",
+            "ccf_ct_isa": [
+                "CL:0000000"
+            ],
+            "ccf_located_in": [
+                "UBERON:0000955"
+            ],
+            "has_characterizing_marker_set": [
+                {
+                    "members": [
+                        "HGNC:7315"
+                    ],
+                    "references": [
+                        "https://doi.org/10.1101/2022.10.12.511898"
+                    ]
+                }
+            ]
+        },
+        "anatomical_structure": {
+            "id": "UBERON:0000955",
+            "ccf_pref_label": "brain",
+            "ccf_asctb_type": "AS",
+            "ccf_is_provisional": false,
+            "conforms_to": "AnatomicalStructure",
+            "ccf_part_of": [
+                "UBERON:0013702"
+            ]
+        }
+    },
+    "tuples": [
+        [
+            "http://purl.obolibrary.org/obo/UBERON_0000955",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#PART_OF",
+            "http://purl.obolibrary.org/obo/UBERON_0013702"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/UBERON_0000955",
+            "http://purl.obolibrary.org/obo/UBERON_0013702",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "HuBMAP"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_0000236",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#PART_OF",
+            "http://purl.obolibrary.org/obo/UBERON_0000955"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_0000236",
+            "http://purl.obolibrary.org/obo/UBERON_0000955",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "HuBMAP"
+        ]
+    ]
+}

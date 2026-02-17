@@ -1,0 +1,552 @@
+{
+    "results": {
+        "Unnamed: 0": {
+            "0": 4
+        },
+        "PMID": {
+            "0": 38014002
+        },
+        "PMCID": {
+            "0": "PMC10680922"
+        },
+        "DOI": {
+            "0": "doi.org/10.1101/2023.11.07.566105"
+        },
+        "mapping_method": {
+            "0": "manual"
+        },
+        "uberon_entity_term": {
+            "0": "retina"
+        },
+        "uberon_entity_id": {
+            "0": "http://purl.obolibrary.org/obo/UBERON_0000966"
+        },
+        "author_category": {
+            "0": "author_cell_type"
+        },
+        "dataset_source": {
+            "0": "cellxgene.cziscience.com"
+        },
+        "collection_id": {
+            "0": "4c6eaf5c-6d57-4c76-b1e9-60df8c655f1e"
+        },
+        "collection_version_id": {
+            "0": "962093e5-0e31-4f37-b96a-65116be39138"
+        },
+        "dataset_id": {
+            "0": "d6505c89-c43d-4c28-8c4f-7351a5fd5528"
+        },
+        "dataset_version_id": {
+            "0": "2e910e62-7eaf-4c06-80cb-8918e3eea16e"
+        },
+        "author_cell_term": {
+            "0": "GABAergic amacrine cell"
+        },
+        "author_cell_set": {
+            "0": "CAI"
+        },
+        "match": {
+            "0": "skos:broad"
+        },
+        "cell_ontology_term": {
+            "0": "GABAergic amacrine cell"
+        },
+        "cell_ontology_id": {
+            "0": "https://purl.obolibrary.org/obo/CL_4030027"
+        },
+        "clusterName": {
+            "0": "CAI"
+        },
+        "clusterSize": {
+            "0": 141
+        },
+        "NSForest_markers": {
+            "0": "['MIR548XHG', 'ENSG00000262801.6', 'GCH1']"
+        },
+        "binary_genes": {
+            "0": "['ENSG00000270321.2', 'FGF10', 'MIR548XHG', 'ENSG00000262801.6', 'VWA5B1', 'GCH1', 'FGF10-AS1', 'MIR137HG', 'TH', 'ITIH5']"
+        },
+        "uuid": {
+            "0": "hlfq39hn4vgh"
+        }
+    },
+    "tuples": [
+        [
+            "http://purl.obolibrary.org/obo/CSD_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Citation",
+            "Li et al. (2023) Res Sq"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CSD_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Cell_type",
+            "author_cell_type"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/PUB_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Author",
+            "Li et al."
+        ],
+        [
+            "http://purl.obolibrary.org/obo/PUB_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Journal",
+            "Res Sq"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/PUB_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Title",
+            "Integrated multi-omics single cell atlas of the human retina."
+        ],
+        [
+            "http://purl.obolibrary.org/obo/PUB_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Year",
+            "2023"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/PUB_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Citation",
+            "Li et al. (2023) Res Sq"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/PUB_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#PMID",
+            "38014002"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/PUB_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#PMCID",
+            "PMC10680922"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/PUB_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#DOI",
+            "doi.org/10.1101/2023.11.07.566105"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://purl.obolibrary.org/obo/BFO_0000050",
+            "http://purl.obolibrary.org/obo/UBERON_0000966"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://purl.obolibrary.org/obo/UBERON_0000966",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "Manual Mapping"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_CAI-hlfq39hn4vgh",
+            "http://purl.obolibrary.org/obo/RO_0001000",
+            "http://purl.obolibrary.org/obo/UBERON_0000966"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_CAI-hlfq39hn4vgh",
+            "http://purl.obolibrary.org/obo/UBERON_0000966",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "Manual Mapping"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://purl.obolibrary.org/obo/RO_0015001",
+            "http://purl.obolibrary.org/obo/CSD_2e910e62-7eaf-4c06-80cb-8918e3eea16e"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://purl.obolibrary.org/obo/CSD_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "Manual Mapping"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_CAI-hlfq39hn4vgh",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns/dc#Source",
+            "http://purl.obolibrary.org/obo/CSD_2e910e62-7eaf-4c06-80cb-8918e3eea16e"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_CAI-hlfq39hn4vgh",
+            "http://purl.obolibrary.org/obo/CSD_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "Manual Mapping"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_CAI-hlfq39hn4vgh",
+            "http://purl.obolibrary.org/obo/RO_0002473",
+            "http://purl.obolibrary.org/obo/CL_4030027"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_CAI-hlfq39hn4vgh",
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "Manual Mapping"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_CAI-hlfq39hn4vgh",
+            "http://purl.obolibrary.org/obo/RO_0002292",
+            "http://purl.obolibrary.org/obo/BGS_hlfq39hn4vgh"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_CAI-hlfq39hn4vgh",
+            "http://purl.obolibrary.org/obo/BGS_hlfq39hn4vgh",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "NSForest"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_CAI-hlfq39hn4vgh",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Author_cell_term",
+            "GABAergic amacrine cell"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_CAI-hlfq39hn4vgh",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Link_to_publication",
+            "doi.org/10.1101/2023.11.07.566105"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_CAI-hlfq39hn4vgh",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Link_to_CELLxGENE_collection",
+            "cellxgene.cziscience.com/collections/4c6eaf5c-6d57-4c76-b1e9-60df8c655f1e"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_CAI-hlfq39hn4vgh",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Link_to_CELLxGENE_dataset",
+            "datasets.cellxgene.cziscience.com/2e910e62-7eaf-4c06-80cb-8918e3eea16e.h5ad"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_CAI-hlfq39hn4vgh",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Dataset_name",
+            "snRNA-seq of human retina - all cells"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_CAI-hlfq39hn4vgh",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Cell_type",
+            "CL_4030027"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_CAI-hlfq39hn4vgh",
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Match",
+            "skos:broad"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_CAI-hlfq39hn4vgh",
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Mapping_method",
+            "manual"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_MIR548XHG",
+            "http://purl.obolibrary.org/obo/BFO_0000050",
+            "http://purl.obolibrary.org/obo/CL_4030027"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_MIR548XHG",
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "NSForest"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_ENSG00000262801.6",
+            "http://purl.obolibrary.org/obo/BFO_0000050",
+            "http://purl.obolibrary.org/obo/CL_4030027"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_ENSG00000262801.6",
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "NSForest"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_GCH1",
+            "http://purl.obolibrary.org/obo/BFO_0000050",
+            "http://purl.obolibrary.org/obo/CL_4030027"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_GCH1",
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "NSForest"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#SELECTIVELY_EXPRESS",
+            "http://purl.obolibrary.org/obo/GS_MIR548XHG"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://purl.obolibrary.org/obo/GS_MIR548XHG",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "Manual Mapping"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_MIR548XHG",
+            "http://purl.obolibrary.org/obo/BFO_0000050",
+            "http://purl.obolibrary.org/obo/CL_4030027"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_MIR548XHG",
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "NSForest"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#SELECTIVELY_EXPRESS",
+            "http://purl.obolibrary.org/obo/GS_ENSG00000262801.6"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://purl.obolibrary.org/obo/GS_ENSG00000262801.6",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "Manual Mapping"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_ENSG00000262801.6",
+            "http://purl.obolibrary.org/obo/BFO_0000050",
+            "http://purl.obolibrary.org/obo/CL_4030027"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_ENSG00000262801.6",
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "NSForest"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#SELECTIVELY_EXPRESS",
+            "http://purl.obolibrary.org/obo/GS_GCH1"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://purl.obolibrary.org/obo/GS_GCH1",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "Manual Mapping"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_GCH1",
+            "http://purl.obolibrary.org/obo/BFO_0000050",
+            "http://purl.obolibrary.org/obo/CL_4030027"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_GCH1",
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "NSForest"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#SELECTIVELY_EXPRESS",
+            "http://purl.obolibrary.org/obo/GS_ENSG00000270321.2"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://purl.obolibrary.org/obo/GS_ENSG00000270321.2",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "Manual Mapping"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_ENSG00000270321.2",
+            "http://purl.obolibrary.org/obo/BFO_0000050",
+            "http://purl.obolibrary.org/obo/CL_4030027"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_ENSG00000270321.2",
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "NSForest"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#SELECTIVELY_EXPRESS",
+            "http://purl.obolibrary.org/obo/GS_FGF10"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://purl.obolibrary.org/obo/GS_FGF10",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "Manual Mapping"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_FGF10",
+            "http://purl.obolibrary.org/obo/BFO_0000050",
+            "http://purl.obolibrary.org/obo/CL_4030027"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_FGF10",
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "NSForest"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#SELECTIVELY_EXPRESS",
+            "http://purl.obolibrary.org/obo/GS_MIR548XHG"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://purl.obolibrary.org/obo/GS_MIR548XHG",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "Manual Mapping"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_MIR548XHG",
+            "http://purl.obolibrary.org/obo/BFO_0000050",
+            "http://purl.obolibrary.org/obo/CL_4030027"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_MIR548XHG",
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "NSForest"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#SELECTIVELY_EXPRESS",
+            "http://purl.obolibrary.org/obo/GS_ENSG00000262801.6"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://purl.obolibrary.org/obo/GS_ENSG00000262801.6",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "Manual Mapping"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_ENSG00000262801.6",
+            "http://purl.obolibrary.org/obo/BFO_0000050",
+            "http://purl.obolibrary.org/obo/CL_4030027"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_ENSG00000262801.6",
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "NSForest"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#SELECTIVELY_EXPRESS",
+            "http://purl.obolibrary.org/obo/GS_VWA5B1"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://purl.obolibrary.org/obo/GS_VWA5B1",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "Manual Mapping"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_VWA5B1",
+            "http://purl.obolibrary.org/obo/BFO_0000050",
+            "http://purl.obolibrary.org/obo/CL_4030027"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_VWA5B1",
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "NSForest"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#SELECTIVELY_EXPRESS",
+            "http://purl.obolibrary.org/obo/GS_GCH1"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://purl.obolibrary.org/obo/GS_GCH1",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "Manual Mapping"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_GCH1",
+            "http://purl.obolibrary.org/obo/BFO_0000050",
+            "http://purl.obolibrary.org/obo/CL_4030027"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_GCH1",
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "NSForest"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#SELECTIVELY_EXPRESS",
+            "http://purl.obolibrary.org/obo/GS_FGF10-AS1"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://purl.obolibrary.org/obo/GS_FGF10-AS1",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "Manual Mapping"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_FGF10-AS1",
+            "http://purl.obolibrary.org/obo/BFO_0000050",
+            "http://purl.obolibrary.org/obo/CL_4030027"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_FGF10-AS1",
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "NSForest"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#SELECTIVELY_EXPRESS",
+            "http://purl.obolibrary.org/obo/GS_MIR137HG"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://purl.obolibrary.org/obo/GS_MIR137HG",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "Manual Mapping"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_MIR137HG",
+            "http://purl.obolibrary.org/obo/BFO_0000050",
+            "http://purl.obolibrary.org/obo/CL_4030027"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_MIR137HG",
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "NSForest"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#SELECTIVELY_EXPRESS",
+            "http://purl.obolibrary.org/obo/GS_TH"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://purl.obolibrary.org/obo/GS_TH",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "Manual Mapping"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_TH",
+            "http://purl.obolibrary.org/obo/BFO_0000050",
+            "http://purl.obolibrary.org/obo/CL_4030027"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_TH",
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "NSForest"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#SELECTIVELY_EXPRESS",
+            "http://purl.obolibrary.org/obo/GS_ITIH5"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://purl.obolibrary.org/obo/GS_ITIH5",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "Manual Mapping"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_ITIH5",
+            "http://purl.obolibrary.org/obo/BFO_0000050",
+            "http://purl.obolibrary.org/obo/CL_4030027"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_ITIH5",
+            "http://purl.obolibrary.org/obo/CL_4030027",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "NSForest"
+        ]
+    ]
+}
