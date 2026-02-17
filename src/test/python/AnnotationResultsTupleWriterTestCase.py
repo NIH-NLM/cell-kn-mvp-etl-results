@@ -12,7 +12,7 @@ class NormalizeTermTestCase(unittest.TestCase):
 
     def setUp(self):
         self.mesh2mondo = {
-            "MESH:D008264": "MONDO_0004992",
+            "MESH:D000077192": "MONDO_0004991",
         }
 
     def _make_annotation(self, term, atype, name, identifier):
@@ -95,9 +95,9 @@ class NormalizeTermTestCase(unittest.TestCase):
 
     def test_disease_maps_mesh_to_mondo(self):
         """Maps MESH identifier to MONDO term."""
-        ann = self._make_annotation("object", "Disease", "some disease", "MESH:D008264")
+        ann = self._make_annotation("object", "Disease", "some disease", "MESH:D000077192")
         result = normalize_term(ann, "object", self.mesh2mondo)
-        self.assertEqual(result, "MONDO_0004992")
+        self.assertEqual(result, "MONDO_0004991")
 
     def test_disease_unknown_mesh_returns_none(self):
         """Unknown MESH term returns None."""
