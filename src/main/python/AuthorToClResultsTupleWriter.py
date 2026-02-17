@@ -41,8 +41,8 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
     """
     tuples = []
 
-    dataset_version_ids = author_to_cl_results["dataset_version_id"][0].split("--")
-    pmid_data = get_data_for_pmid(author_to_cl_results["PMID"][0])
+    dataset_version_ids = author_to_cl_results["dataset_version_id"].iloc[0].split("--")
+    pmid_data = get_data_for_pmid(author_to_cl_results["PMID"].iloc[0])
     for dataset_version_id in dataset_version_ids:
 
         # CSD node annotations
@@ -58,7 +58,7 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             (
                 URIRef(f"{PURLBASE}/{csd_term}"),
                 URIRef(f"{RDFSBASE}#Cell_type"),
-                Literal(str(author_to_cl_results["author_category"][0])),
+                Literal(str(author_to_cl_results["author_category"].iloc[0])),
             )
         )
 
@@ -76,21 +76,21 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             (
                 URIRef(f"{PURLBASE}/{pub_term}"),
                 URIRef(f"{RDFSBASE}#PMID"),
-                Literal(str(author_to_cl_results["PMID"][0])),
+                Literal(str(author_to_cl_results["PMID"].iloc[0])),
             )
         )
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{pub_term}"),
                 URIRef(f"{RDFSBASE}#PMCID"),
-                Literal(str(author_to_cl_results["PMCID"][0])),
+                Literal(str(author_to_cl_results["PMCID"].iloc[0])),
             )
         )
         tuples.append(
             (
                 URIRef(f"{PURLBASE}/{pub_term}"),
                 URIRef(f"{RDFSBASE}#DOI"),
-                Literal(author_to_cl_results["DOI"][0]),
+                Literal(author_to_cl_results["DOI"].iloc[0]),
             )
         )
 
