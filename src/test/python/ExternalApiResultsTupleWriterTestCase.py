@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 import sys
 import unittest
@@ -8,10 +9,22 @@ sys.path.insert(0, str(Path("../../main/python").resolve()))
 import pandas as pd
 
 from ExternalApiResultsTupleWriter import (
+    create_tuples_from_cellxgene,
+    create_tuples_from_gene,
+    create_tuples_from_hubmap,
+    create_tuples_from_opentargets,
+    create_tuples_from_uniprot,
     get_mondo_term,
     get_protein_term,
     remove_protocols,
 )
+
+SUMMARIES_DIRPATH = Path("../../test/data/summaries")
+
+
+def to_string_tuples(tuples):
+    """Convert list of URIRef/Literal tuples to list of string lists."""
+    return [list(str(x) for x in t) for t in tuples]
 
 
 class RemoveProtocolsTestCase(unittest.TestCase):
@@ -103,3 +116,333 @@ class GetProteinTermTestCase(unittest.TestCase):
         """Unknown ENSP id returns None."""
         result = get_protein_term("ENSP99999999999", self.ensp2accn)
         self.assertIsNone(result)
+
+
+class CreateTuplesFromCellxgeneTestCase(unittest.TestCase):
+    """Tests for create_tuples_from_cellxgene using summary fixture."""
+
+    def setUp(self):
+        summary_path = SUMMARIES_DIRPATH / "cell-kn-mvp-external-api-results.json"
+        with open(summary_path, "r") as fp:
+            self.summary = json.load(fp)
+        self.cellxgene_results = self.summary["cellxgene"]
+
+        # Extract expected cellxgene tuples (CSD_ or PUB_ subjects) from combined tuples
+        self.expected_tuples = [
+            t
+            for t in self.summary["tuples"]
+            if "CSD_" in t[0] or "PUB_" in t[0]
+        ]
+
+    def test_create_tuples_from_cellxgene(self):
+        """Tuples created from summary cellxgene data match expected."""
+        actual_tuples, _ = create_tuples_from_cellxgene(
+            self.cellxgene_results, summarize=True
+        )
+        actual_as_strings = to_string_tuples(actual_tuples)
+        self.assertEqual(actual_as_strings, self.expected_tuples)
+
+    def test_tuple_count(self):
+        """Number of tuples matches expected count."""
+        actual_tuples, _ = create_tuples_from_cellxgene(
+            self.cellxgene_results, summarize=True
+        )
+        self.assertEqual(len(actual_tuples), len(self.expected_tuples))
+
+    def test_first_tuple_is_csd_source(self):
+        """First tuple is the CSD dc:Source PUB relation."""
+        actual_tuples, _ = create_tuples_from_cellxgene(
+            self.cellxgene_results, summarize=True
+        )
+        first = list(str(x) for x in actual_tuples[0])
+        self.assertIn("CSD_", first[0])
+        self.assertIn("dc#Source", first[1])
+        self.assertIn("PUB_", first[2])
+
+    def test_last_tuple_is_zenodo_annotation(self):
+        """Last tuple is the Zenodo/Nextflow_workflow/Notebook annotation."""
+        actual_tuples, _ = create_tuples_from_cellxgene(
+            self.cellxgene_results, summarize=True
+        )
+        last = list(str(x) for x in actual_tuples[-1])
+        self.assertIn("CSD_", last[0])
+        self.assertIn("Zenodo/Nextflow_workflow/Notebook", last[1])
+
+
+class CreateTuplesFromOpenTargetsTestCase(unittest.TestCase):
+    """Tests for create_tuples_from_opentargets using summary fixture."""
+
+    def setUp(self):
+        summary_path = SUMMARIES_DIRPATH / "cell-kn-mvp-external-api-results.json"
+        with open(summary_path, "r") as fp:
+            self.summary = json.load(fp)
+        self.opentargets_data = self.summary["opentargets"]
+
+        # Reconstruct the input format expected by create_tuples_from_opentargets
+        gene_ensembl_ids = [
+            k for k in self.opentargets_data.keys() if k.startswith("ENSG")
+        ]
+        self.opentargets_results = dict(self.opentargets_data)
+        self.opentargets_results["gene_ensembl_ids"] = gene_ensembl_ids
+
+        # Gene results for UniProt lookups
+        self.gene_results = {
+            "gene_entrez_ids": ["1080"],
+            "1080": {
+                "UniProt_name": "P13569",
+                "Link_to_UniProt_ID": "https://www.uniprot.org/uniprot/P13569",
+            },
+        }
+
+        # Extract expected opentargets tuples from combined tuples
+        opentargets_subjects = (
+            "GS_CFTR",
+            "MONDO_",
+            "CHEMBL_",
+            "RS_",
+            "SO_",
+        )
+        self.expected_tuples = [
+            t
+            for t in self.summary["tuples"]
+            if any(s in t[0] for s in opentargets_subjects)
+        ]
+
+        # Mapping DataFrames
+        self.gene_ensembl_id_to_names = pd.DataFrame(
+            {"external_gene_name": ["CFTR"]},
+            index=pd.Index(["ENSG00000001626"], name="ensembl_gene_id"),
+        )
+        self.gene_name_to_entrez_ids = pd.DataFrame(
+            {"entrezgene_id": ["1080"]},
+            index=pd.Index(["CFTR"], name="external_gene_name"),
+        )
+        self.efo2mondo = pd.DataFrame(
+            {"MONDO": ["MONDO_0005087"]},
+            index=pd.Index(["EFO_0000684"], name="EFO"),
+        )
+        self.chembl2pubchem = pd.DataFrame(
+            {"PubChem": [16220172]},
+            index=pd.Index(["CHEMBL2010601"], name="ChEMBL"),
+        )
+
+    def _create_tuples(self):
+        """Call create_tuples_from_opentargets with mocked mappings."""
+        with (
+            patch(
+                "ExternalApiResultsTupleWriter.DEPRECATED_TERMS",
+                [],
+            ),
+            patch(
+                "ExternalApiResultsTupleWriter.get_gene_ensembl_id_to_names_map",
+                return_value=self.gene_ensembl_id_to_names,
+            ),
+            patch(
+                "ExternalApiResultsTupleWriter.get_gene_name_to_entrez_ids_map",
+                return_value=self.gene_name_to_entrez_ids,
+            ),
+            patch(
+                "ExternalApiResultsTupleWriter.get_efo_to_mondo_map",
+                return_value=self.efo2mondo,
+            ),
+            patch(
+                "ExternalApiResultsTupleWriter.get_chembl_to_pubchem_map",
+                return_value=self.chembl2pubchem,
+            ),
+        ):
+            actual_tuples, _ = create_tuples_from_opentargets(
+                self.opentargets_results, self.gene_results, summarize=True
+            )
+        return actual_tuples
+
+    def test_create_tuples_from_opentargets(self):
+        """Tuples created from summary opentargets data match expected."""
+        actual_tuples = self._create_tuples()
+        actual_as_strings = to_string_tuples(actual_tuples)
+        self.assertEqual(actual_as_strings, self.expected_tuples)
+
+    def test_tuple_count(self):
+        """Number of tuples matches expected count."""
+        actual_tuples = self._create_tuples()
+        self.assertEqual(len(actual_tuples), len(self.expected_tuples))
+
+    def test_first_tuple_is_genetic_basis_for(self):
+        """First tuple is the Gene GENETIC_BASIS_FOR Disease relation."""
+        actual_tuples = self._create_tuples()
+        first = list(str(x) for x in actual_tuples[0])
+        self.assertIn("GS_CFTR", first[0])
+        self.assertIn("GENETIC_BASIS_FOR", first[1])
+        self.assertIn("MONDO_0009061", first[2])
+
+    def test_last_tuple_is_variant_consequence(self):
+        """Last tuple is the Variant_consequence_label annotation."""
+        actual_tuples = self._create_tuples()
+        last = list(str(x) for x in actual_tuples[-1])
+        self.assertIn("SO_0001583", last[0])
+        self.assertIn("Variant_consequence_label", last[1])
+
+
+class CreateTuplesFromGeneTestCase(unittest.TestCase):
+    """Tests for create_tuples_from_gene using summary fixture."""
+
+    def setUp(self):
+        summary_path = SUMMARIES_DIRPATH / "cell-kn-mvp-external-api-results.json"
+        with open(summary_path, "r") as fp:
+            self.summary = json.load(fp)
+        self.gene_data = self.summary["gene"]
+
+        # Reconstruct the input format expected by create_tuples_from_gene
+        gene_entrez_ids = list(self.gene_data.keys())
+        self.gene_results = dict(self.gene_data)
+        self.gene_results["gene_entrez_ids"] = gene_entrez_ids
+
+        # Extract expected gene tuples (GS_CDH2 subjects) from combined tuples
+        self.expected_tuples = [t for t in self.summary["tuples"] if "GS_CDH2" in t[0]]
+
+        # Mapping: gene entrez id "1000" -> gene name "CDH2"
+        self.gene_entrez_id_to_names = pd.DataFrame(
+            {"external_gene_name": ["CDH2"]},
+            index=pd.Index(["1000"], name="entrezgene_id"),
+        )
+
+    def _create_tuples(self):
+        """Call create_tuples_from_gene with mocked mapping."""
+        with patch(
+            "ExternalApiResultsTupleWriter.get_gene_entrez_id_to_names_map",
+            return_value=self.gene_entrez_id_to_names,
+        ):
+            actual_tuples, _ = create_tuples_from_gene(
+                self.gene_results, summarize=True
+            )
+        return actual_tuples
+
+    def test_create_tuples_from_gene(self):
+        """Tuples created from summary gene data match expected."""
+        actual_tuples = self._create_tuples()
+        actual_as_strings = to_string_tuples(actual_tuples)
+        self.assertEqual(actual_as_strings, self.expected_tuples)
+
+    def test_tuple_count(self):
+        """Number of tuples matches expected count."""
+        actual_tuples = self._create_tuples()
+        self.assertEqual(len(actual_tuples), len(self.expected_tuples))
+
+    def test_first_tuple_is_produces_relation(self):
+        """First tuple is the Gene PRODUCES Protein relation."""
+        actual_tuples = self._create_tuples()
+        first = list(str(x) for x in actual_tuples[0])
+        self.assertIn("GS_CDH2", first[0])
+        self.assertIn("PRODUCES", first[1])
+        self.assertIn("PR_P19022", first[2])
+
+    def test_last_tuple_is_mrna_sequences(self):
+        """Last tuple is the mRNA/protein sequences annotation."""
+        actual_tuples = self._create_tuples()
+        last = list(str(x) for x in actual_tuples[-1])
+        self.assertIn("GS_CDH2", last[0])
+        self.assertIn("mRNA_(NM)_and_protein_(NP)_sequences", last[1])
+        self.assertIn("NM_001308176", last[2])
+
+
+class CreateTuplesFromUniprotTestCase(unittest.TestCase):
+    """Tests for create_tuples_from_uniprot using summary fixture."""
+
+    def setUp(self):
+        summary_path = SUMMARIES_DIRPATH / "cell-kn-mvp-external-api-results.json"
+        with open(summary_path, "r") as fp:
+            self.summary = json.load(fp)
+        self.uniprot_data = self.summary["uniprot"]
+
+        # Reconstruct the input format expected by create_tuples_from_uniprot
+        protein_accessions = list(self.uniprot_data.keys())
+        self.uniprot_results = dict(self.uniprot_data)
+        self.uniprot_results["protein_accessions"] = protein_accessions
+
+        # Extract expected uniprot tuples (PR_ subjects) from combined tuples
+        self.expected_tuples = [t for t in self.summary["tuples"] if "PR_" in t[0]]
+
+    def test_create_tuples_from_uniprot(self):
+        """Tuples created from summary uniprot data match expected."""
+        actual_tuples, _ = create_tuples_from_uniprot(
+            self.uniprot_results, summarize=True
+        )
+        actual_as_strings = to_string_tuples(actual_tuples)
+        self.assertEqual(actual_as_strings, self.expected_tuples)
+
+    def test_tuple_count(self):
+        """Number of tuples matches expected count."""
+        actual_tuples, _ = create_tuples_from_uniprot(
+            self.uniprot_results, summarize=True
+        )
+        self.assertEqual(len(actual_tuples), len(self.expected_tuples))
+
+    def test_first_tuple_is_protein_name(self):
+        """First tuple is the Protein_name annotation."""
+        actual_tuples, _ = create_tuples_from_uniprot(
+            self.uniprot_results, summarize=True
+        )
+        first = list(str(x) for x in actual_tuples[0])
+        self.assertIn("PR_P55017", first[0])
+        self.assertIn("Protein_name", first[1])
+        self.assertEqual(first[2], "Solute carrier family 12 member 3")
+
+    def test_last_tuple_is_organism(self):
+        """Last tuple is the Organism annotation."""
+        actual_tuples, _ = create_tuples_from_uniprot(
+            self.uniprot_results, summarize=True
+        )
+        last = list(str(x) for x in actual_tuples[-1])
+        self.assertIn("PR_P55017", last[0])
+        self.assertIn("Organism", last[1])
+        self.assertEqual(last[2], "Homo sapiens")
+
+
+class CreateTuplesFromHubmapTestCase(unittest.TestCase):
+    """Tests for create_tuples_from_hubmap using summary fixture."""
+
+    def setUp(self):
+        summary_path = SUMMARIES_DIRPATH / "hubmap-allen-brain-v1.7.json"
+        with open(summary_path, "r") as fp:
+            self.summary = json.load(fp)
+        self.expected_tuples = self.summary["tuples"]
+
+        # Reconstruct the original HuBMAP input format from summary data
+        self.hubmap_data = {
+            "data": {
+                "anatomical_structures": [
+                    self.summary["hubmap"]["anatomical_structure"]
+                ],
+                "cell_types": [self.summary["hubmap"]["cell_type"]],
+            }
+        }
+
+        # Extract cl_terms from the summary cell_type id
+        cl_id = self.summary["hubmap"]["cell_type"]["id"]
+        self.cl_terms = {cl_id.replace(":", "_")}
+
+    @patch("ExternalApiResultsTupleWriter.DEPRECATED_TERMS", [])
+    def test_create_tuples_from_hubmap(self):
+        """Tuples created from reconstructed HuBMAP data match expected."""
+        actual_tuples, _ = create_tuples_from_hubmap(
+            self.hubmap_data, self.cl_terms, summarize=True
+        )
+        actual_as_strings = to_string_tuples(actual_tuples)
+        self.assertEqual(actual_as_strings, self.expected_tuples)
+
+    @patch("ExternalApiResultsTupleWriter.DEPRECATED_TERMS", [])
+    def test_tuple_count(self):
+        """Number of tuples matches expected count."""
+        actual_tuples, _ = create_tuples_from_hubmap(
+            self.hubmap_data, self.cl_terms, summarize=True
+        )
+        self.assertEqual(len(actual_tuples), len(self.expected_tuples))
+
+    @patch("ExternalApiResultsTupleWriter.DEPRECATED_TERMS", [])
+    def test_returns_summarized_hubmap_data(self):
+        """When summarize=True, returned hubmap_data contains single
+        cell_type and anatomical_structure."""
+        _, hubmap_data = create_tuples_from_hubmap(
+            self.hubmap_data, self.cl_terms, summarize=True
+        )
+        self.assertIn("cell_type", hubmap_data)
+        self.assertIn("anatomical_structure", hubmap_data)
