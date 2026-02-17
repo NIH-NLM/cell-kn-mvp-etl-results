@@ -27,7 +27,7 @@ class NormalizeTermTestCase(unittest.TestCase):
             f"{other}_identifier": "some-uuid-001",
         }
 
-    # -- Anatomical_structure --
+    # Anatomical_structure
 
     def test_anatomical_structure(self):
         """Replaces colon with underscore."""
@@ -37,7 +37,7 @@ class NormalizeTermTestCase(unittest.TestCase):
         result = normalize_term(ann, "subject", self.mesh2mondo)
         self.assertEqual(result, "UBERON_0002048")
 
-    # -- Assay --
+    # Assay
 
     def test_assay(self):
         """Replaces colon with underscore."""
@@ -45,7 +45,7 @@ class NormalizeTermTestCase(unittest.TestCase):
         result = normalize_term(ann, "subject", self.mesh2mondo)
         self.assertEqual(result, "EFO_0002772")
 
-    # -- Biomarker_combination --
+    # Biomarker_combination
 
     def test_biomarker_combination(self):
         """Builds BMC_ term from name and subject identifier prefix."""
@@ -56,7 +56,7 @@ class NormalizeTermTestCase(unittest.TestCase):
         result = normalize_term(ann, "object", self.mesh2mondo)
         self.assertEqual(result, "BMC_marker_set-abc123")
 
-    # -- Cell_set --
+    # Cell_set
 
     def test_cell_set(self):
         """Builds CS_ term with hyphenated name and subject identifier prefix."""
@@ -65,7 +65,7 @@ class NormalizeTermTestCase(unittest.TestCase):
         result = normalize_term(ann, "subject", self.mesh2mondo)
         self.assertEqual(result, "CS_T-cells-alpha-uuid123")
 
-    # -- Cell_set_dataset --
+    # Cell_set_dataset
 
     def test_cell_set_dataset(self):
         """Replaces NLP_dataset with CSD."""
@@ -75,7 +75,7 @@ class NormalizeTermTestCase(unittest.TestCase):
         result = normalize_term(ann, "subject", self.mesh2mondo)
         self.assertEqual(result, "CSD_v1")
 
-    # -- Cell_type --
+    # Cell_type
 
     def test_cell_type(self):
         """Removes skos:related tag and replaces colon with underscore."""
@@ -91,11 +91,13 @@ class NormalizeTermTestCase(unittest.TestCase):
         result = normalize_term(ann, "object", self.mesh2mondo)
         self.assertEqual(result, "CL_0000235")
 
-    # -- Disease --
+    # Disease
 
     def test_disease_maps_mesh_to_mondo(self):
         """Maps MESH identifier to MONDO term."""
-        ann = self._make_annotation("object", "Disease", "some disease", "MESH:D000077192")
+        ann = self._make_annotation(
+            "object", "Disease", "some disease", "MESH:D000077192"
+        )
         result = normalize_term(ann, "object", self.mesh2mondo)
         self.assertEqual(result, "MONDO_0004991")
 
@@ -107,7 +109,7 @@ class NormalizeTermTestCase(unittest.TestCase):
         result = normalize_term(ann, "object", self.mesh2mondo)
         self.assertIsNone(result)
 
-    # -- Gene --
+    # Gene
 
     def test_gene_uppercase(self):
         """Uppercase gene name returns GS_ prefixed term."""
@@ -129,7 +131,7 @@ class NormalizeTermTestCase(unittest.TestCase):
         result = normalize_term(ann, "subject", self.mesh2mondo)
         self.assertEqual(result, "GS_MBP")
 
-    # -- Publication --
+    # Publication
 
     def test_publication_known_pmid_jorstad(self):
         """Known PMID 37824655 returns correct DOI-based term."""
@@ -161,7 +163,7 @@ class NormalizeTermTestCase(unittest.TestCase):
         result = normalize_term(ann, "object", self.mesh2mondo)
         self.assertIsNone(result)
 
-    # -- Unicode handling --
+    # Unicode handling
 
     def test_unicode_gamma_delta_replacement(self):
         """Unicode gamma-delta characters are replaced."""

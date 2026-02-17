@@ -52,18 +52,18 @@ class GetMondoTermTestCase(unittest.TestCase):
 
     def setUp(self):
         self.efo2mondo = pd.DataFrame(
-            {"EFO": ["EFO_0000270"], "MONDO": ["MONDO_0004992"]}
+            {"EFO": ["EFO_0008524"], "MONDO": ["MONDO_0002120"]}
         ).set_index("EFO")
 
     def test_mondo_term_passes_through(self):
         """MONDO term is returned directly."""
-        result = get_mondo_term("MONDO_0004992", self.efo2mondo)
-        self.assertEqual(result, "MONDO_0004992")
+        result = get_mondo_term("MONDO_0002120", self.efo2mondo)
+        self.assertEqual(result, "MONDO_0002120")
 
     def test_efo_term_maps_to_mondo(self):
         """EFO term is mapped to MONDO via efo2mondo."""
-        result = get_mondo_term("EFO_0000270", self.efo2mondo)
-        self.assertEqual(result, "MONDO_0004992")
+        result = get_mondo_term("EFO_0008524", self.efo2mondo)
+        self.assertEqual(result, "MONDO_0002120")
 
     def test_efo_term_not_found(self):
         """Unknown EFO term returns None."""
@@ -75,16 +75,16 @@ class GetMondoTermTestCase(unittest.TestCase):
         result = get_mondo_term("DOID_1234", self.efo2mondo)
         self.assertIsNone(result)
 
-    @patch("ExternalApiResultsTupleWriter.DEPRECATED_TERMS", ["MONDO_0004992"])
+    @patch("ExternalApiResultsTupleWriter.DEPRECATED_TERMS", ["MONDO_0002120"])
     def test_deprecated_mondo_returns_none(self):
         """Deprecated MONDO term returns None."""
-        result = get_mondo_term("MONDO_0004992", self.efo2mondo)
+        result = get_mondo_term("MONDO_0002120", self.efo2mondo)
         self.assertIsNone(result)
 
-    @patch("ExternalApiResultsTupleWriter.DEPRECATED_TERMS", ["MONDO_0004992"])
+    @patch("ExternalApiResultsTupleWriter.DEPRECATED_TERMS", ["MONDO_0002120"])
     def test_efo_mapping_to_deprecated_mondo_returns_none(self):
         """EFO mapped to deprecated MONDO term returns None."""
-        result = get_mondo_term("EFO_0000270", self.efo2mondo)
+        result = get_mondo_term("EFO_0008524", self.efo2mondo)
         self.assertIsNone(result)
 
 
@@ -129,15 +129,13 @@ class CreateTuplesFromCellxgeneTestCase(unittest.TestCase):
 
         # Extract expected cellxgene tuples (CSD_ or PUB_ subjects) from combined tuples
         self.expected_tuples = [
-            t
-            for t in self.summary["tuples"]
-            if "CSD_" in t[0] or "PUB_" in t[0]
+            t for t in self.summary["tuples"] if "CSD_" in t[0] or "PUB_" in t[0]
         ]
 
     def test_create_tuples_from_cellxgene(self):
         """Tuples created from summary cellxgene data match expected."""
         actual_tuples, _ = create_tuples_from_cellxgene(
-            self.cellxgene_results, summarize=True
+            self.cellxgene_results
         )
         actual_as_strings = to_string_tuples(actual_tuples)
         self.assertEqual(actual_as_strings, self.expected_tuples)
@@ -145,14 +143,14 @@ class CreateTuplesFromCellxgeneTestCase(unittest.TestCase):
     def test_tuple_count(self):
         """Number of tuples matches expected count."""
         actual_tuples, _ = create_tuples_from_cellxgene(
-            self.cellxgene_results, summarize=True
+            self.cellxgene_results
         )
         self.assertEqual(len(actual_tuples), len(self.expected_tuples))
 
     def test_first_tuple_is_csd_source(self):
-        """First tuple is the CSD dc:Source PUB relation."""
+        """First tuple is a CSD dc:Source PUB relation."""
         actual_tuples, _ = create_tuples_from_cellxgene(
-            self.cellxgene_results, summarize=True
+            self.cellxgene_results
         )
         first = list(str(x) for x in actual_tuples[0])
         self.assertIn("CSD_", first[0])
@@ -160,13 +158,14 @@ class CreateTuplesFromCellxgeneTestCase(unittest.TestCase):
         self.assertIn("PUB_", first[2])
 
     def test_last_tuple_is_zenodo_annotation(self):
-        """Last tuple is the Zenodo/Nextflow_workflow/Notebook annotation."""
+        """Last tuple is a CSD Zenodo/Nextflow_workflow/Notebook annotation."""
         actual_tuples, _ = create_tuples_from_cellxgene(
-            self.cellxgene_results, summarize=True
+            self.cellxgene_results
         )
         last = list(str(x) for x in actual_tuples[-1])
         self.assertIn("CSD_", last[0])
         self.assertIn("Zenodo/Nextflow_workflow/Notebook", last[1])
+        self.assertEqual(last[2], "TBC")
 
 
 class CreateTuplesFromOpenTargetsTestCase(unittest.TestCase):
@@ -218,8 +217,8 @@ class CreateTuplesFromOpenTargetsTestCase(unittest.TestCase):
             index=pd.Index(["CFTR"], name="external_gene_name"),
         )
         self.efo2mondo = pd.DataFrame(
-            {"MONDO": ["MONDO_0005087"]},
-            index=pd.Index(["EFO_0000684"], name="EFO"),
+            {"MONDO": ["MONDO_0002120"]},
+            index=pd.Index(["EFO_0008524"], name="EFO"),
         )
         self.chembl2pubchem = pd.DataFrame(
             {"PubChem": [16220172]},
@@ -251,7 +250,7 @@ class CreateTuplesFromOpenTargetsTestCase(unittest.TestCase):
             ),
         ):
             actual_tuples, _ = create_tuples_from_opentargets(
-                self.opentargets_results, self.gene_results, summarize=True
+                self.opentargets_results, self.gene_results
             )
         return actual_tuples
 
@@ -267,7 +266,7 @@ class CreateTuplesFromOpenTargetsTestCase(unittest.TestCase):
         self.assertEqual(len(actual_tuples), len(self.expected_tuples))
 
     def test_first_tuple_is_genetic_basis_for(self):
-        """First tuple is the Gene GENETIC_BASIS_FOR Disease relation."""
+        """First tuple is a Gene GENETIC_BASIS_FOR Disease relation."""
         actual_tuples = self._create_tuples()
         first = list(str(x) for x in actual_tuples[0])
         self.assertIn("GS_CFTR", first[0])
@@ -275,11 +274,12 @@ class CreateTuplesFromOpenTargetsTestCase(unittest.TestCase):
         self.assertIn("MONDO_0009061", first[2])
 
     def test_last_tuple_is_variant_consequence(self):
-        """Last tuple is the Variant_consequence_label annotation."""
+        """Last tuple is a Variant_consequence_label annotation."""
         actual_tuples = self._create_tuples()
         last = list(str(x) for x in actual_tuples[-1])
         self.assertIn("SO_0001583", last[0])
         self.assertIn("Variant_consequence_label", last[1])
+        self.assertIn("missense_variant", last[2])
 
 
 class CreateTuplesFromGeneTestCase(unittest.TestCase):
@@ -312,7 +312,7 @@ class CreateTuplesFromGeneTestCase(unittest.TestCase):
             return_value=self.gene_entrez_id_to_names,
         ):
             actual_tuples, _ = create_tuples_from_gene(
-                self.gene_results, summarize=True
+                self.gene_results
             )
         return actual_tuples
 
@@ -328,7 +328,7 @@ class CreateTuplesFromGeneTestCase(unittest.TestCase):
         self.assertEqual(len(actual_tuples), len(self.expected_tuples))
 
     def test_first_tuple_is_produces_relation(self):
-        """First tuple is the Gene PRODUCES Protein relation."""
+        """First tuple is a Gene PRODUCES Protein relation."""
         actual_tuples = self._create_tuples()
         first = list(str(x) for x in actual_tuples[0])
         self.assertIn("GS_CDH2", first[0])
@@ -336,7 +336,7 @@ class CreateTuplesFromGeneTestCase(unittest.TestCase):
         self.assertIn("PR_P19022", first[2])
 
     def test_last_tuple_is_mrna_sequences(self):
-        """Last tuple is the mRNA/protein sequences annotation."""
+        """Last tuple is a mRNA/protein sequences annotation."""
         actual_tuples = self._create_tuples()
         last = list(str(x) for x in actual_tuples[-1])
         self.assertIn("GS_CDH2", last[0])
@@ -364,7 +364,7 @@ class CreateTuplesFromUniprotTestCase(unittest.TestCase):
     def test_create_tuples_from_uniprot(self):
         """Tuples created from summary uniprot data match expected."""
         actual_tuples, _ = create_tuples_from_uniprot(
-            self.uniprot_results, summarize=True
+            self.uniprot_results
         )
         actual_as_strings = to_string_tuples(actual_tuples)
         self.assertEqual(actual_as_strings, self.expected_tuples)
@@ -372,14 +372,14 @@ class CreateTuplesFromUniprotTestCase(unittest.TestCase):
     def test_tuple_count(self):
         """Number of tuples matches expected count."""
         actual_tuples, _ = create_tuples_from_uniprot(
-            self.uniprot_results, summarize=True
+            self.uniprot_results
         )
         self.assertEqual(len(actual_tuples), len(self.expected_tuples))
 
     def test_first_tuple_is_protein_name(self):
-        """First tuple is the Protein_name annotation."""
+        """First tuple is a Protein_name annotation."""
         actual_tuples, _ = create_tuples_from_uniprot(
-            self.uniprot_results, summarize=True
+            self.uniprot_results
         )
         first = list(str(x) for x in actual_tuples[0])
         self.assertIn("PR_P55017", first[0])
@@ -387,9 +387,9 @@ class CreateTuplesFromUniprotTestCase(unittest.TestCase):
         self.assertEqual(first[2], "Solute carrier family 12 member 3")
 
     def test_last_tuple_is_organism(self):
-        """Last tuple is the Organism annotation."""
+        """Last tuple is an Organism annotation."""
         actual_tuples, _ = create_tuples_from_uniprot(
-            self.uniprot_results, summarize=True
+            self.uniprot_results
         )
         last = list(str(x) for x in actual_tuples[-1])
         self.assertIn("PR_P55017", last[0])
@@ -424,7 +424,7 @@ class CreateTuplesFromHubmapTestCase(unittest.TestCase):
     def test_create_tuples_from_hubmap(self):
         """Tuples created from reconstructed HuBMAP data match expected."""
         actual_tuples, _ = create_tuples_from_hubmap(
-            self.hubmap_data, self.cl_terms, summarize=True
+            self.hubmap_data, self.cl_terms
         )
         actual_as_strings = to_string_tuples(actual_tuples)
         self.assertEqual(actual_as_strings, self.expected_tuples)
@@ -433,16 +433,23 @@ class CreateTuplesFromHubmapTestCase(unittest.TestCase):
     def test_tuple_count(self):
         """Number of tuples matches expected count."""
         actual_tuples, _ = create_tuples_from_hubmap(
-            self.hubmap_data, self.cl_terms, summarize=True
+            self.hubmap_data, self.cl_terms
         )
         self.assertEqual(len(actual_tuples), len(self.expected_tuples))
 
-    @patch("ExternalApiResultsTupleWriter.DEPRECATED_TERMS", [])
-    def test_returns_summarized_hubmap_data(self):
-        """When summarize=True, returned hubmap_data contains single
-        cell_type and anatomical_structure."""
-        _, hubmap_data = create_tuples_from_hubmap(
-            self.hubmap_data, self.cl_terms, summarize=True
-        )
-        self.assertIn("cell_type", hubmap_data)
-        self.assertIn("anatomical_structure", hubmap_data)
+    def test_first_tuple_is_brain_part_of_body_proper(self):
+        """First tuple is Brain PART_OF Body_proper relation."""
+        actual_tuples, _ = create_tuples_from_uniprot(self.hubmap_data)
+        first = list(str(x) for x in actual_tuples[0])
+        self.assertIn("UBERON_0000955", first[0])
+        self.assertIn("PART_OF", first[1])
+        self.assertEqual(first[2], "UBERON_0013702")
+
+    def test_last_tuple_is_b_cell_part_of_brain_source(self):
+        """Last tuple is B cell PART_OF Brain Source is HuBMAP edge annotation."""
+        actual_tuples, _ = create_tuples_from_uniprot(self.hubmap_data)
+        last = list(str(x) for x in actual_tuples[-1])
+        self.assertIn("CL_0000236", last[0])
+        self.assertIn("UBERON_0000955", last[1])
+        self.assertIn("Source", last[2])
+        self.assertEqual(last[3], "HuBMAP")

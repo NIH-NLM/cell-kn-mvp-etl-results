@@ -67,7 +67,7 @@ class CreateTuplesFromAuthorToClTestCase(unittest.TestCase):
 
     @patch("AuthorToClResultsTupleWriter.get_data_for_pmid")
     def test_first_tuple_is_csd_citation(self, mock_get_data):
-        """First tuple is the CSD citation annotation."""
+        """First tuple is a CSD Citation annotation."""
         mock_get_data.return_value = self.pmid_data
         actual_tuples = create_tuples_from_author_to_cl(
             self.results_df, self.cellxgene_results
@@ -79,7 +79,7 @@ class CreateTuplesFromAuthorToClTestCase(unittest.TestCase):
 
     @patch("AuthorToClResultsTupleWriter.get_data_for_pmid")
     def test_last_tuple_is_gene_source(self, mock_get_data):
-        """Last tuple is a gene PART_OF source annotation."""
+        """Last tuple is a Gene PART_OF Cell type Source edge annotation."""
         mock_get_data.return_value = self.pmid_data
         actual_tuples = create_tuples_from_author_to_cl(
             self.results_df, self.cellxgene_results

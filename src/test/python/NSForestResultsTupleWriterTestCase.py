@@ -39,7 +39,7 @@ class CreateTuplesFromNSForestTestCase(unittest.TestCase):
         self.assertEqual(len(actual_tuples), len(self.expected_tuples))
 
     def test_contains_bmc_type_tuple(self):
-        """First tuple is the BMC INSTANCE_OF triple."""
+        """First tuple is a BMC INSTANCE_OF Sequence_collection relation."""
         actual_tuples = create_tuples_from_nsforest(self.results_df)
         first = list(str(x) for x in actual_tuples[0])
         self.assertIn("BMC_", first[0])
@@ -47,7 +47,7 @@ class CreateTuplesFromNSForestTestCase(unittest.TestCase):
         self.assertIn("SO_0001260", first[2])
 
     def test_contains_marker_count_tuple(self):
-        """Last tuple is the Marker_count edge annotation."""
+        """Last tuple is a Marker_count edge annotation."""
         actual_tuples = create_tuples_from_nsforest(self.results_df)
         last = list(str(x) for x in actual_tuples[-1])
         self.assertIn("CS_", last[0])
