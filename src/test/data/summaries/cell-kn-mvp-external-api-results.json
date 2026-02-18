@@ -1,0 +1,3915 @@
+{
+    "results": {
+        "cellxgene": {
+            "2e910e62-7eaf-4c06-80cb-8918e3eea16e": {
+                "Dataset_version_ID": "2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+                "Dataset_ID": "d6505c89-c43d-4c28-8c4f-7351a5fd5528",
+                "Collection_version_ID": "962093e5-0e31-4f37-b96a-65116be39138",
+                "Collection_ID": "4c6eaf5c-6d57-4c76-b1e9-60df8c655f1e",
+                "Link_to_publication": "https://doi.org/10.1101/2023.11.07.566105",
+                "Link_to_CELLxGENE_collection": "https://cellxgene.cziscience.com/collections/4c6eaf5c-6d57-4c76-b1e9-60df8c655f1e",
+                "Link_to_CELLxGENE_dataset": "https://datasets.cellxgene.cziscience.com/2e910e62-7eaf-4c06-80cb-8918e3eea16e.h5ad",
+                "Dataset_name": "snRNA-seq of human retina - all cells",
+                "Number_of_cells": 3177310,
+                "Organism": "Homo sapiens",
+                "Tissue": "fovea centralis, macula lutea, macula lutea proper, peripheral region of retina",
+                "Disease_status": "normal",
+                "Zenodo/Nextflow_workflow/Notebook": "TBC"
+            }
+        },
+        "opentargets": {
+            "gene_ensembl_ids": [
+                "ENSG00000001626"
+            ],
+            "ENSG00000001626": {
+                "target": {
+                    "id": "ENSG00000001626",
+                    "dbXrefs": [
+                        {
+                            "id": "1884",
+                            "source": "HGNC"
+                        },
+                        {
+                            "id": "1XMI",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "1XMJ",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "2BBO",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "2BBS",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "2BBT",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "2LOB",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "2PZE",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "2PZF",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "2PZG",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "3GD7",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "3ISW",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "4WZ6",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "5D2D",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "5D3E",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "5D3F",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "5TF7",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "5TF8",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "5TFA",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "5TFB",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "5TFC",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "5TFD",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "5TFF",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "5TFG",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "5TFI",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "5TFJ",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "5TGK",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "5UAK",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "6GJQ",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "6GJS",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "6GJU",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "6GK4",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "6GKD",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "6HEP",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "6MSM",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "6O1V",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "6O2P",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "6UK1",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "6WBS",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "6ZE1",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "7QI1",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "7SV7",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "7SVD",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "7SVR",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "8EIG",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "8EIO",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "8EIQ",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "8EJ1",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "8FZQ",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "8GLS",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "8UBR",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "8V7Z",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "8V81",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "9DW4",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "9DW5",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "9DW7",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "9DW8",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "9DW9",
+                            "source": "PDB"
+                        },
+                        {
+                            "id": "CHEMBL4051",
+                            "source": "ChEMBL"
+                        },
+                        {
+                            "id": "DB00171",
+                            "source": "DrugBank"
+                        },
+                        {
+                            "id": "DB00887",
+                            "source": "DrugBank"
+                        },
+                        {
+                            "id": "DB02587",
+                            "source": "DrugBank"
+                        },
+                        {
+                            "id": "DB04941",
+                            "source": "DrugBank"
+                        },
+                        {
+                            "id": "DB04522",
+                            "source": "DrugBank"
+                        },
+                        {
+                            "id": "DB09213",
+                            "source": "DrugBank"
+                        },
+                        {
+                            "id": "DB15444",
+                            "source": "DrugBank"
+                        },
+                        {
+                            "id": "DB14894",
+                            "source": "DrugBank"
+                        },
+                        {
+                            "id": "DB01645",
+                            "source": "DrugBank"
+                        },
+                        {
+                            "id": "DB01016",
+                            "source": "DrugBank"
+                        },
+                        {
+                            "id": "DB01050",
+                            "source": "DrugBank"
+                        },
+                        {
+                            "id": "DB12959",
+                            "source": "DrugBank"
+                        },
+                        {
+                            "id": "DB08820",
+                            "source": "DrugBank"
+                        },
+                        {
+                            "id": "DB06266",
+                            "source": "DrugBank"
+                        },
+                        {
+                            "id": "DB09280",
+                            "source": "DrugBank"
+                        },
+                        {
+                            "id": "DB04395",
+                            "source": "DrugBank"
+                        },
+                        {
+                            "id": "DB11712",
+                            "source": "DrugBank"
+                        },
+                        {
+                            "id": "R-HSA-382556",
+                            "source": "Reactome"
+                        },
+                        {
+                            "id": "R-HSA-5627083",
+                            "source": "Reactome"
+                        },
+                        {
+                            "id": "R-HSA-5678895",
+                            "source": "Reactome"
+                        },
+                        {
+                            "id": "R-HSA-5689880",
+                            "source": "Reactome"
+                        },
+                        {
+                            "id": "R-HSA-8856825",
+                            "source": "Reactome"
+                        },
+                        {
+                            "id": "R-HSA-8856828",
+                            "source": "Reactome"
+                        },
+                        {
+                            "id": "R-HSA-9013406",
+                            "source": "Reactome"
+                        },
+                        {
+                            "id": "R-HSA-9613829",
+                            "source": "Reactome"
+                        },
+                        {
+                            "id": "R-HSA-9615710",
+                            "source": "Reactome"
+                        },
+                        {
+                            "id": "R-HSA-9646399",
+                            "source": "Reactome"
+                        },
+                        {
+                            "id": "IPR003593",
+                            "source": "InterPro"
+                        },
+                        {
+                            "id": "IPR011527",
+                            "source": "InterPro"
+                        },
+                        {
+                            "id": "IPR036640",
+                            "source": "InterPro"
+                        },
+                        {
+                            "id": "IPR003439",
+                            "source": "InterPro"
+                        },
+                        {
+                            "id": "IPR017871",
+                            "source": "InterPro"
+                        },
+                        {
+                            "id": "IPR050173",
+                            "source": "InterPro"
+                        },
+                        {
+                            "id": "IPR009147",
+                            "source": "InterPro"
+                        },
+                        {
+                            "id": "IPR047082",
+                            "source": "InterPro"
+                        },
+                        {
+                            "id": "IPR025837",
+                            "source": "InterPro"
+                        },
+                        {
+                            "id": "IPR027417",
+                            "source": "InterPro"
+                        }
+                    ],
+                    "proteinIds": [
+                        {
+                            "id": "P13569",
+                            "source": "uniprot_swissprot"
+                        },
+                        {
+                            "id": "A0A3B3IT97",
+                            "source": "uniprot_trembl"
+                        },
+                        {
+                            "id": "A0A3B3ITE0",
+                            "source": "uniprot_trembl"
+                        },
+                        {
+                            "id": "A0A3B3ITW0",
+                            "source": "uniprot_trembl"
+                        },
+                        {
+                            "id": "A0A3B3ITW5",
+                            "source": "uniprot_trembl"
+                        },
+                        {
+                            "id": "A0A669KBE8",
+                            "source": "uniprot_trembl"
+                        },
+                        {
+                            "id": "A0A8I5KVL1",
+                            "source": "uniprot_trembl"
+                        },
+                        {
+                            "id": "A0A8I5KVV2",
+                            "source": "uniprot_trembl"
+                        },
+                        {
+                            "id": "A0A8I5KXQ9",
+                            "source": "uniprot_trembl"
+                        },
+                        {
+                            "id": "A0A8V8TNG7",
+                            "source": "uniprot_trembl"
+                        },
+                        {
+                            "id": "A0A8V8TNH2",
+                            "source": "uniprot_trembl"
+                        },
+                        {
+                            "id": "A0A8V8TNN0",
+                            "source": "uniprot_trembl"
+                        },
+                        {
+                            "id": "A0A8V8TNN7",
+                            "source": "uniprot_trembl"
+                        },
+                        {
+                            "id": "A0A8V8TPV6",
+                            "source": "uniprot_trembl"
+                        },
+                        {
+                            "id": "A0A8V8TQ89",
+                            "source": "uniprot_trembl"
+                        },
+                        {
+                            "id": "A0A8V8TQ94",
+                            "source": "uniprot_trembl"
+                        },
+                        {
+                            "id": "C9J6L5",
+                            "source": "uniprot_trembl"
+                        },
+                        {
+                            "id": "E7EPB6",
+                            "source": "uniprot_trembl"
+                        },
+                        {
+                            "id": "H0Y8A9",
+                            "source": "uniprot_trembl"
+                        },
+                        {
+                            "id": "M0QYZ3",
+                            "source": "uniprot_trembl"
+                        },
+                        {
+                            "id": "ENSP00000003084",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000389119",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000417012",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000419254",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000470177",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000497203",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000497658",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000497673",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000497957",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000497965",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000501235",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000509593",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000510194",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000510587",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000514456",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000514457",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000514465",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000514466",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000514467",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000514468",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000514469",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000514470",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000514471",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000514472",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000514473",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000559265",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000559266",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000559267",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000559268",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000559269",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "ENSP00000620858",
+                            "source": "ensembl_PRO"
+                        },
+                        {
+                            "id": "Q20BG8",
+                            "source": "uniprot_obsolete"
+                        },
+                        {
+                            "id": "Q20BH2",
+                            "source": "uniprot_obsolete"
+                        },
+                        {
+                            "id": "Q2I0A1",
+                            "source": "uniprot_obsolete"
+                        },
+                        {
+                            "id": "Q2I102",
+                            "source": "uniprot_obsolete"
+                        }
+                    ],
+                    "transcriptIds": [
+                        "ENST00000621535",
+                        "ENST00000699596",
+                        "ENST00000446805",
+                        "ENST00000699598",
+                        "ENST00000673785",
+                        "ENST00000699602",
+                        "ENST00000699605",
+                        "ENST00000699603",
+                        "ENST00000889207",
+                        "ENST00000649781",
+                        "ENST00000699599",
+                        "ENST00000699601",
+                        "ENST00000699604",
+                        "ENST00000472848",
+                        "ENST00000692802",
+                        "ENST00000889209",
+                        "ENST00000649406",
+                        "ENST00000699606",
+                        "ENST00000693480",
+                        "ENST00000950799",
+                        "ENST00000647639",
+                        "ENST00000436097",
+                        "ENST00000649850",
+                        "ENST00000546407",
+                        "ENST00000468795",
+                        "ENST00000687278",
+                        "ENST00000689011",
+                        "ENST00000429014",
+                        "ENST00000685018",
+                        "ENST00000647720",
+                        "ENST00000889206",
+                        "ENST00000426809",
+                        "ENST00000647978",
+                        "ENST00000699597",
+                        "ENST00000699600",
+                        "ENST00000610149",
+                        "ENST00000608965",
+                        "ENST00000648260",
+                        "ENST00000889210",
+                        "ENST00000889208",
+                        "ENST00000003084",
+                        "ENST00000699585",
+                        "ENST00000600166",
+                        "ENST00000693465"
+                    ],
+                    "approvedSymbol": "CFTR",
+                    "approvedName": "CF transmembrane conductance regulator"
+                },
+                "diseases": [
+                    {
+                        "score": 0.9133828749078997,
+                        "disease": {
+                            "id": "MONDO_0009061",
+                            "description": "Cystic fibrosis (CF) is a genetic disorder characterized by the production of sweat with a high salt content and mucus secretions with an abnormal viscosity.",
+                            "dbXRefs": [
+                                "ICD9:277.0",
+                                "MESH:D003550",
+                                "NANDO:2200205",
+                                "UMLS:C0010674",
+                                "NANDO:1200922",
+                                "NCIT:C2975",
+                                "NANDO:1201021",
+                                "NORD:1026",
+                                "icd11.foundation:514403112",
+                                "ICD10CM:E84",
+                                "MEDGEN:41393",
+                                "MedDRA:10011762",
+                                "DOID:1485",
+                                "ICD10WHO:E84",
+                                "Orphanet:586",
+                                "SCTID:190905008",
+                                "NANDO:2100035",
+                                "GARD:6233",
+                                "OMIM:219700"
+                            ],
+                            "name": "cystic fibrosis"
+                        }
+                    },
+                    {
+                        "score": 0.8280873105191738,
+                        "disease": {
+                            "id": "MONDO_0010178",
+                            "description": "An autosomal recessive disorder that is associated with mutation(s) in the CFTR gene, encoding cystic fibrosis transmembrane conductance regulator. Mutation(s) in the same gene are associated with cystic fibrosis.",
+                            "dbXRefs": [
+                                "MEDGEN:98021",
+                                "UMLS:C0403814",
+                                "OMIM:277180",
+                                "DOID:0111864",
+                                "GARD:15243",
+                                "NCIT:C129303"
+                            ],
+                            "name": "congenital bilateral aplasia of vas deferens from CFTR mutation"
+                        }
+                    },
+                    {
+                        "score": 0.7114693090823111,
+                        "disease": {
+                            "id": "MONDO_0008185",
+                            "description": "Hereditary chronic pancreatitis (HCP), a rare inherited form of pancreatitis is defined as recurrent acute pancreatitis and/or chronic pancreatitis in two first-degree relatives or 3 or more second-degree relatives in 2 or more generations, for which no predisposing factors are identified. HCP is characterized by irreversible damage to both exocrine and endocrine components of the pancreas.",
+                            "dbXRefs": [
+                                "NANDO:1200921",
+                                "NANDO:2200942",
+                                "NCIT:C95436",
+                                "Orphanet:676",
+                                "UMLS:C0238339",
+                                "icd11.foundation:1287702961",
+                                "SCTID:68072000",
+                                "OMIM:167800",
+                                "ICD9:577.8",
+                                "GARD:6632",
+                                "MEDGEN:116056",
+                                "MESH:C537262"
+                            ],
+                            "name": "hereditary chronic pancreatitis"
+                        }
+                    }
+                ],
+                "drugs": [
+                    {
+                        "phase": 4,
+                        "status": null,
+                        "drugId": "CHEMBL2010601",
+                        "drugType": "Small molecule",
+                        "diseaseId": "EFO_0000684",
+                        "approvedSymbol": "CFTR",
+                        "ctIds": [],
+                        "approvedName": "CF transmembrane conductance regulator",
+                        "mechanismOfAction": "Cystic fibrosis transmembrane conductance regulator positive modulator",
+                        "drug": {
+                            "id": "CHEMBL2010601",
+                            "description": "Small molecule drug with a maximum clinical trial phase of IV (across all indications) that was first approved in 2012 and is indicated for cystic fibrosis and respiratory system disease and has 6 investigational indications.",
+                            "maximumClinicalTrialPhase": 4,
+                            "isApproved": true,
+                            "hasBeenWithdrawn": false,
+                            "synonyms": [
+                                "Ivacaftor",
+                                "VX-770"
+                            ],
+                            "tradeNames": [
+                                "Ivacaftor component of orkambi",
+                                "Ivacaftor component of symkevi",
+                                "Ivacaftor component of trikafta",
+                                "Kalydeco"
+                            ],
+                            "name": "IVACAFTOR",
+                            "indications": {
+                                "count": 8,
+                                "rows": [
+                                    {
+                                        "disease": {
+                                            "id": "EFO_0007486",
+                                            "name": "sinusitis",
+                                            "description": "An acute or chronic inflammatory process affecting the mucous membranes of any sinus cavity."
+                                        },
+                                        "maxPhaseForIndication": 0.5,
+                                        "references": [
+                                            {
+                                                "source": "ClinicalTrials",
+                                                "ids": [
+                                                    "NCT03439865"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "disease": {
+                                            "id": "MONDO_0016575",
+                                            "name": "primary ciliary dyskinesia",
+                                            "description": "A rare, genetically heterogeneous, primarily respiratory disorder characterized by chronic upper and lower respiratory tract disease. Approximately half of PCD patients have an organ laterality defect (situs inversus totalis or situs ambiguus/heterotaxy)."
+                                        },
+                                        "maxPhaseForIndication": 2,
+                                        "references": [
+                                            {
+                                                "source": "ClinicalTrials",
+                                                "ids": [
+                                                    "NCT02871778"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "disease": {
+                                            "id": "EFO_0001421",
+                                            "name": "liver disease",
+                                            "description": "Pathological processes of the LIVER."
+                                        },
+                                        "maxPhaseForIndication": 1,
+                                        "references": [
+                                            {
+                                                "source": "ClinicalTrials",
+                                                "ids": [
+                                                    "NCT01888393"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "disease": {
+                                            "id": "EFO_0000341",
+                                            "name": "chronic obstructive pulmonary disease",
+                                            "description": "A group of disorders affecting the bronchi and the lung parenchyma. It is characterized by chronic and irreversible obstruction of the airflow. It includes chronic bronchitis and pulmonary emphysema."
+                                        },
+                                        "maxPhaseForIndication": 2,
+                                        "references": [
+                                            {
+                                                "source": "ClinicalTrials",
+                                                "ids": [
+                                                    "NCT02135432",
+                                                    "NCT03085485",
+                                                    "NCT04066751"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "disease": {
+                                            "id": "MONDO_0009061",
+                                            "name": "cystic fibrosis",
+                                            "description": "Cystic fibrosis (CF) is a genetic disorder characterized by the production of sweat with a high salt content and mucus secretions with an abnormal viscosity."
+                                        },
+                                        "maxPhaseForIndication": 3,
+                                        "references": [
+                                            {
+                                                "source": "USAN",
+                                                "ids": [
+                                                    "DEUTIVACAFTOR"
+                                                ]
+                                            },
+                                            {
+                                                "source": "ClinicalTrials",
+                                                "ids": [
+                                                    "NCT02971839",
+                                                    "NCT03224351",
+                                                    "NCT03227471",
+                                                    "NCT03911713",
+                                                    "NCT03912233",
+                                                    "NCT05033080",
+                                                    "NCT05076149",
+                                                    "NCT05422222",
+                                                    "NCT05437120",
+                                                    "NCT05444257",
+                                                    "NCT05535959"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "disease": {
+                                            "id": "MONDO_0009061",
+                                            "name": "cystic fibrosis",
+                                            "description": "Cystic fibrosis (CF) is a genetic disorder characterized by the production of sweat with a high salt content and mucus secretions with an abnormal viscosity."
+                                        },
+                                        "maxPhaseForIndication": 4,
+                                        "references": [
+                                            {
+                                                "source": "FDA",
+                                                "ids": [
+                                                    "label/2018/210491lbl.pdf"
+                                                ]
+                                            },
+                                            {
+                                                "source": "EMA",
+                                                "ids": [
+                                                    "EMEA/H/C/002494"
+                                                ]
+                                            },
+                                            {
+                                                "source": "DailyMed",
+                                                "ids": [
+                                                    "3fc1c40e-cfac-47a1-9e1a-61ead3570600",
+                                                    "f354423a-85c2-41c3-a9db-0f3aee135d8d",
+                                                    "302ae804-37db-44fd-ac2f-3dbdeda9aa4b",
+                                                    "0ab0c9f8-3eee-4e0f-9f3f-c1e16aaffe25"
+                                                ]
+                                            },
+                                            {
+                                                "source": "ClinicalTrials",
+                                                "ids": [
+                                                    "NCT00457821",
+                                                    "NCT00909532",
+                                                    "NCT00909727",
+                                                    "NCT00953706",
+                                                    "NCT00966602",
+                                                    "NCT01018368",
+                                                    "NCT01060566",
+                                                    "NCT01117012",
+                                                    "NCT01153542",
+                                                    "NCT01161537",
+                                                    "NCT01208285",
+                                                    "NCT01216046",
+                                                    "NCT01225211",
+                                                    "NCT01262352",
+                                                    "NCT01531673",
+                                                    "NCT01614457",
+                                                    "NCT01614470",
+                                                    "NCT01685801",
+                                                    "NCT01705145",
+                                                    "NCT01707290",
+                                                    "NCT01768663",
+                                                    "NCT01807923",
+                                                    "NCT01807949",
+                                                    "NCT01897233",
+                                                    "NCT01899105",
+                                                    "NCT01910415",
+                                                    "NCT01931839",
+                                                    "NCT01937325",
+                                                    "NCT01946412",
+                                                    "NCT02015507",
+                                                    "NCT02070744",
+                                                    "NCT02347657",
+                                                    "NCT02392234",
+                                                    "NCT02412111",
+                                                    "NCT02508207",
+                                                    "NCT02514473",
+                                                    "NCT02516410",
+                                                    "NCT02544451",
+                                                    "NCT02565914",
+                                                    "NCT02709109",
+                                                    "NCT02725567",
+                                                    "NCT02730208",
+                                                    "NCT02742519",
+                                                    "NCT02797132",
+                                                    "NCT02823470",
+                                                    "NCT02875366",
+                                                    "NCT02934698",
+                                                    "NCT02951182",
+                                                    "NCT02951195",
+                                                    "NCT02953314",
+                                                    "NCT02971839",
+                                                    "NCT03029455",
+                                                    "NCT03061331",
+                                                    "NCT03068312",
+                                                    "NCT03125395",
+                                                    "NCT03150719",
+                                                    "NCT03224351",
+                                                    "NCT03227471",
+                                                    "NCT03277196",
+                                                    "NCT03447249",
+                                                    "NCT03447262",
+                                                    "NCT03460990",
+                                                    "NCT03486236",
+                                                    "NCT03525444",
+                                                    "NCT03525548",
+                                                    "NCT03525574",
+                                                    "NCT03537651",
+                                                    "NCT03559062",
+                                                    "NCT03601637",
+                                                    "NCT03624101",
+                                                    "NCT03625466",
+                                                    "NCT03633526",
+                                                    "NCT03691779",
+                                                    "NCT03768089",
+                                                    "NCT03911713",
+                                                    "NCT03912233",
+                                                    "NCT03956589",
+                                                    "NCT04043806",
+                                                    "NCT04058353",
+                                                    "NCT04058366",
+                                                    "NCT04105972",
+                                                    "NCT04126473",
+                                                    "NCT04135495",
+                                                    "NCT04183790",
+                                                    "NCT04235140",
+                                                    "NCT04353817",
+                                                    "NCT04362761",
+                                                    "NCT04537793",
+                                                    "NCT04545515",
+                                                    "NCT04599465",
+                                                    "NCT04969224",
+                                                    "NCT05033080",
+                                                    "NCT05076149",
+                                                    "NCT05111145",
+                                                    "NCT05153317",
+                                                    "NCT05274269",
+                                                    "NCT05331183",
+                                                    "NCT05668741",
+                                                    "NCT05844449",
+                                                    "NCT05882357",
+                                                    "NCT06299696",
+                                                    "NCT06299709",
+                                                    "NCT06460506"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "disease": {
+                                            "id": "EFO_0006505",
+                                            "name": "chronic bronchitis",
+                                            "description": "A type of chronic obstructive pulmonary disease characterized by chronic inflammation in the bronchial tree that results in edema, mucus production, obstruction, and reduced airflow to and from the lung alveoli. The most common cause is tobacco smoking. Signs and symptoms include coughing with excessive mucus production, and shortness of breath."
+                                        },
+                                        "maxPhaseForIndication": 2,
+                                        "references": [
+                                            {
+                                                "source": "ClinicalTrials",
+                                                "ids": [
+                                                    "NCT03085485"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "disease": {
+                                            "id": "EFO_0000684",
+                                            "name": "respiratory system disease",
+                                            "description": "A non-neoplastic or neoplastic disorder that affects the respiratory system. Representative examples include pneumonia, chronic obstructive pulmonary disease, pulmonary failure, lung adenoma, lung carcinoma, and tracheal carcinoma."
+                                        },
+                                        "maxPhaseForIndication": 4,
+                                        "references": [
+                                            {
+                                                "source": "ATC",
+                                                "ids": [
+                                                    "R07AX02"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "phase": 4,
+                        "status": null,
+                        "drugId": "CHEMBL2108184",
+                        "drugType": "Small molecule",
+                        "diseaseId": "HP_0002014",
+                        "approvedSymbol": "CFTR",
+                        "ctIds": [],
+                        "approvedName": "CF transmembrane conductance regulator",
+                        "mechanismOfAction": "Cystic fibrosis transmembrane conductance regulator inhibitor",
+                        "drug": {
+                            "id": "CHEMBL2108184",
+                            "description": "Small molecule drug with a maximum clinical trial phase of IV (across all indications) that was first approved in 2012 and is indicated for diarrhea and has 2 investigational indications.",
+                            "maximumClinicalTrialPhase": 4,
+                            "isApproved": true,
+                            "hasBeenWithdrawn": false,
+                            "synonyms": [
+                                "Crofelemer",
+                                "NP-303",
+                                "SP-303",
+                                "TRN-002"
+                            ],
+                            "tradeNames": [
+                                "Fulyzaq",
+                                "Mytesi",
+                                "Provir",
+                                "Virend"
+                            ],
+                            "name": "CROFELEMER",
+                            "indications": {
+                                "count": 3,
+                                "rows": [
+                                    {
+                                        "disease": {
+                                            "id": "HP_0002014",
+                                            "name": "Diarrhea",
+                                            "description": "Abnormally increased frequency (usually defined as three or more) loose or watery bowel movements a day."
+                                        },
+                                        "maxPhaseForIndication": 4,
+                                        "references": [
+                                            {
+                                                "source": "ClinicalTrials",
+                                                "ids": [
+                                                    "NCT00002408",
+                                                    "NCT00547898",
+                                                    "NCT04486326"
+                                                ]
+                                            },
+                                            {
+                                                "source": "FDA",
+                                                "ids": [
+                                                    "label/2012/202292s000lbl.pdf"
+                                                ]
+                                            },
+                                            {
+                                                "source": "DailyMed",
+                                                "ids": [
+                                                    "45584fba-8081-4cd1-a21e-3ea8237f62ff"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "disease": {
+                                            "id": "EFO_0000555",
+                                            "name": "irritable bowel syndrome",
+                                            "description": "Irritable bowel syndrome (IBS) is a chronic functional condition of the lower gastrointestinal (GI) tract characterized by abdominal pain or discomfort and disordered bowel habit (diarrhea, constipation, or fluctuation between the two)."
+                                        },
+                                        "maxPhaseForIndication": 2,
+                                        "references": [
+                                            {
+                                                "source": "ClinicalTrials",
+                                                "ids": [
+                                                    "NCT00461526"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "disease": {
+                                            "id": "MONDO_0007254",
+                                            "name": "breast cancer",
+                                            "description": "A primary or metastatic malignant neoplasm involving the breast. The vast majority of cases are carcinomas arising from the breast parenchyma or the nipple. Malignant breast neoplasms occur more frequently in females than in males."
+                                        },
+                                        "maxPhaseForIndication": 2,
+                                        "references": [
+                                            {
+                                                "source": "ClinicalTrials",
+                                                "ids": [
+                                                    "NCT02910219"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "phase": 4,
+                        "status": "Terminated",
+                        "drugId": "CHEMBL2108184",
+                        "drugType": "Small molecule",
+                        "diseaseId": "HP_0002014",
+                        "approvedSymbol": "CFTR",
+                        "ctIds": [
+                            "NCT04486326"
+                        ],
+                        "approvedName": "CF transmembrane conductance regulator",
+                        "mechanismOfAction": "Cystic fibrosis transmembrane conductance regulator inhibitor",
+                        "drug": {
+                            "id": "CHEMBL2108184",
+                            "description": "Small molecule drug with a maximum clinical trial phase of IV (across all indications) that was first approved in 2012 and is indicated for diarrhea and has 2 investigational indications.",
+                            "maximumClinicalTrialPhase": 4,
+                            "isApproved": true,
+                            "hasBeenWithdrawn": false,
+                            "synonyms": [
+                                "Crofelemer",
+                                "NP-303",
+                                "SP-303",
+                                "TRN-002"
+                            ],
+                            "tradeNames": [
+                                "Fulyzaq",
+                                "Mytesi",
+                                "Provir",
+                                "Virend"
+                            ],
+                            "name": "CROFELEMER",
+                            "indications": {
+                                "count": 3,
+                                "rows": [
+                                    {
+                                        "disease": {
+                                            "id": "HP_0002014",
+                                            "name": "Diarrhea",
+                                            "description": "Abnormally increased frequency (usually defined as three or more) loose or watery bowel movements a day."
+                                        },
+                                        "maxPhaseForIndication": 4,
+                                        "references": [
+                                            {
+                                                "source": "ClinicalTrials",
+                                                "ids": [
+                                                    "NCT00002408",
+                                                    "NCT00547898",
+                                                    "NCT04486326"
+                                                ]
+                                            },
+                                            {
+                                                "source": "FDA",
+                                                "ids": [
+                                                    "label/2012/202292s000lbl.pdf"
+                                                ]
+                                            },
+                                            {
+                                                "source": "DailyMed",
+                                                "ids": [
+                                                    "45584fba-8081-4cd1-a21e-3ea8237f62ff"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "disease": {
+                                            "id": "EFO_0000555",
+                                            "name": "irritable bowel syndrome",
+                                            "description": "Irritable bowel syndrome (IBS) is a chronic functional condition of the lower gastrointestinal (GI) tract characterized by abdominal pain or discomfort and disordered bowel habit (diarrhea, constipation, or fluctuation between the two)."
+                                        },
+                                        "maxPhaseForIndication": 2,
+                                        "references": [
+                                            {
+                                                "source": "ClinicalTrials",
+                                                "ids": [
+                                                    "NCT00461526"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "disease": {
+                                            "id": "MONDO_0007254",
+                                            "name": "breast cancer",
+                                            "description": "A primary or metastatic malignant neoplasm involving the breast. The vast majority of cases are carcinomas arising from the breast parenchyma or the nipple. Malignant breast neoplasms occur more frequently in females than in males."
+                                        },
+                                        "maxPhaseForIndication": 2,
+                                        "references": [
+                                            {
+                                                "source": "ClinicalTrials",
+                                                "ids": [
+                                                    "NCT02910219"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ],
+                "interactions": [
+                    {
+                        "count": 3,
+                        "score": 0.984,
+                        "sourceDatabase": "string",
+                        "targetA": {
+                            "proteinIds": [
+                                {
+                                    "id": "P13569"
+                                },
+                                {
+                                    "id": "A0A3B3IT97"
+                                },
+                                {
+                                    "id": "A0A3B3ITE0"
+                                },
+                                {
+                                    "id": "A0A3B3ITW0"
+                                },
+                                {
+                                    "id": "A0A3B3ITW5"
+                                },
+                                {
+                                    "id": "A0A669KBE8"
+                                },
+                                {
+                                    "id": "A0A8I5KVL1"
+                                },
+                                {
+                                    "id": "A0A8I5KVV2"
+                                },
+                                {
+                                    "id": "A0A8I5KXQ9"
+                                },
+                                {
+                                    "id": "A0A8V8TNG7"
+                                },
+                                {
+                                    "id": "A0A8V8TNH2"
+                                },
+                                {
+                                    "id": "A0A8V8TNN0"
+                                },
+                                {
+                                    "id": "A0A8V8TNN7"
+                                },
+                                {
+                                    "id": "A0A8V8TPV6"
+                                },
+                                {
+                                    "id": "A0A8V8TQ89"
+                                },
+                                {
+                                    "id": "A0A8V8TQ94"
+                                },
+                                {
+                                    "id": "C9J6L5"
+                                },
+                                {
+                                    "id": "E7EPB6"
+                                },
+                                {
+                                    "id": "H0Y8A9"
+                                },
+                                {
+                                    "id": "M0QYZ3"
+                                },
+                                {
+                                    "id": "ENSP00000003084"
+                                },
+                                {
+                                    "id": "ENSP00000389119"
+                                },
+                                {
+                                    "id": "ENSP00000417012"
+                                },
+                                {
+                                    "id": "ENSP00000419254"
+                                },
+                                {
+                                    "id": "ENSP00000470177"
+                                },
+                                {
+                                    "id": "ENSP00000497203"
+                                },
+                                {
+                                    "id": "ENSP00000497658"
+                                },
+                                {
+                                    "id": "ENSP00000497673"
+                                },
+                                {
+                                    "id": "ENSP00000497957"
+                                },
+                                {
+                                    "id": "ENSP00000497965"
+                                },
+                                {
+                                    "id": "ENSP00000501235"
+                                },
+                                {
+                                    "id": "ENSP00000509593"
+                                },
+                                {
+                                    "id": "ENSP00000510194"
+                                },
+                                {
+                                    "id": "ENSP00000510587"
+                                },
+                                {
+                                    "id": "ENSP00000514456"
+                                },
+                                {
+                                    "id": "ENSP00000514457"
+                                },
+                                {
+                                    "id": "ENSP00000514465"
+                                },
+                                {
+                                    "id": "ENSP00000514466"
+                                },
+                                {
+                                    "id": "ENSP00000514467"
+                                },
+                                {
+                                    "id": "ENSP00000514468"
+                                },
+                                {
+                                    "id": "ENSP00000514469"
+                                },
+                                {
+                                    "id": "ENSP00000514470"
+                                },
+                                {
+                                    "id": "ENSP00000514471"
+                                },
+                                {
+                                    "id": "ENSP00000514472"
+                                },
+                                {
+                                    "id": "ENSP00000514473"
+                                },
+                                {
+                                    "id": "ENSP00000559265"
+                                },
+                                {
+                                    "id": "ENSP00000559266"
+                                },
+                                {
+                                    "id": "ENSP00000559267"
+                                },
+                                {
+                                    "id": "ENSP00000559268"
+                                },
+                                {
+                                    "id": "ENSP00000559269"
+                                },
+                                {
+                                    "id": "ENSP00000620858"
+                                },
+                                {
+                                    "id": "Q20BG8"
+                                },
+                                {
+                                    "id": "Q20BH2"
+                                },
+                                {
+                                    "id": "Q2I0A1"
+                                },
+                                {
+                                    "id": "Q2I102"
+                                }
+                            ],
+                            "id": "ENSG00000001626",
+                            "approvedSymbol": "CFTR"
+                        },
+                        "intABiologicalRole": "unspecified role",
+                        "speciesA": {
+                            "taxonId": 9606
+                        },
+                        "targetB": {
+                            "proteinIds": [
+                                {
+                                    "id": "O14745"
+                                },
+                                {
+                                    "id": "J3QRA3"
+                                },
+                                {
+                                    "id": "J3QRP6"
+                                },
+                                {
+                                    "id": "ENSP00000262613"
+                                },
+                                {
+                                    "id": "ENSP00000464117"
+                                },
+                                {
+                                    "id": "ENSP00000464321"
+                                },
+                                {
+                                    "id": "ENSP00000464982"
+                                },
+                                {
+                                    "id": "ENSP00000521859"
+                                },
+                                {
+                                    "id": "ENSP00000521860"
+                                },
+                                {
+                                    "id": "ENSP00000521861"
+                                },
+                                {
+                                    "id": "ENSP00000521862"
+                                },
+                                {
+                                    "id": "ENSP00000521863"
+                                },
+                                {
+                                    "id": "ENSP00000637195"
+                                },
+                                {
+                                    "id": "B3KY21"
+                                },
+                                {
+                                    "id": "O43552"
+                                },
+                                {
+                                    "id": "Q86WQ5"
+                                }
+                            ],
+                            "id": "ENSG00000109062",
+                            "approvedSymbol": "NHERF1"
+                        },
+                        "intBBiologicalRole": "unspecified role",
+                        "speciesB": {
+                            "taxonId": 9606
+                        },
+                        "evidences": [
+                            {
+                                "pubmedId": null,
+                                "evidenceScore": 0.73
+                            },
+                            {
+                                "pubmedId": null,
+                                "evidenceScore": 0.9
+                            },
+                            {
+                                "pubmedId": null,
+                                "evidenceScore": 0.472
+                            }
+                        ]
+                    },
+                    {
+                        "count": 3,
+                        "score": 0.983,
+                        "sourceDatabase": "string",
+                        "targetA": {
+                            "proteinIds": [
+                                {
+                                    "id": "P13569"
+                                },
+                                {
+                                    "id": "A0A3B3IT97"
+                                },
+                                {
+                                    "id": "A0A3B3ITE0"
+                                },
+                                {
+                                    "id": "A0A3B3ITW0"
+                                },
+                                {
+                                    "id": "A0A3B3ITW5"
+                                },
+                                {
+                                    "id": "A0A669KBE8"
+                                },
+                                {
+                                    "id": "A0A8I5KVL1"
+                                },
+                                {
+                                    "id": "A0A8I5KVV2"
+                                },
+                                {
+                                    "id": "A0A8I5KXQ9"
+                                },
+                                {
+                                    "id": "A0A8V8TNG7"
+                                },
+                                {
+                                    "id": "A0A8V8TNH2"
+                                },
+                                {
+                                    "id": "A0A8V8TNN0"
+                                },
+                                {
+                                    "id": "A0A8V8TNN7"
+                                },
+                                {
+                                    "id": "A0A8V8TPV6"
+                                },
+                                {
+                                    "id": "A0A8V8TQ89"
+                                },
+                                {
+                                    "id": "A0A8V8TQ94"
+                                },
+                                {
+                                    "id": "C9J6L5"
+                                },
+                                {
+                                    "id": "E7EPB6"
+                                },
+                                {
+                                    "id": "H0Y8A9"
+                                },
+                                {
+                                    "id": "M0QYZ3"
+                                },
+                                {
+                                    "id": "ENSP00000003084"
+                                },
+                                {
+                                    "id": "ENSP00000389119"
+                                },
+                                {
+                                    "id": "ENSP00000417012"
+                                },
+                                {
+                                    "id": "ENSP00000419254"
+                                },
+                                {
+                                    "id": "ENSP00000470177"
+                                },
+                                {
+                                    "id": "ENSP00000497203"
+                                },
+                                {
+                                    "id": "ENSP00000497658"
+                                },
+                                {
+                                    "id": "ENSP00000497673"
+                                },
+                                {
+                                    "id": "ENSP00000497957"
+                                },
+                                {
+                                    "id": "ENSP00000497965"
+                                },
+                                {
+                                    "id": "ENSP00000501235"
+                                },
+                                {
+                                    "id": "ENSP00000509593"
+                                },
+                                {
+                                    "id": "ENSP00000510194"
+                                },
+                                {
+                                    "id": "ENSP00000510587"
+                                },
+                                {
+                                    "id": "ENSP00000514456"
+                                },
+                                {
+                                    "id": "ENSP00000514457"
+                                },
+                                {
+                                    "id": "ENSP00000514465"
+                                },
+                                {
+                                    "id": "ENSP00000514466"
+                                },
+                                {
+                                    "id": "ENSP00000514467"
+                                },
+                                {
+                                    "id": "ENSP00000514468"
+                                },
+                                {
+                                    "id": "ENSP00000514469"
+                                },
+                                {
+                                    "id": "ENSP00000514470"
+                                },
+                                {
+                                    "id": "ENSP00000514471"
+                                },
+                                {
+                                    "id": "ENSP00000514472"
+                                },
+                                {
+                                    "id": "ENSP00000514473"
+                                },
+                                {
+                                    "id": "ENSP00000559265"
+                                },
+                                {
+                                    "id": "ENSP00000559266"
+                                },
+                                {
+                                    "id": "ENSP00000559267"
+                                },
+                                {
+                                    "id": "ENSP00000559268"
+                                },
+                                {
+                                    "id": "ENSP00000559269"
+                                },
+                                {
+                                    "id": "ENSP00000620858"
+                                },
+                                {
+                                    "id": "Q20BG8"
+                                },
+                                {
+                                    "id": "Q20BH2"
+                                },
+                                {
+                                    "id": "Q2I0A1"
+                                },
+                                {
+                                    "id": "Q2I102"
+                                }
+                            ],
+                            "id": "ENSG00000001626",
+                            "approvedSymbol": "CFTR"
+                        },
+                        "intABiologicalRole": "unspecified role",
+                        "speciesA": {
+                            "taxonId": 9606
+                        },
+                        "targetB": {
+                            "proteinIds": [
+                                {
+                                    "id": "Q9HD26"
+                                },
+                                {
+                                    "id": "F5H1Y4"
+                                },
+                                {
+                                    "id": "ENSP00000052569"
+                                },
+                                {
+                                    "id": "ENSP00000357484"
+                                },
+                                {
+                                    "id": "ENSP00000445690"
+                                },
+                                {
+                                    "id": "ENSP00000557884"
+                                },
+                                {
+                                    "id": "ENSP00000557885"
+                                },
+                                {
+                                    "id": "ENSP00000557886"
+                                },
+                                {
+                                    "id": "ENSP00000557887"
+                                },
+                                {
+                                    "id": "ENSP00000557888"
+                                },
+                                {
+                                    "id": "ENSP00000607831"
+                                },
+                                {
+                                    "id": "ENSP00000607832"
+                                },
+                                {
+                                    "id": "ENSP00000634083"
+                                },
+                                {
+                                    "id": "ENSP00000634084"
+                                },
+                                {
+                                    "id": "A6NM30"
+                                },
+                                {
+                                    "id": "Q59FS4"
+                                },
+                                {
+                                    "id": "Q969U8"
+                                }
+                            ],
+                            "id": "ENSG00000047932",
+                            "approvedSymbol": "GOPC"
+                        },
+                        "intBBiologicalRole": "unspecified role",
+                        "speciesB": {
+                            "taxonId": 9606
+                        },
+                        "evidences": [
+                            {
+                                "pubmedId": null,
+                                "evidenceScore": 0.742
+                            },
+                            {
+                                "pubmedId": null,
+                                "evidenceScore": 0.9
+                            },
+                            {
+                                "pubmedId": null,
+                                "evidenceScore": 0.393
+                            }
+                        ]
+                    },
+                    {
+                        "count": 3,
+                        "score": 0.973,
+                        "sourceDatabase": "string",
+                        "targetA": {
+                            "proteinIds": [
+                                {
+                                    "id": "P13569"
+                                },
+                                {
+                                    "id": "A0A3B3IT97"
+                                },
+                                {
+                                    "id": "A0A3B3ITE0"
+                                },
+                                {
+                                    "id": "A0A3B3ITW0"
+                                },
+                                {
+                                    "id": "A0A3B3ITW5"
+                                },
+                                {
+                                    "id": "A0A669KBE8"
+                                },
+                                {
+                                    "id": "A0A8I5KVL1"
+                                },
+                                {
+                                    "id": "A0A8I5KVV2"
+                                },
+                                {
+                                    "id": "A0A8I5KXQ9"
+                                },
+                                {
+                                    "id": "A0A8V8TNG7"
+                                },
+                                {
+                                    "id": "A0A8V8TNH2"
+                                },
+                                {
+                                    "id": "A0A8V8TNN0"
+                                },
+                                {
+                                    "id": "A0A8V8TNN7"
+                                },
+                                {
+                                    "id": "A0A8V8TPV6"
+                                },
+                                {
+                                    "id": "A0A8V8TQ89"
+                                },
+                                {
+                                    "id": "A0A8V8TQ94"
+                                },
+                                {
+                                    "id": "C9J6L5"
+                                },
+                                {
+                                    "id": "E7EPB6"
+                                },
+                                {
+                                    "id": "H0Y8A9"
+                                },
+                                {
+                                    "id": "M0QYZ3"
+                                },
+                                {
+                                    "id": "ENSP00000003084"
+                                },
+                                {
+                                    "id": "ENSP00000389119"
+                                },
+                                {
+                                    "id": "ENSP00000417012"
+                                },
+                                {
+                                    "id": "ENSP00000419254"
+                                },
+                                {
+                                    "id": "ENSP00000470177"
+                                },
+                                {
+                                    "id": "ENSP00000497203"
+                                },
+                                {
+                                    "id": "ENSP00000497658"
+                                },
+                                {
+                                    "id": "ENSP00000497673"
+                                },
+                                {
+                                    "id": "ENSP00000497957"
+                                },
+                                {
+                                    "id": "ENSP00000497965"
+                                },
+                                {
+                                    "id": "ENSP00000501235"
+                                },
+                                {
+                                    "id": "ENSP00000509593"
+                                },
+                                {
+                                    "id": "ENSP00000510194"
+                                },
+                                {
+                                    "id": "ENSP00000510587"
+                                },
+                                {
+                                    "id": "ENSP00000514456"
+                                },
+                                {
+                                    "id": "ENSP00000514457"
+                                },
+                                {
+                                    "id": "ENSP00000514465"
+                                },
+                                {
+                                    "id": "ENSP00000514466"
+                                },
+                                {
+                                    "id": "ENSP00000514467"
+                                },
+                                {
+                                    "id": "ENSP00000514468"
+                                },
+                                {
+                                    "id": "ENSP00000514469"
+                                },
+                                {
+                                    "id": "ENSP00000514470"
+                                },
+                                {
+                                    "id": "ENSP00000514471"
+                                },
+                                {
+                                    "id": "ENSP00000514472"
+                                },
+                                {
+                                    "id": "ENSP00000514473"
+                                },
+                                {
+                                    "id": "ENSP00000559265"
+                                },
+                                {
+                                    "id": "ENSP00000559266"
+                                },
+                                {
+                                    "id": "ENSP00000559267"
+                                },
+                                {
+                                    "id": "ENSP00000559268"
+                                },
+                                {
+                                    "id": "ENSP00000559269"
+                                },
+                                {
+                                    "id": "ENSP00000620858"
+                                },
+                                {
+                                    "id": "Q20BG8"
+                                },
+                                {
+                                    "id": "Q20BH2"
+                                },
+                                {
+                                    "id": "Q2I0A1"
+                                },
+                                {
+                                    "id": "Q2I102"
+                                }
+                            ],
+                            "id": "ENSG00000001626",
+                            "approvedSymbol": "CFTR"
+                        },
+                        "intABiologicalRole": "unspecified role",
+                        "speciesA": {
+                            "taxonId": 9606
+                        },
+                        "targetB": {
+                            "proteinIds": [
+                                {
+                                    "id": "Q14694"
+                                },
+                                {
+                                    "id": "A0A7G6J4N4"
+                                },
+                                {
+                                    "id": "H3BNA1"
+                                },
+                                {
+                                    "id": "H3BNL0"
+                                },
+                                {
+                                    "id": "H3BNP1"
+                                },
+                                {
+                                    "id": "H3BNS8"
+                                },
+                                {
+                                    "id": "H3BQC6"
+                                },
+                                {
+                                    "id": "H3BQP1"
+                                },
+                                {
+                                    "id": "H3BVF1"
+                                },
+                                {
+                                    "id": "J3KT19"
+                                },
+                                {
+                                    "id": "Q68D90"
+                                },
+                                {
+                                    "id": "ENSP00000219473"
+                                },
+                                {
+                                    "id": "ENSP00000445589"
+                                },
+                                {
+                                    "id": "ENSP00000454751"
+                                },
+                                {
+                                    "id": "ENSP00000454902"
+                                },
+                                {
+                                    "id": "ENSP00000454943"
+                                },
+                                {
+                                    "id": "ENSP00000454987"
+                                },
+                                {
+                                    "id": "ENSP00000455712"
+                                },
+                                {
+                                    "id": "ENSP00000455865"
+                                },
+                                {
+                                    "id": "ENSP00000457411"
+                                },
+                                {
+                                    "id": "ENSP00000458089"
+                                },
+                                {
+                                    "id": "ENSP00000462762"
+                                },
+                                {
+                                    "id": "ENSP00000523411"
+                                },
+                                {
+                                    "id": "ENSP00000523412"
+                                },
+                                {
+                                    "id": "ENSP00000523413"
+                                },
+                                {
+                                    "id": "ENSP00000523414"
+                                },
+                                {
+                                    "id": "ENSP00000603676"
+                                },
+                                {
+                                    "id": "ENSP00000603677"
+                                },
+                                {
+                                    "id": "ENSP00000603678"
+                                },
+                                {
+                                    "id": "ENSP00000603679"
+                                },
+                                {
+                                    "id": "ENSP00000603680"
+                                },
+                                {
+                                    "id": "ENSP00000603681"
+                                },
+                                {
+                                    "id": "ENSP00000603682"
+                                },
+                                {
+                                    "id": "ENSP00000603683"
+                                },
+                                {
+                                    "id": "ENSP00000603684"
+                                },
+                                {
+                                    "id": "ENSP00000603685"
+                                },
+                                {
+                                    "id": "ENSP00000616293"
+                                },
+                                {
+                                    "id": "B2RDJ8"
+                                },
+                                {
+                                    "id": "B4DS84"
+                                },
+                                {
+                                    "id": "Q9BWG7"
+                                },
+                                {
+                                    "id": "Q9NSL7"
+                                }
+                            ],
+                            "id": "ENSG00000103194",
+                            "approvedSymbol": "USP10"
+                        },
+                        "intBBiologicalRole": "unspecified role",
+                        "speciesB": {
+                            "taxonId": 9606
+                        },
+                        "evidences": [
+                            {
+                                "pubmedId": null,
+                                "evidenceScore": 0.61
+                            },
+                            {
+                                "pubmedId": null,
+                                "evidenceScore": 0.9
+                            },
+                            {
+                                "pubmedId": null,
+                                "evidenceScore": 0.379
+                            }
+                        ]
+                    }
+                ],
+                "pharmacogenetics": [
+                    {
+                        "variantRsId": "rs368505753",
+                        "genotypeId": "7_117509069_C_C,C",
+                        "genotype": "CC",
+                        "variantFunctionalConsequenceId": "SO_0002073",
+                        "variantFunctionalConsequence": {
+                            "label": "no_sequence_alteration"
+                        },
+                        "drugs": [
+                            {
+                                "drugId": "CHEMBL2010601",
+                                "drugFromSource": "ivacaftor",
+                                "drug": {
+                                    "name": "IVACAFTOR"
+                                }
+                            }
+                        ],
+                        "phenotypeText": "unknown response",
+                        "genotypeAnnotationText": "Patients with the CC genotype (do not have a copy of the CFTR P67L variant) and cystic fibrosis have an unknown response to ivacaftor treatment, as response may depend on the presence of other CFTR variants. Other genetic and clinical factors may also influence response to ivacaftor.",
+                        "pgxCategory": "efficacy",
+                        "isDirectTarget": true,
+                        "evidenceLevel": "1A",
+                        "datasourceId": "clinpgx",
+                        "literature": [
+                            "23891399"
+                        ],
+                        "haplotypeFromSourceId": null,
+                        "targetFromSourceId": "ENSG00000001626",
+                        "studyId": "1449191379",
+                        "datatypeId": "clinical_annotation",
+                        "phenotypeFromSourceId": null,
+                        "variantId": null,
+                        "haplotypeId": null
+                    },
+                    {
+                        "variantRsId": "rs397508537",
+                        "genotypeId": "7_117530955_C_A,C",
+                        "genotype": "AC",
+                        "variantFunctionalConsequenceId": "SO_0001583",
+                        "variantFunctionalConsequence": {
+                            "label": "missense_variant"
+                        },
+                        "drugs": [
+                            {
+                                "drugId": "CHEMBL2010601",
+                                "drugFromSource": "ivacaftor",
+                                "drug": {
+                                    "name": "IVACAFTOR"
+                                }
+                            }
+                        ],
+                        "phenotypeText": "may respond to ivacaftor treatment",
+                        "genotypeAnnotationText": "Patients with the AC genotype (one copy of the CFTR D110E variant) and cystic fibrosis may respond to ivacaftor treatment. FDA-approved drug labeling information and CPIC guidelines indicate use of ivacaftor in cystic fibrosis patients with at least one copy of D110E. Other genetic and clinical factors may also influence response to ivacaftor.",
+                        "pgxCategory": "efficacy",
+                        "isDirectTarget": true,
+                        "evidenceLevel": "1A",
+                        "datasourceId": "clinpgx",
+                        "literature": [
+                            "23891399"
+                        ],
+                        "haplotypeFromSourceId": null,
+                        "targetFromSourceId": "ENSG00000001626",
+                        "studyId": "1449191401",
+                        "datatypeId": "clinical_annotation",
+                        "phenotypeFromSourceId": null,
+                        "variantId": "7_117530955_C_A",
+                        "haplotypeId": null
+                    },
+                    {
+                        "variantRsId": "rs77834169",
+                        "genotypeId": "7_117530974_C_T,T",
+                        "genotype": "TT",
+                        "variantFunctionalConsequenceId": "SO_0001583",
+                        "variantFunctionalConsequence": {
+                            "label": "missense_variant"
+                        },
+                        "drugs": [
+                            {
+                                "drugId": "CHEMBL2010601",
+                                "drugFromSource": "ivacaftor",
+                                "drug": {
+                                    "name": "IVACAFTOR"
+                                }
+                            }
+                        ],
+                        "phenotypeText": "respond to ivacaftor treatment",
+                        "genotypeAnnotationText": "Patients with the TT genotype (two copies of the CFTR R117C variant) and cystic fibrosis may respond to ivacaftor treatment. FDA-approved drug labeling information and CPIC guidelines indicate use of ivacaftor in cystic fibrosis patients with at least one copy of R117C. Other genetic and clinical factors may also influence response to ivacaftor.",
+                        "pgxCategory": "efficacy",
+                        "isDirectTarget": true,
+                        "evidenceLevel": "1A",
+                        "datasourceId": "clinpgx",
+                        "literature": [
+                            "23891399"
+                        ],
+                        "haplotypeFromSourceId": null,
+                        "targetFromSourceId": "ENSG00000001626",
+                        "studyId": "1449191413",
+                        "datatypeId": "clinical_annotation",
+                        "phenotypeFromSourceId": null,
+                        "variantId": "7_117530974_C_T",
+                        "haplotypeId": null
+                    }
+                ],
+                "tractability": [
+                    {
+                        "label": "Approved Drug",
+                        "modality": "SM",
+                        "value": true
+                    },
+                    {
+                        "label": "Advanced Clinical",
+                        "modality": "SM",
+                        "value": false
+                    },
+                    {
+                        "label": "Phase 1 Clinical",
+                        "modality": "SM",
+                        "value": false
+                    }
+                ],
+                "expression": [
+                    {
+                        "tissue": {
+                            "id": "UBERON_0002245",
+                            "label": "cerebellar hemisphere",
+                            "anatomicalSystems": [
+                                "nervous system"
+                            ],
+                            "organs": [
+                                "brain"
+                            ]
+                        },
+                        "rna": {
+                            "zscore": -1,
+                            "value": 33,
+                            "unit": "TPM",
+                            "level": 1
+                        }
+                    },
+                    {
+                        "tissue": {
+                            "id": "CL_0000765",
+                            "label": "erythroblast",
+                            "anatomicalSystems": [
+                                "hematopoietic system"
+                            ],
+                            "organs": [
+                                "blood"
+                            ]
+                        },
+                        "rna": {
+                            "zscore": -1,
+                            "value": 4,
+                            "unit": "TPM",
+                            "level": -1
+                        }
+                    },
+                    {
+                        "tissue": {
+                            "id": "UBERON_0001043",
+                            "label": "esophagus",
+                            "anatomicalSystems": [
+                                "digestive system"
+                            ],
+                            "organs": [
+                                "esophagus"
+                            ]
+                        },
+                        "rna": {
+                            "zscore": -1,
+                            "value": 88,
+                            "unit": "TPM",
+                            "level": 2
+                        }
+                    }
+                ],
+                "depmap": [
+                    {
+                        "screens": [
+                            {
+                                "depmapId": "ACH-001515",
+                                "expression": 0,
+                                "geneEffect": 0.010701066814363003,
+                                "cellLineName": "HCS-2",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Cervical Squamous Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001336",
+                                "expression": 0.07154851406812668,
+                                "geneEffect": 0.08961403369903564,
+                                "cellLineName": "Ca Ski",
+                                "diseaseCellLineId": "SIDM00923",
+                                "diseaseFromSource": "Cervical Squamous Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001402",
+                                "expression": 0.016911311075091362,
+                                "geneEffect": 0.11899428814649582,
+                                "cellLineName": "SW756",
+                                "diseaseCellLineId": "SIDM01174",
+                                "diseaseFromSource": "Cervical Squamous Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001335",
+                                "expression": 0.03430447354912758,
+                                "geneEffect": 0.07341735064983368,
+                                "cellLineName": "C-4 II",
+                                "diseaseCellLineId": "SIDM00906",
+                                "diseaseFromSource": "Cervical Squamous Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001513",
+                                "expression": 0,
+                                "geneEffect": 0.011876163072884083,
+                                "cellLineName": "HCA-1",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Cervical Adenocarcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001334",
+                                "expression": 0.01307772845029831,
+                                "geneEffect": 0.02724645473062992,
+                                "cellLineName": "C-4 I",
+                                "diseaseCellLineId": "SIDM00905",
+                                "diseaseFromSource": "Cervical Squamous Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-002020",
+                                "expression": 0,
+                                "geneEffect": 0.03672770410776138,
+                                "cellLineName": "SKG-IIIa",
+                                "diseaseCellLineId": "SIDM00381",
+                                "diseaseFromSource": "Cervical Squamous Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001651",
+                                "expression": 0.010636636056005955,
+                                "geneEffect": -0.05228279158473015,
+                                "cellLineName": "SKG-I",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Cervical Squamous Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001333",
+                                "expression": 0.008000602014362812,
+                                "geneEffect": -0.07286558300256729,
+                                "cellLineName": "C-33 A",
+                                "diseaseCellLineId": "SIDM00889",
+                                "diseaseFromSource": "Cervical Squamous Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001652",
+                                "expression": 0.027227671816945076,
+                                "geneEffect": 0.07062961161136627,
+                                "cellLineName": "SKG-II",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Cervical Squamous Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001525",
+                                "expression": 0.007901603356003761,
+                                "geneEffect": 0.06859974563121796,
+                                "cellLineName": "HT-3",
+                                "diseaseCellLineId": "SIDM00679",
+                                "diseaseFromSource": "Cervical Adenocarcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001451",
+                                "expression": 0.15473484992980957,
+                                "geneEffect": -0.09142263233661652,
+                                "cellLineName": "BOKU",
+                                "diseaseCellLineId": "SIDM00073",
+                                "diseaseFromSource": "Cervical Squamous Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001360",
+                                "expression": 0.007613176479935646,
+                                "geneEffect": -0.04986400529742241,
+                                "cellLineName": "MS751",
+                                "diseaseCellLineId": "SIDM00638",
+                                "diseaseFromSource": "Cervical Squamous Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000490",
+                                "expression": 0.31678295135498047,
+                                "geneEffect": -0.06757673621177673,
+                                "cellLineName": "SF767",
+                                "diseaseCellLineId": "SIDM00626",
+                                "diseaseFromSource": "Cervical Squamous Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001650",
+                                "expression": 3.2143750190734863,
+                                "geneEffect": 0.0071160150691866875,
+                                "cellLineName": "SISO",
+                                "diseaseCellLineId": "SIDM00394",
+                                "diseaseFromSource": "Cervical Adenocarcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001341",
+                                "expression": 0,
+                                "geneEffect": 0.0245529655367136,
+                                "cellLineName": "DoTc2 4510",
+                                "diseaseCellLineId": "SIDM00864",
+                                "diseaseFromSource": "Mixed Cervical Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000556",
+                                "expression": 4.156032562255859,
+                                "geneEffect": -0.03603564202785492,
+                                "cellLineName": "SIHA",
+                                "diseaseCellLineId": "SIDM01093",
+                                "diseaseFromSource": "Cervical Squamous Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-002019",
+                                "expression": 0,
+                                "geneEffect": -0.07456071674823761,
+                                "cellLineName": "HOKUG",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Glassy Cell Carcinoma of the Cervix",
+                                "mutation": null
+                            }
+                        ],
+                        "tissueId": "UBERON_0000002",
+                        "tissueName": "uterine cervix"
+                    },
+                    {
+                        "screens": [
+                            {
+                                "depmapId": "ACH-000116",
+                                "expression": 0.3395182490348816,
+                                "geneEffect": -0.09289512038230896,
+                                "cellLineName": "OAW28",
+                                "diseaseCellLineId": "SIDM00481",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000256",
+                                "expression": 2.3530380725860596,
+                                "geneEffect": 0.2130766361951828,
+                                "cellLineName": "COV318",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000688",
+                                "expression": 0.013718080706894398,
+                                "geneEffect": -0.10951202362775803,
+                                "cellLineName": "OV7",
+                                "diseaseCellLineId": "SIDM00474",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000324",
+                                "expression": 0.6429344415664673,
+                                "geneEffect": -0.03121505305171013,
+                                "cellLineName": "JHOC-5",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000962",
+                                "expression": 0.960290789604187,
+                                "geneEffect": 0.03888540714979172,
+                                "cellLineName": "OC 314",
+                                "diseaseCellLineId": "SIDM00220",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000048",
+                                "expression": 0.14904600381851196,
+                                "geneEffect": 0.03636735677719116,
+                                "cellLineName": "TOV-112D",
+                                "diseaseCellLineId": "SIDM01170",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000280",
+                                "expression": 0,
+                                "geneEffect": 0.013217456638813019,
+                                "cellLineName": "SNU-840",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-002524",
+                                "expression": 0.09130445867776871,
+                                "geneEffect": 0.1263533979654312,
+                                "cellLineName": "SNU-251",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001991",
+                                "expression": 0.07554358243942261,
+                                "geneEffect": 0.028459258377552032,
+                                "cellLineName": "NZOV9",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-002486",
+                                "expression": 0.4152686595916748,
+                                "geneEffect": -0.025696778669953346,
+                                "cellLineName": "MES-OV",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000291",
+                                "expression": 4.84885311126709,
+                                "geneEffect": 0.1865837574005127,
+                                "cellLineName": "OV-90",
+                                "diseaseCellLineId": "SIDM01141",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000237",
+                                "expression": 0.9693925380706787,
+                                "geneEffect": 0.09020397067070007,
+                                "cellLineName": "JHOM-1",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000123",
+                                "expression": 0.7522715926170349,
+                                "geneEffect": -0.019379403442144394,
+                                "cellLineName": "COV434",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001403",
+                                "expression": 0.2596678137779236,
+                                "geneEffect": 0.020731544122099876,
+                                "cellLineName": "TO14",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000646",
+                                "expression": 0.14482952654361725,
+                                "geneEffect": -0.07081997394561768,
+                                "cellLineName": "OVMANA",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001628",
+                                "expression": 0.09624835848808289,
+                                "geneEffect": 0.09420979768037796,
+                                "cellLineName": "PEA1",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001632",
+                                "expression": 0.02965359389781952,
+                                "geneEffect": 0.06095549091696739,
+                                "cellLineName": "PEO4",
+                                "diseaseCellLineId": "SIDM00471",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000713",
+                                "expression": 0.030595988035202026,
+                                "geneEffect": 0.14600762724876404,
+                                "cellLineName": "Caov-3",
+                                "diseaseCellLineId": "SIDM00919",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000524",
+                                "expression": 1.1462512016296387,
+                                "geneEffect": -0.011770585551857948,
+                                "cellLineName": "KURAMOCHI",
+                                "diseaseCellLineId": "SIDM00554",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-002181",
+                                "expression": null,
+                                "geneEffect": 0.06592896580696106,
+                                "cellLineName": "OVCA420",
+                                "diseaseCellLineId": "SIDM00967",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000811",
+                                "expression": 0.3201877176761627,
+                                "geneEffect": -0.09259561449289322,
+                                "cellLineName": "SK-OV-3",
+                                "diseaseCellLineId": "SIDM00079",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000520",
+                                "expression": 0.023852890357375145,
+                                "geneEffect": 0.04740896075963974,
+                                "cellLineName": "59M",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001630",
+                                "expression": 0,
+                                "geneEffect": -0.04239176586270332,
+                                "cellLineName": "PEO1",
+                                "diseaseCellLineId": "SIDM00472",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000308",
+                                "expression": 2.702723979949951,
+                                "geneEffect": 0.019692298024892807,
+                                "cellLineName": "EFO-21",
+                                "diseaseCellLineId": "SIDM01052",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001719",
+                                "expression": 0.5000718832015991,
+                                "geneEffect": 0.05203157663345337,
+                                "cellLineName": "OCI-C4P",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000696",
+                                "expression": 0.13859693706035614,
+                                "geneEffect": -0.08132977038621902,
+                                "cellLineName": "OVCAR-8",
+                                "diseaseCellLineId": "SIDM00090",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000947",
+                                "expression": 0,
+                                "geneEffect": 0.033604998141527176,
+                                "cellLineName": "OVK18",
+                                "diseaseCellLineId": "SIDM00238",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000278",
+                                "expression": 0.2986571490764618,
+                                "geneEffect": -0.04808057099580765,
+                                "cellLineName": "COV362",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001279",
+                                "expression": 0,
+                                "geneEffect": 0.03150058910250664,
+                                "cellLineName": "SCCOHT-1",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000701",
+                                "expression": 0.00813976302742958,
+                                "geneEffect": -0.058816567063331604,
+                                "cellLineName": "RMUG-S",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000132",
+                                "expression": 0.22327426075935364,
+                                "geneEffect": -0.08414126932621002,
+                                "cellLineName": "JHOS-2",
+                                "diseaseCellLineId": "SIDM00305",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001374",
+                                "expression": 0.2788126468658447,
+                                "geneEffect": -0.3263893723487854,
+                                "cellLineName": "PA-1 [PA1]",
+                                "diseaseCellLineId": "SIDM01140",
+                                "diseaseFromSource": "Ovarian Germ Cell Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001048",
+                                "expression": 0.015222078189253807,
+                                "geneEffect": -0.03533245995640755,
+                                "cellLineName": "COV504",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000542",
+                                "expression": 0.02526697888970375,
+                                "geneEffect": -0.031531643122434616,
+                                "cellLineName": "Hey-A8",
+                                "diseaseCellLineId": "SIDM01215",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001418",
+                                "expression": 0.042586907744407654,
+                                "geneEffect": 0.01380976103246212,
+                                "cellLineName": "UWB1.289",
+                                "diseaseCellLineId": "SIDM00815",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001145",
+                                "expression": 0.5192902684211731,
+                                "geneEffect": -0.007651784457266331,
+                                "cellLineName": "OC 316",
+                                "diseaseCellLineId": "SIDM00219",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000663",
+                                "expression": 0.5813531875610352,
+                                "geneEffect": 0.057659026235342026,
+                                "cellLineName": "OVTOKO",
+                                "diseaseCellLineId": "SIDM00425",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000657",
+                                "expression": 0.07363654673099518,
+                                "geneEffect": 0.039876218885183334,
+                                "cellLineName": "A2780",
+                                "diseaseCellLineId": "SIDM00210",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000013",
+                                "expression": 0.6348413825035095,
+                                "geneEffect": -0.004887320566922426,
+                                "cellLineName": "ONCO-DG-1",
+                                "diseaseCellLineId": "SIDM00093",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000103",
+                                "expression": 1.9225327968597412,
+                                "geneEffect": 0.15712685883045197,
+                                "cellLineName": "Caov-4",
+                                "diseaseCellLineId": "SIDM00918",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000608",
+                                "expression": 0.07242140918970108,
+                                "geneEffect": -0.06687057018280029,
+                                "cellLineName": "COV644",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000906",
+                                "expression": 0.01046190969645977,
+                                "geneEffect": -0.047328606247901917,
+                                "cellLineName": "ES-2",
+                                "diseaseCellLineId": "SIDM00861",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000966",
+                                "expression": 2.35764217376709,
+                                "geneEffect": 0.18330684304237366,
+                                "cellLineName": "IGROV1",
+                                "diseaseCellLineId": "SIDM00151",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000001",
+                                "expression": 0.6526755690574646,
+                                "geneEffect": -0.0698096975684166,
+                                "cellLineName": "NIH:OVCAR-3",
+                                "diseaseCellLineId": "SIDM00105",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-002183",
+                                "expression": null,
+                                "geneEffect": 0.18175023794174194,
+                                "cellLineName": "OVMIU",
+                                "diseaseCellLineId": "SIDM00465",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000719",
+                                "expression": 0.317593514919281,
+                                "geneEffect": 0.05013565719127655,
+                                "cellLineName": "RMG-I",
+                                "diseaseCellLineId": "SIDM00352",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-002140",
+                                "expression": null,
+                                "geneEffect": -0.026047443971037865,
+                                "cellLineName": "Hey",
+                                "diseaseCellLineId": "SIDM00968",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001151",
+                                "expression": 0.27103954553604126,
+                                "geneEffect": 0.033477772027254105,
+                                "cellLineName": "OVCAR-5",
+                                "diseaseCellLineId": "SIDM00091",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000796",
+                                "expression": 0.21729277074337006,
+                                "geneEffect": 0.10337531566619873,
+                                "cellLineName": "MCAS",
+                                "diseaseCellLineId": "SIDM00008",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001340",
+                                "expression": 5.046508312225342,
+                                "geneEffect": 0.03307502716779709,
+                                "cellLineName": "COV413A",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000584",
+                                "expression": 4.965475082397461,
+                                "geneEffect": 0.01660461165010929,
+                                "cellLineName": "JHOS-4",
+                                "diseaseCellLineId": "SIDM00303",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000704",
+                                "expression": 0,
+                                "geneEffect": 0.11516088247299194,
+                                "cellLineName": "OAW42",
+                                "diseaseCellLineId": "SIDM00480",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001370",
+                                "expression": 0,
+                                "geneEffect": -0.030197536572813988,
+                                "cellLineName": "OCI-P5x",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000430",
+                                "expression": 0.09912146627902985,
+                                "geneEffect": -0.09379503130912781,
+                                "cellLineName": "TYK-nu",
+                                "diseaseCellLineId": "SIDM00321",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000460",
+                                "expression": 1.380967617034912,
+                                "geneEffect": -0.08290133625268936,
+                                "cellLineName": "SNU-8",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000936",
+                                "expression": 0.011849112808704376,
+                                "geneEffect": -0.03945927321910858,
+                                "cellLineName": "EFO-27",
+                                "diseaseCellLineId": "SIDM01051",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000527",
+                                "expression": 3.4580814838409424,
+                                "geneEffect": 0.07811178267002106,
+                                "cellLineName": "OVISE",
+                                "diseaseCellLineId": "SIDM00564",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000885",
+                                "expression": 0.05915450304746628,
+                                "geneEffect": 0.13110634684562683,
+                                "cellLineName": "TOV-21G",
+                                "diseaseCellLineId": "SIDM01169",
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001278",
+                                "expression": 0.16124792397022247,
+                                "geneEffect": 0.03955554962158203,
+                                "cellLineName": "BIN-67",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Ovarian Epithelial Tumor",
+                                "mutation": null
+                            }
+                        ],
+                        "tissueId": "UBERON_0003975",
+                        "tissueName": "internal female genitalia"
+                    },
+                    {
+                        "screens": [
+                            {
+                                "depmapId": "ACH-000411",
+                                "expression": 0.2505796253681183,
+                                "geneEffect": 0.048373475670814514,
+                                "cellLineName": "769-P",
+                                "diseaseCellLineId": "SIDM00803",
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000313",
+                                "expression": 0.13716116547584534,
+                                "geneEffect": -0.003282568883150816,
+                                "cellLineName": "KMRC-3",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001194",
+                                "expression": 0.15167830884456635,
+                                "geneEffect": 0.05594132840633392,
+                                "cellLineName": "SK-RC-31",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000250",
+                                "expression": 0.40937355160713196,
+                                "geneEffect": 0.04495897516608238,
+                                "cellLineName": "KMRC-20",
+                                "diseaseCellLineId": "SIDM00609",
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000159",
+                                "expression": 1.481691598892212,
+                                "geneEffect": 0.11750254780054092,
+                                "cellLineName": "OS-RC-2",
+                                "diseaseCellLineId": "SIDM00239",
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000096",
+                                "expression": 0.02800893783569336,
+                                "geneEffect": 0.22027163207530975,
+                                "cellLineName": "G-401",
+                                "diseaseCellLineId": "SIDM00856",
+                                "diseaseFromSource": "Rhabdoid Cancer",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000459",
+                                "expression": 0.021576378494501114,
+                                "geneEffect": -0.016107752919197083,
+                                "cellLineName": "TUHR10TKB",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-002189",
+                                "expression": null,
+                                "geneEffect": 0.15383633971214294,
+                                "cellLineName": "RCC-FG2",
+                                "diseaseCellLineId": "SIDM00819",
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-002533",
+                                "expression": 0.026767488569021225,
+                                "geneEffect": 0.017106298357248306,
+                                "cellLineName": "SNU-482",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000317",
+                                "expression": 0.5764389634132385,
+                                "geneEffect": 0.13128997385501862,
+                                "cellLineName": "TUHR14TKB",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000262",
+                                "expression": 0,
+                                "geneEffect": 0.05814535170793533,
+                                "cellLineName": "UOK101",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000433",
+                                "expression": 0.27764323353767395,
+                                "geneEffect": 0.04023316130042076,
+                                "cellLineName": "Caki-1",
+                                "diseaseCellLineId": "SIDM00941",
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000607",
+                                "expression": 5.422778129577637,
+                                "geneEffect": -0.05216437578201294,
+                                "cellLineName": "KYM-1",
+                                "diseaseCellLineId": "SIDM00552",
+                                "diseaseFromSource": "Rhabdoid Cancer",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001688",
+                                "expression": 0.05705787613987923,
+                                "geneEffect": 0.18987150490283966,
+                                "cellLineName": "UM-RC-7",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-002528",
+                                "expression": 0.0910254567861557,
+                                "geneEffect": 0.09439468383789062,
+                                "cellLineName": "SNU-267",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001687",
+                                "expression": 0,
+                                "geneEffect": 0.08541673421859741,
+                                "cellLineName": "UM-RC-3",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000907",
+                                "expression": 0.016992583870887756,
+                                "geneEffect": 0.07244044542312622,
+                                "cellLineName": "SNU-349",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-002150",
+                                "expression": null,
+                                "geneEffect": 0.1558847576379776,
+                                "cellLineName": "LB1047-RCC",
+                                "diseaseCellLineId": "SIDM00187",
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001163",
+                                "expression": 0.012900437228381634,
+                                "geneEffect": -0.017888739705085754,
+                                "cellLineName": "CCLF_PEDS_0001_T",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001310",
+                                "expression": 0,
+                                "geneEffect": 0.04234246164560318,
+                                "cellLineName": "HA1E",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Non-Cancerous",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001398",
+                                "expression": 0.18159110844135284,
+                                "geneEffect": 0.07591690868139267,
+                                "cellLineName": "SW 156",
+                                "diseaseCellLineId": "SIDM01162",
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000375",
+                                "expression": 0.11345380544662476,
+                                "geneEffect": 0.15705910325050354,
+                                "cellLineName": "G-402",
+                                "diseaseCellLineId": "SIDM00855",
+                                "diseaseFromSource": "Rhabdoid Cancer",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-001532",
+                                "expression": 0,
+                                "geneEffect": 0.0914476290345192,
+                                "cellLineName": "JMU-RTK-2",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Rhabdoid Cancer",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000385",
+                                "expression": 0.23122963309288025,
+                                "geneEffect": -0.008736776188015938,
+                                "cellLineName": "SK-RC-52",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000484",
+                                "expression": 0.3029436767101288,
+                                "geneEffect": 0.22029569745063782,
+                                "cellLineName": "VMRC-RCW",
+                                "diseaseCellLineId": "SIDM00318",
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000533",
+                                "expression": 0.022147618234157562,
+                                "geneEffect": 0.05959881842136383,
+                                "cellLineName": "NCI-H2004 RT",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Rhabdoid Cancer",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000649",
+                                "expression": 0.012477139011025429,
+                                "geneEffect": -0.014998831786215305,
+                                "cellLineName": "786-O",
+                                "diseaseCellLineId": "SIDM00125",
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000792",
+                                "expression": 0.34204378724098206,
+                                "geneEffect": 0.061186984181404114,
+                                "cellLineName": "BFTC-909",
+                                "diseaseCellLineId": "SIDM00988",
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000684",
+                                "expression": 0.0851091593503952,
+                                "geneEffect": 0.4309217929840088,
+                                "cellLineName": "KMRC-1",
+                                "diseaseCellLineId": "SIDM00611",
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000272",
+                                "expression": 0.009294136427342892,
+                                "geneEffect": 0.03187907487154007,
+                                "cellLineName": "SLR 24",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000234",
+                                "expression": 0.5936673879623413,
+                                "geneEffect": -0.05619269609451294,
+                                "cellLineName": "Caki-2",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000495",
+                                "expression": 0.22787289321422577,
+                                "geneEffect": 0.11354031413793564,
+                                "cellLineName": "TUHR4TKB",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000189",
+                                "expression": 0.015236353501677513,
+                                "geneEffect": -0.23445428907871246,
+                                "cellLineName": "RCC10RGB",
+                                "diseaseCellLineId": "SIDM00235",
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000709",
+                                "expression": 0.3107379674911499,
+                                "geneEffect": 0.17992299795150757,
+                                "cellLineName": "KMRC-2",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            },
+                            {
+                                "depmapId": "ACH-000246",
+                                "expression": null,
+                                "geneEffect": 0.04282071813941002,
+                                "cellLineName": "SLR 23",
+                                "diseaseCellLineId": null,
+                                "diseaseFromSource": "Renal Cell Carcinoma",
+                                "mutation": null
+                            }
+                        ],
+                        "tissueId": "UBERON_0002113",
+                        "tissueName": "kidney"
+                    }
+                ],
+                "name": "CFTR"
+            }
+        },
+        "uniprot": {
+            "protein_accessions": [
+                "P55017"
+            ],
+            "P55017": {
+                "Protein_name": "Solute carrier family 12 member 3",
+                "UniProt_ID": "P55017",
+                "Gene_name": "SLC12A3",
+                "Number_of_amino_acids": 1021,
+                "Function": "Electroneutral sodium and chloride ion cotransporter, which acts as a key mediator of sodium and chloride reabsorption in kidney distal convoluted tubules (PubMed:18270262, PubMed:21613606, PubMed:22009145, PubMed:36351028, PubMed:36792826). Also acts as a receptor for the pro-inflammatory cytokine IL18, thereby contributing to IL18-induced cytokine production, including IFNG, IL6, IL18 and CCL2 (By similarity). May act either independently of IL18R1, or in a complex with IL18R1 (By similarity)",
+                "Annotation_score": 5.0,
+                "Organism": "Homo sapiens"
+            }
+        },
+        "gene": {
+            "gene_entrez_ids": [
+                "1000"
+            ],
+            "1000": {
+                "Gene_ID": "1000",
+                "Official_symbol": "CDH2",
+                "Official_full_name": "cadherin 2",
+                "Gene_type": "protein-coding",
+                "Link_to_UniProt_ID": "https://www.uniprot.org/uniprot/P19022",
+                "Organism": "Homo sapiens",
+                "RefSeq_gene_ID": "GCF_000001405.40-RS_2025_08",
+                "Also_known_as": [
+                    "CDHN",
+                    "NCAD",
+                    "ACOGS",
+                    "ADHD8",
+                    "CD325",
+                    "ARVD14",
+                    "CDw325"
+                ],
+                "Summary": "This gene encodes a classical cadherin and member of the cadherin superfamily. Alternative splicing results in multiple transcript variants, at least one of which encodes a preproprotein is proteolytically processed to generate a calcium-dependent cell adhesion molecule and glycoprotein. This protein plays a role in the establishment of left-right asymmetry, development of the nervous system and the formation of cartilage and bone. [provided by RefSeq, Nov 2015]",
+                "UniProt_name": "P19022",
+                "mRNA_(NM)_and_protein_(NP)_sequences": "NM_001308176 -> NP_001295105, cadherin-2"
+            }
+        }
+    },
+    "tuples": {
+        "cellxgene": [
+            [
+                "http://purl.obolibrary.org/obo/CSD_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns/dc#Source",
+                "http://purl.obolibrary.org/obo/PUB_2e910e62-7eaf-4c06-80cb-8918e3eea16e"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CSD_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+                "http://purl.obolibrary.org/obo/PUB_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+                "Manual Mapping"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CSD_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Link_to_publication",
+                "doi.org/10.1101/2023.11.07.566105"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CSD_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Link_to_CELLxGENE_collection",
+                "cellxgene.cziscience.com/collections/4c6eaf5c-6d57-4c76-b1e9-60df8c655f1e"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CSD_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Link_to_CELLxGENE_dataset",
+                "datasets.cellxgene.cziscience.com/2e910e62-7eaf-4c06-80cb-8918e3eea16e.h5ad"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CSD_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Dataset_name",
+                "snRNA-seq of human retina - all cells"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CSD_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Number_of_cells",
+                "3177310"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CSD_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Organism",
+                "Homo sapiens"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CSD_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Tissue",
+                "fovea centralis, macula lutea, macula lutea proper, peripheral region of retina"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CSD_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Disease_status",
+                "normal"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CSD_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Collection_ID",
+                "4c6eaf5c-6d57-4c76-b1e9-60df8c655f1e"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CSD_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Collection_version_ID",
+                "962093e5-0e31-4f37-b96a-65116be39138"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CSD_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Dataset_ID",
+                "d6505c89-c43d-4c28-8c4f-7351a5fd5528"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CSD_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Dataset_version_ID",
+                "2e910e62-7eaf-4c06-80cb-8918e3eea16e"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CSD_2e910e62-7eaf-4c06-80cb-8918e3eea16e",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Zenodo/Nextflow_workflow/Notebook",
+                "TBC"
+            ]
+        ],
+        "opentargets": [
+            [
+                "http://purl.obolibrary.org/obo/GS_CFTR",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#GENETIC_BASIS_FOR",
+                "http://purl.obolibrary.org/obo/MONDO_0009061"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CFTR",
+                "http://purl.obolibrary.org/obo/MONDO_0009061",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+                "Open Targets"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/MONDO_0009061",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Name",
+                "cystic fibrosis"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/MONDO_0009061",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Description",
+                "Cystic fibrosis (CF) is a genetic disorder characterized by the production of sweat with a high salt content and mucus secretions with an abnormal viscosity."
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CFTR",
+                "http://purl.obolibrary.org/obo/MONDO_0009061",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Score",
+                "0.9133828749078997"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CFTR",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#GENETIC_BASIS_FOR",
+                "http://purl.obolibrary.org/obo/MONDO_0010178"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CFTR",
+                "http://purl.obolibrary.org/obo/MONDO_0010178",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+                "Open Targets"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/MONDO_0010178",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Name",
+                "congenital bilateral aplasia of vas deferens from CFTR mutation"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/MONDO_0010178",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Description",
+                "An autosomal recessive disorder that is associated with mutation(s) in the CFTR gene, encoding cystic fibrosis transmembrane conductance regulator. Mutation(s) in the same gene are associated with cystic fibrosis."
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CFTR",
+                "http://purl.obolibrary.org/obo/MONDO_0010178",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Score",
+                "0.8280873105191738"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CFTR",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#GENETIC_BASIS_FOR",
+                "http://purl.obolibrary.org/obo/MONDO_0008185"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CFTR",
+                "http://purl.obolibrary.org/obo/MONDO_0008185",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+                "Open Targets"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/MONDO_0008185",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Name",
+                "hereditary chronic pancreatitis"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/MONDO_0008185",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Description",
+                "Hereditary chronic pancreatitis (HCP), a rare inherited form of pancreatitis is defined as recurrent acute pancreatitis and/or chronic pancreatitis in two first-degree relatives or 3 or more second-degree relatives in 2 or more generations, for which no predisposing factors are identified. HCP is characterized by irreversible damage to both exocrine and endocrine components of the pancreas."
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CFTR",
+                "http://purl.obolibrary.org/obo/MONDO_0008185",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Score",
+                "0.7114693090823111"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#IS_SUBSTANCE_THAT_TREATS",
+                "http://purl.obolibrary.org/obo/MONDO_0005087"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601",
+                "http://purl.obolibrary.org/obo/MONDO_0005087",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+                "Open Targets"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#MOLECULARLY_INTERACTS_WITH",
+                "http://purl.obolibrary.org/obo/PR_P13569"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601",
+                "http://purl.obolibrary.org/obo/PR_P13569",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+                "Open Targets and UniProt"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Indications",
+                "MONDO_0009061"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Indications",
+                "MONDO_0005087"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Name",
+                "IVACAFTOR"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Target",
+                "CFTR"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Type",
+                "Small molecule"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Mechanism_of_action",
+                "Cystic fibrosis transmembrane conductance regulator positive modulator"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Description",
+                "Small molecule drug with a maximum clinical trial phase of IV (across all indications) that was first approved in 2012 and is indicated for cystic fibrosis and respiratory system disease and has 6 investigational indications."
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Synonyms",
+                "['Ivacaftor', 'VX-770']"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Trade_names",
+                "['Ivacaftor component of orkambi', 'Ivacaftor component of symkevi', 'Ivacaftor component of trikafta', 'Kalydeco']"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Approved",
+                "True"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Withdrawn",
+                "False"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Link_to_PubChem_record",
+                "pubchem.ncbi.nlm.nih.gov/compound/16220172"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Link_to_UniProt_ID",
+                "www.uniprot.org/uniprot/P13569"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CFTR",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#HAS_QUALITY",
+                "http://purl.obolibrary.org/obo/RS_368505753"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CFTR",
+                "http://purl.obolibrary.org/obo/RS_368505753",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+                "Open Targets"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_368505753",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#INVOLVED_IN",
+                "http://purl.obolibrary.org/obo/SO_0002073"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_368505753",
+                "http://purl.obolibrary.org/obo/SO_0002073",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+                "Open Targets"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_368505753",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#HAS_PHARMACOLOGICAL_EFFECT",
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_368505753",
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+                "Open Targets"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_368505753",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Genotype_ID",
+                "7_117509069_C_C,C"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_368505753",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Genotype",
+                "CC"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_368505753",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Phenotype",
+                "unknown response"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_368505753",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Genotype_annotation",
+                "Patients with the CC genotype (do not have a copy of the CFTR P67L variant) and cystic fibrosis have an unknown response to ivacaftor treatment, as response may depend on the presence of other CFTR variants. Other genetic and clinical factors may also influence response to ivacaftor."
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_368505753",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Evidence_level",
+                "1A"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_368505753",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+                "clinpgx"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_368505753",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Literature",
+                "['23891399']"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/SO_0002073",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Variant_consequence_label",
+                "{'label': 'no_sequence_alteration'}"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CFTR",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#HAS_QUALITY",
+                "http://purl.obolibrary.org/obo/RS_397508537"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CFTR",
+                "http://purl.obolibrary.org/obo/RS_397508537",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+                "Open Targets"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_397508537",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#INVOLVED_IN",
+                "http://purl.obolibrary.org/obo/SO_0001583"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_397508537",
+                "http://purl.obolibrary.org/obo/SO_0001583",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+                "Open Targets"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_397508537",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#HAS_PHARMACOLOGICAL_EFFECT",
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_397508537",
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+                "Open Targets"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_397508537",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Genotype_ID",
+                "7_117530955_C_A,C"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_397508537",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Genotype",
+                "AC"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_397508537",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Phenotype",
+                "may respond to ivacaftor treatment"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_397508537",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Genotype_annotation",
+                "Patients with the AC genotype (one copy of the CFTR D110E variant) and cystic fibrosis may respond to ivacaftor treatment. FDA-approved drug labeling information and CPIC guidelines indicate use of ivacaftor in cystic fibrosis patients with at least one copy of D110E. Other genetic and clinical factors may also influence response to ivacaftor."
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_397508537",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Evidence_level",
+                "1A"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_397508537",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+                "clinpgx"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_397508537",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Literature",
+                "['23891399']"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/SO_0001583",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Variant_consequence_label",
+                "{'label': 'missense_variant'}"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CFTR",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#HAS_QUALITY",
+                "http://purl.obolibrary.org/obo/RS_77834169"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CFTR",
+                "http://purl.obolibrary.org/obo/RS_77834169",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+                "Open Targets"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_77834169",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#INVOLVED_IN",
+                "http://purl.obolibrary.org/obo/SO_0001583"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_77834169",
+                "http://purl.obolibrary.org/obo/SO_0001583",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+                "Open Targets"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_77834169",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#HAS_PHARMACOLOGICAL_EFFECT",
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_77834169",
+                "http://purl.obolibrary.org/obo/CHEMBL_2010601",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+                "Open Targets"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_77834169",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Genotype_ID",
+                "7_117530974_C_T,T"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_77834169",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Genotype",
+                "TT"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_77834169",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Phenotype",
+                "respond to ivacaftor treatment"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_77834169",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Genotype_annotation",
+                "Patients with the TT genotype (two copies of the CFTR R117C variant) and cystic fibrosis may respond to ivacaftor treatment. FDA-approved drug labeling information and CPIC guidelines indicate use of ivacaftor in cystic fibrosis patients with at least one copy of R117C. Other genetic and clinical factors may also influence response to ivacaftor."
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_77834169",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Evidence_level",
+                "1A"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_77834169",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+                "clinpgx"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/RS_77834169",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Literature",
+                "['23891399']"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/SO_0001583",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Variant_consequence_label",
+                "{'label': 'missense_variant'}"
+            ]
+        ],
+        "uniprot": [
+            [
+                "http://purl.obolibrary.org/obo/PR_P55017",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Protein_name",
+                "Solute carrier family 12 member 3"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/PR_P55017",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#UniProt_ID",
+                "P55017"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/PR_P55017",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Gene_name",
+                "SLC12A3"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/PR_P55017",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Number_of_amino_acids",
+                "1021"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/PR_P55017",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Function",
+                "Electroneutral sodium and chloride ion cotransporter, which acts as a key mediator of sodium and chloride reabsorption in kidney distal convoluted tubules (PubMed:18270262, PubMed:21613606, PubMed:22009145, PubMed:36351028, PubMed:36792826). Also acts as a receptor for the pro-inflammatory cytokine IL18, thereby contributing to IL18-induced cytokine production, including IFNG, IL6, IL18 and CCL2 (By similarity). May act either independently of IL18R1, or in a complex with IL18R1 (By similarity)"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/PR_P55017",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Annotation_score",
+                "5.0"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/PR_P55017",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Organism",
+                "Homo sapiens"
+            ]
+        ],
+        "gene": [
+            [
+                "http://purl.obolibrary.org/obo/GS_CDH2",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#PRODUCES",
+                "http://purl.obolibrary.org/obo/PR_P19022"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CDH2",
+                "http://purl.obolibrary.org/obo/PR_P19022",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+                "UniProt"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CDH2",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Gene_ID",
+                "1000"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CDH2",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Official_symbol",
+                "CDH2"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CDH2",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Official_full_name",
+                "cadherin 2"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CDH2",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Gene_type",
+                "protein-coding"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CDH2",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Link_to_UniProt_ID",
+                "www.uniprot.org/uniprot/P19022"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CDH2",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Organism",
+                "Homo sapiens"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CDH2",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#RefSeq_gene_ID",
+                "GCF_000001405.40-RS_2025_08"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CDH2",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Also_known_as",
+                "['CDHN', 'NCAD', 'ACOGS', 'ADHD8', 'CD325', 'ARVD14', 'CDw325']"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CDH2",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#Summary",
+                "This gene encodes a classical cadherin and member of the cadherin superfamily. Alternative splicing results in multiple transcript variants, at least one of which encodes a preproprotein is proteolytically processed to generate a calcium-dependent cell adhesion molecule and glycoprotein. This protein plays a role in the establishment of left-right asymmetry, development of the nervous system and the formation of cartilage and bone. [provided by RefSeq, Nov 2015]"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CDH2",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#UniProt_name",
+                "P19022"
+            ],
+            [
+                "http://purl.obolibrary.org/obo/GS_CDH2",
+                "http://www.w3.org/1999/02/22-rdf-syntax-ns#mRNA_(NM)_and_protein_(NP)_sequences",
+                "NM_001308176 -> NP_001295105, cadherin-2"
+            ]
+        ]
+    }
+}

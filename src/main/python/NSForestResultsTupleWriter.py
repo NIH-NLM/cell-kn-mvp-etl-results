@@ -16,13 +16,13 @@ from LoaderUtilities import (
 TUPLES_DIRPATH = Path("../../../data/tuples")
 
 
-def create_tuples_from_nsforest(results):
+def create_tuples_from_nsforest(nsforest_results):
     """Creates tuples from NSForest results consistent with schema
     v0.7. Exclude clusters smaller than the minimum size.
 
     Parameters
     ----------
-    results : pd.DataFrame
+    nsforest_results : pd.DataFrame
         DataFrame containing NSForest results
 
     Returns
@@ -33,7 +33,7 @@ def create_tuples_from_nsforest(results):
     tuples = []
 
     # Nodes for each cell set, marker and binary genes, and cell type
-    for _, row in results.iterrows():
+    for _, row in nsforest_results.iterrows():
         uuid = row["uuid"]
         cluster_name = hyphenate(row["clusterName"])
         cluster_size = row["clusterSize"]
