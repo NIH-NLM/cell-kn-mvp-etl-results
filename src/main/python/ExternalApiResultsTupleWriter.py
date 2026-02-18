@@ -123,6 +123,7 @@ def create_tuples_from_cellxgene(cellxgene_results, summarize=False):
         results = {}
         for dataset_version_id, dataset_metadata in cellxgene_results.items():
             results[dataset_version_id] = dataset_metadata
+            break
 
     else:
 
@@ -218,7 +219,6 @@ def create_tuples_from_opentargets(opentargets_results, gene_results, summarize=
     if summarize:
 
         # Find a gene id with all resources, and a valid disease and interaction
-        gene_ensembl_id = None
         for gene_ensembl_id in opentargets_results["gene_ensembl_ids"]:
 
             # Find a gene id for which all resources are not empty
@@ -254,6 +254,7 @@ def create_tuples_from_opentargets(opentargets_results, gene_results, summarize=
         # Consider selected gene id
         gene_ensembl_ids = [gene_ensembl_id]
         results = {}
+        results["gene_ensembl_ids"] = gene_ensembl_ids
         results[gene_ensembl_id] = opentargets_results[gene_ensembl_id]
         results[gene_ensembl_id]["name"] = map_gene_ensembl_id_to_names(
             gene_ensembl_id, gene_ensembl_id_to_names
@@ -746,7 +747,6 @@ def create_tuples_from_gene(gene_results, summarize=False):
     if summarize:
 
         # Find a gene name for which results are not empty
-        gene_entrez_id = None
         for gene_entrez_id in gene_results["gene_entrez_ids"]:
             if len(gene_results[gene_entrez_id]) > 0:
                 break
@@ -754,6 +754,7 @@ def create_tuples_from_gene(gene_results, summarize=False):
         # Consider selected gene name
         gene_entrez_ids = [gene_entrez_id]
         results = {}
+        results["gene_entrez_ids"] = gene_entrez_ids
         results[gene_entrez_id] = gene_results[gene_entrez_id]
 
     else:
@@ -862,6 +863,7 @@ def create_tuples_from_uniprot(uniprot_results, summarize=False):
         # Consider selected protein accession
         protein_accessions = [protein_accession]
         results = {}
+        results["protein_accessions"] = protein_accessions
         results[protein_accession] = uniprot_results[protein_accession]
 
     else:
@@ -1018,8 +1020,8 @@ def create_tuples_from_hubmap(hubmap_data, cl_terms, summarize=False):
 
     if summarize:
         hubmap_data = {}
-        hubmap_data["cell_type"] = cell_type
-        hubmap_data["anatomical_structure"] = anatomical_structure
+        hubmap_data["cell_types"] = [cell_type]
+        hubmap_data["anatomical_structures"] = [anatomical_structure]
 
     return tuples, hubmap_data
 
@@ -1132,11 +1134,18 @@ def main(summarize=False):
     with open(output_dirpath / "cell-kn-mvp-external-api-results.json", "w") as f:
         data = {}
         if summarize:
-            data["cellxgene"] = cellxgene_results
-            data["opentargets"] = opentargets_results
-            data["uniprot"] = uniprot_results
-            data["gene"] = gene_results
-        data["tuples"] = tuples_to_load
+            data["results"] = {}
+            data["results"]["cellxgene"] = cellxgene_results
+            data["results"]["opentargets"] = opentargets_results
+            data["results"]["uniprot"] = uniprot_results
+            data["results"]["gene"] = gene_results
+            data["tuples"] = {}
+            data["tuples"]["cellxgene"] = cellxgene_tuples
+            data["tuples"]["opentargets"] = opentargets_tuples
+            data["tuples"]["uniprot"] = uniprot_tuples
+            data["tuples"]["gene"] = gene_tuples
+        else:
+            data["tuples"] = tuples_to_load
         json.dump(data, f, indent=4)
 
     # Load data from HuBMAP and create tuples
@@ -1151,8 +1160,12 @@ def main(summarize=False):
         with open(output_dirpath / f"hubmap-{hubmap_path.name}", "w") as f:
             data = {}
             if summarize:
-                data["hubmap"] = hubmap_data
-            data["tuples"] = hubmap_tuples
+                data["data"] = {}
+                data["data"]["hubmap"] = hubmap_data
+                data["tuples"] = {}
+                data["tuples"]["hubmap"] = hubmap_tuples
+            else:
+                data["tuples"] = hubmap_tuples
             json.dump(data, f, indent=4)
         if summarize:
             break
