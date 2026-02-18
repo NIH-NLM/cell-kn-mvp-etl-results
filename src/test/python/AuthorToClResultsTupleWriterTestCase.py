@@ -35,7 +35,7 @@ class CreateTuplesFromAuthorToClTestCase(unittest.TestCase):
         external_api_path = SUMMARIES_DIRPATH / "cell-kn-mvp-external-api-results.json"
         with open(external_api_path, "r") as fp:
             external_api_summary = json.load(fp)
-        self.cellxgene_results = external_api_summary["cellxgene"]
+        self.cellxgene_results = external_api_summary["results"]["cellxgene"]
 
         # PMID metadata extracted from expected tuples
         self.pmid_data = {
