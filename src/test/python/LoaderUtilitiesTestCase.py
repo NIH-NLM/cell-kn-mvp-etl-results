@@ -14,7 +14,7 @@ import LoaderUtilities as lu
 class LoaderUtilitiesTestCase(unittest.TestCase):
     """Pure unit tests for LoaderUtilities functions."""
 
-    # -- get_uuid tests --
+    # get_uuid tests
 
     def test_get_uuid_length(self):
         """Returns a 12-character string."""
@@ -32,7 +32,7 @@ class LoaderUtilitiesTestCase(unittest.TestCase):
         """Two calls return different values."""
         self.assertNotEqual(lu.get_uuid(), lu.get_uuid())
 
-    # -- hyphenate tests --
+    # hyphenate tests
 
     def test_hyphenate_space(self):
         """Replaces space with hyphen."""
@@ -70,7 +70,7 @@ class LoaderUtilitiesTestCase(unittest.TestCase):
         """Handles multiple different separators."""
         self.assertEqual(lu.hyphenate("a b_c/d"), "a-b-c-d")
 
-    # -- get_value_or_none tests --
+    # get_value_or_none tests
 
     def test_get_value_or_none_nested(self):
         """Accesses nested dict value."""
@@ -96,7 +96,7 @@ class LoaderUtilitiesTestCase(unittest.TestCase):
         """Returns None for empty dict."""
         self.assertIsNone(lu.get_value_or_none({}, ["a"]))
 
-    # -- get_values_or_none tests --
+    # get_values_or_none tests
 
     def test_get_values_or_none_collects(self):
         """Collects comma-separated values from list items."""
@@ -113,7 +113,7 @@ class LoaderUtilitiesTestCase(unittest.TestCase):
         data = {"items": [{"name": "Alice"}]}
         self.assertEqual(lu.get_values_or_none(data, "items", ["name"]), "Alice")
 
-    # -- map_gene_name_to_ensembl_ids tests --
+    # map_gene_name_to_ensembl_ids tests
 
     def test_map_gene_name_to_ensembl_ids_single(self):
         """Maps gene name to single Ensembl id."""
@@ -153,7 +153,7 @@ class LoaderUtilitiesTestCase(unittest.TestCase):
         ids = lu.map_gene_name_to_ensembl_ids("NONEXISTENT", df)
         self.assertEqual(ids, [])
 
-    # -- map_gene_ensembl_id_to_names tests --
+    # map_gene_ensembl_id_to_names tests
 
     def test_map_gene_ensembl_id_to_names(self):
         """Maps Ensembl id to single gene name."""
@@ -193,7 +193,7 @@ class LoaderUtilitiesTestCase(unittest.TestCase):
         names = lu.map_gene_ensembl_id_to_names("ENSG99999999999", df)
         self.assertEqual(names, [])
 
-    # -- map_gene_name_to_entrez_ids tests --
+    # map_gene_name_to_entrez_ids tests
 
     def test_map_gene_name_to_entrez_ids(self):
         """Maps gene name to single Entrez id."""
@@ -233,7 +233,7 @@ class LoaderUtilitiesTestCase(unittest.TestCase):
         ids = lu.map_gene_name_to_entrez_ids("NONEXISTENT", df)
         self.assertEqual(ids, [])
 
-    # -- map_gene_entrez_id_to_names tests --
+    # map_gene_entrez_id_to_names tests
 
     def test_map_gene_entrez_id_to_names(self):
         """Maps Entrez id to single gene name."""
@@ -273,7 +273,7 @@ class LoaderUtilitiesTestCase(unittest.TestCase):
         names = lu.map_gene_entrez_id_to_names("99999", df)
         self.assertEqual(names, [])
 
-    # -- map_protein_ensembl_id_to_accession tests --
+    # map_protein_ensembl_id_to_accession tests
 
     def test_map_protein_ensembl_id_to_accession_single(self):
         """Maps Ensembl protein id to single accession."""
@@ -294,7 +294,7 @@ class LoaderUtilitiesTestCase(unittest.TestCase):
         ensp2accn = {"ENSP001": "P12345"}
         self.assertIsNone(lu.map_protein_ensembl_id_to_accession("ENSP999", ensp2accn))
 
-    # -- map_accession_to_protein_ensembl_id tests --
+    # map_accession_to_protein_ensembl_id tests
 
     def test_map_accession_to_protein_ensembl_id_single(self):
         """Maps accession to single Ensembl protein id."""
@@ -315,7 +315,7 @@ class LoaderUtilitiesTestCase(unittest.TestCase):
         accn2ensp = {"P12345": "ENSP001"}
         self.assertIsNone(lu.map_accession_to_protein_ensembl_id("P99999", accn2ensp))
 
-    # -- map_efo_to_mondo tests --
+    # map_efo_to_mondo tests
 
     def test_map_efo_to_mondo(self):
         """Maps EFO term to MONDO term."""
@@ -333,7 +333,7 @@ class LoaderUtilitiesTestCase(unittest.TestCase):
         ).set_index("EFO")
         self.assertIsNone(lu.map_efo_to_mondo("EFO_9999999", efo2mondo))
 
-    # -- map_mesh_to_mondo tests --
+    # map_mesh_to_mondo tests
 
     def test_map_mesh_to_mondo(self):
         """Maps MeSH term to MONDO term."""
@@ -347,7 +347,7 @@ class LoaderUtilitiesTestCase(unittest.TestCase):
         mesh2mondo = {"MESH:D008264": "MONDO_0004992"}
         self.assertIsNone(lu.map_mesh_to_mondo("MESH:D999999", mesh2mondo))
 
-    # -- map_chembl_to_pubchem tests --
+    # map_chembl_to_pubchem tests
 
     def test_map_chembl_to_pubchem_single(self):
         """Maps ChEMBL id to single PubChem id."""
@@ -373,7 +373,7 @@ class LoaderUtilitiesTestCase(unittest.TestCase):
         ).set_index("ChEMBL")
         self.assertIsNone(lu.map_chembl_to_pubchem("CHEMBL99999", chembl2pubchem))
 
-    # -- collect_unique_gene_names tests --
+    # collect_unique_gene_names tests
 
     def test_collect_unique_gene_names(self):
         """Extracts unique gene names from NSForest markers and binary genes."""

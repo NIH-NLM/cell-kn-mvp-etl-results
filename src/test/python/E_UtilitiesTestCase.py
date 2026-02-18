@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 class E_UtilitiesTestCase(unittest.TestCase):
     """Pure unit tests for E_Utilities functions."""
 
-    # -- find_names_or_none tests --
+    # find_names_or_none tests
 
     def test_find_names_or_none_nested_tags(self):
         """Traverses nested tags to find text."""

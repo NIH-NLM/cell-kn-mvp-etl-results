@@ -28,7 +28,7 @@ class OntologyParserLoaderUnitTestCase(unittest.TestCase):
         # Reset module-level mutable state between tests
         opl.SKIPPED_VERTICES.clear()
 
-    # -- parse_term tests --
+    # parse_term tests
 
     def test_parse_term_obo_class(self):
         """Standard OBO class URIRef parses correctly."""
@@ -85,7 +85,7 @@ class OntologyParserLoaderUnitTestCase(unittest.TestCase):
         self.assertEqual(term_type, "literal")
         self.assertEqual(value, "somevalue")
 
-    # -- parse_obo tests --
+    # parse_obo tests
 
     def test_parse_obo(self):
         """parse_obo extracts term-to-label mapping from OWL file."""
@@ -98,7 +98,7 @@ class OntologyParserLoaderUnitTestCase(unittest.TestCase):
         self.assertEqual(l2t["macrophage"], "CL_0000235")
         self.assertIn("CL", ids)
 
-    # -- get_fnode tests --
+    # get_fnode tests
 
     def test_get_fnode_bnode_subject(self):
         """When subject is BNode, returns object."""
@@ -124,7 +124,7 @@ class OntologyParserLoaderUnitTestCase(unittest.TestCase):
         with self.assertRaises(Exception):
             opl.get_fnode(u1, u2)
 
-    # -- count_triple_types tests --
+    # count_triple_types tests
 
     def test_count_triple_types(self):
         """Counts triple types correctly."""
@@ -143,7 +143,7 @@ class OntologyParserLoaderUnitTestCase(unittest.TestCase):
         self.assertEqual(types[(URIRef, URIRef, Literal)], 1)
         self.assertEqual(types[(BNode, URIRef, URIRef)], 1)
 
-    # -- collect_fnode_triples tests --
+    # collect_fnode_triples tests
 
     def test_collect_fnode_triples(self):
         """Excludes triples with BNode subject or object."""
@@ -160,7 +160,7 @@ class OntologyParserLoaderUnitTestCase(unittest.TestCase):
         self.assertEqual(len(fnode_triples), 1)
         self.assertEqual(fnode_triples[0], (s1, p1, o1))
 
-    # -- collect_bnode_triple_sets tests --
+    # collect_bnode_triple_sets tests
 
     def test_collect_bnode_triple_sets(self):
         """Categorizes BNode triples into relation/annotation/other."""
@@ -184,7 +184,7 @@ class OntologyParserLoaderUnitTestCase(unittest.TestCase):
         self.assertIn(b, triple_sets)
         self.assertEqual(len(triple_sets[b]["relation"]), 3)
 
-    # -- create_bnode_triples_from_bnode_triple_set tests --
+    # create_bnode_triples_from_bnode_triple_set tests
 
     def test_create_bnode_triples_from_bnode_triple_set_relation(self):
         """Creates triple from relation set with exactly 3 triples."""
@@ -236,7 +236,7 @@ class OntologyParserLoaderUnitTestCase(unittest.TestCase):
         self.assertEqual(triples, [])
         self.assertEqual(ignored, [])
 
-    # -- create_bnode_triples_from_bnode_triple_sets tests --
+    # create_bnode_triples_from_bnode_triple_sets tests
 
     def test_create_bnode_triples_from_bnode_triple_sets(self):
         """Processes multiple BNode triple sets."""
@@ -278,7 +278,7 @@ class OntologyParserLoaderUnitTestCase(unittest.TestCase):
         # b2's class triples go to ignored
         self.assertEqual(len(ignored), 1)
 
-    # -- create_or_get_vertex tests --
+    # create_or_get_vertex tests
 
     def test_create_or_get_vertex_creates(self):
         """Creates new vertex in empty collections."""
@@ -301,7 +301,7 @@ class OntologyParserLoaderUnitTestCase(unittest.TestCase):
         v = opl.create_or_get_vertex(vc, "INVALID", "001", "INVALID_001")
         self.assertIsNone(v)
 
-    # -- create_or_get_vertices_from_triple tests --
+    # create_or_get_vertices_from_triple tests
 
     def test_create_or_get_vertices_from_triple(self):
         """Creates vertices for subject and object."""
@@ -324,7 +324,7 @@ class OntologyParserLoaderUnitTestCase(unittest.TestCase):
         result = opl.create_or_get_vertices_from_triple(vc, s, p, o)
         self.assertIsNone(result)
 
-    # -- create_or_get_edge_from_triple tests --
+    # create_or_get_edge_from_triple tests
 
     def test_create_or_get_edge_from_triple(self):
         """Creates edge for valid triple."""
@@ -349,7 +349,7 @@ class OntologyParserLoaderUnitTestCase(unittest.TestCase):
         result = opl.create_or_get_edge_from_triple(vc, ec, s, p, o)
         self.assertIsNone(result)
 
-    # -- create_or_get_edge tests --
+    # create_or_get_edge tests
 
     def test_create_or_get_edge(self):
         """Creates edge document with correct keys."""
@@ -401,7 +401,7 @@ class OntologyParserLoaderUnitTestCase(unittest.TestCase):
         )
         self.assertIs(e1, e2)
 
-    # -- update_vertex_from_triple tests --
+    # update_vertex_from_triple tests
 
     def test_update_vertex_from_triple_adds_annotation(self):
         """Adds literal value as vertex annotation."""
@@ -433,7 +433,7 @@ class OntologyParserLoaderUnitTestCase(unittest.TestCase):
         result = opl.update_vertex_from_triple(vc, s, p, o)
         self.assertIsNone(result)
 
-    # -- find_obo_version tests --
+    # find_obo_version tests
 
     def test_find_obo_version(self):
         """Extracts version from macrophage.owl."""
