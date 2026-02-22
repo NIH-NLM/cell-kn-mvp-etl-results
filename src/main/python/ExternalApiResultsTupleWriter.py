@@ -93,13 +93,16 @@ def get_protein_term(protein_id, ensp2accn):
     return protein_term
 
 
-def create_tuples_from_cellxgene(summarize=False):
+def create_tuples_from_cellxgene(cellxgene_results, summarize=False):
     """Creates tuples from the result of using the CELLxGENE curation
     API to fetch metadata for dataset version ids. If summnarizing,
     retain the first dataset only.
 
     Parameters
     ----------
+    cellxgene_results : dict
+        Dictionaries containing cellxgene results keyed by
+        dataset_version_id
     summarize : bool
         Flag to summarize results, or not
 
@@ -108,15 +111,10 @@ def create_tuples_from_cellxgene(summarize=False):
     tuples : list(tuple(str))
         List of tuples (triples or quadruples) created
     results : dict
-        Dictionary containg cellxgene results keyed by dataset version
-        id
+        Dictionaries containing cellxgene results keyed by
+        dataset_version_id
     """
     tuples = []
-
-    # Load the cellxgene results
-    print(f"Loading cellxgene results from {CELLXGENE_PATH}")
-    with open(CELLXGENE_PATH, "r") as fp:
-        cellxgene_results = json.load(fp)
 
     # Assign datasets to consider
     if summarize:
@@ -125,6 +123,7 @@ def create_tuples_from_cellxgene(summarize=False):
         results = {}
         for dataset_version_id, dataset_metadata in cellxgene_results.items():
             results[dataset_version_id] = dataset_metadata
+            break
 
     else:
 
@@ -185,13 +184,18 @@ def create_tuples_from_cellxgene(summarize=False):
     return tuples, results
 
 
-def create_tuples_from_opentargets(summarize=False):
+def create_tuples_from_opentargets(opentargets_results, gene_results, summarize=False):
     """Creates tuples from the result of using the Open Targets
     Platform GraphQL API to obtain resources for gene Ensembl ids. If
     summnarizing, retain the first gene Ensembl id only.
 
     Parameters
     ----------
+    opentargets_results : dict
+        Dictionary containing opentargets results keyed by gene
+        Ensembl id, then by resource
+    gene_results : dict
+        Dictionary containing gene results keyed by gene Entrez id
     summarize : bool
         Flag to summarize results, or not
 
@@ -200,21 +204,10 @@ def create_tuples_from_opentargets(summarize=False):
     tuples : list(tuple(str))
         List of tuples (triples or quadruples) created
     results : dict
-        Dictionary containg opentargets results keyed by gene id, then
-        by resource
+        Dictionary containing opentargets results keyed by gene
+        Ensembl id, then by resource
     """
     tuples = []
-
-    # Load the opentargets results
-    print(f"Loading opentargets results from {OPENTARGETS_PATH}")
-    with open(OPENTARGETS_PATH, "r") as fp:
-        opentargets_results = json.load(fp)
-
-    # Load the Gene results to obtain the UniProt names corresponding
-    # to gene names
-    print(f"Loading gene results from {GENE_PATH}")
-    with open(GENE_PATH, "r") as fp:
-        gene_results = json.load(fp)
 
     # Load mappings
     gene_ensembl_id_to_names = get_gene_ensembl_id_to_names_map()
@@ -226,7 +219,6 @@ def create_tuples_from_opentargets(summarize=False):
     if summarize:
 
         # Find a gene id with all resources, and a valid disease and interaction
-        gene_ensembl_id = None
         for gene_ensembl_id in opentargets_results["gene_ensembl_ids"]:
 
             # Find a gene id for which all resources are not empty
@@ -262,6 +254,7 @@ def create_tuples_from_opentargets(summarize=False):
         # Consider selected gene id
         gene_ensembl_ids = [gene_ensembl_id]
         results = {}
+        results["gene_ensembl_ids"] = gene_ensembl_ids
         results[gene_ensembl_id] = opentargets_results[gene_ensembl_id]
         results[gene_ensembl_id]["name"] = map_gene_ensembl_id_to_names(
             gene_ensembl_id, gene_ensembl_id_to_names
@@ -726,13 +719,15 @@ def create_tuples_from_opentargets(summarize=False):
     return tuples, results
 
 
-def create_tuples_from_gene(summarize=False):
+def create_tuples_from_gene(gene_results, summarize=False):
     """Creates tuples from the result of using the E-Utilities to
     fetch Gene data for gene names. If summnarizing, retain the first
     gene name only.
 
     Parameters
     ----------
+    gene_results : dict
+        Dictionary containing gene results keyed by gene Entrez id
     summarize : bool
         Flag to summarize results, or not
 
@@ -741,14 +736,9 @@ def create_tuples_from_gene(summarize=False):
     tuples : list(tuple(str))
         List of tuples (triples or quadruples) created
     results : dict
-        Dictionary containg Gene results keyed by gene name
+        Dictionary containing gene results keyed by gene Entrez id
     """
     tuples = []
-
-    # Load the Gene results
-    print(f"Loading gene results from {GENE_PATH}")
-    with open(GENE_PATH, "r") as fp:
-        gene_results = json.load(fp)
 
     # Load mappings
     gene_entrez_id_to_names = get_gene_entrez_id_to_names_map()
@@ -757,7 +747,6 @@ def create_tuples_from_gene(summarize=False):
     if summarize:
 
         # Find a gene name for which results are not empty
-        gene_entrez_id = None
         for gene_entrez_id in gene_results["gene_entrez_ids"]:
             if len(gene_results[gene_entrez_id]) > 0:
                 break
@@ -765,6 +754,7 @@ def create_tuples_from_gene(summarize=False):
         # Consider selected gene name
         gene_entrez_ids = [gene_entrez_id]
         results = {}
+        results["gene_entrez_ids"] = gene_entrez_ids
         results[gene_entrez_id] = gene_results[gene_entrez_id]
 
     else:
@@ -839,13 +829,16 @@ def create_tuples_from_gene(summarize=False):
     return tuples, results
 
 
-def create_tuples_from_uniprot(summarize=False):
+def create_tuples_from_uniprot(uniprot_results, summarize=False):
     """Creates tuples from the result of using a UniProt API endpoint
     for protein accessions. If summarizing, retain the first protein
     accession only.
 
     Parameters
     ----------
+    uniprot_results : dict
+        Dictionary containing UniProt results keyed by protein
+        accession
     summarize : bool
         Flag to summarize results, or not
 
@@ -854,14 +847,10 @@ def create_tuples_from_uniprot(summarize=False):
     tuples : list(tuple(str))
         List of tuples (triples or quadruples) created
     results : dict
-        Dictionary containg UniProt results keyed by protein accession
+        Dictionary containing UniProt results keyed by protein
+        accession
     """
     tuples = []
-
-    # Load the UniProt results
-    print(f"Loading uniprot results from {UNIPROT_PATH}")
-    with open(UNIPROT_PATH, "r") as fp:
-        uniprot_results = json.load(fp)
 
     # Assign protein accessions to consider
     if summarize:
@@ -874,6 +863,7 @@ def create_tuples_from_uniprot(summarize=False):
         # Consider selected protein accession
         protein_accessions = [protein_accession]
         results = {}
+        results["protein_accessions"] = protein_accessions
         results[protein_accession] = uniprot_results[protein_accession]
 
     else:
@@ -909,13 +899,13 @@ def create_tuples_from_uniprot(summarize=False):
     return tuples, results
 
 
-def create_tuples_from_hubmap(hubmap_path, cl_terms, summarize=False):
+def create_tuples_from_hubmap(hubmap_data, cl_terms, summarize=False):
     """Creates tuples from HuBMAP data tables.
 
     Parameters
     ----------
-    hubmap_path : Path
-        Path to HuBMAP data table JSON file
+    hubmap_data : dict
+        Dictionary containg HuBMAP data table
     cl_terms : set(str)
         Set of all CL terms identified in all author to CL results
     summarize : bool
@@ -929,10 +919,6 @@ def create_tuples_from_hubmap(hubmap_path, cl_terms, summarize=False):
         Dictionary containg HuBMAP data table
     """
     tuples = []
-
-    # Load JSON file
-    with open(hubmap_path, "r") as fp:
-        hubmap_data = json.load(fp)
 
     key_set = set(["id", "ccf_part_of"])
     anatomical_structures = hubmap_data["data"]["anatomical_structures"]
@@ -1034,8 +1020,8 @@ def create_tuples_from_hubmap(hubmap_path, cl_terms, summarize=False):
 
     if summarize:
         hubmap_data = {}
-        hubmap_data["cell_type"] = cell_type
-        hubmap_data["anatomical_structure"] = anatomical_structure
+        hubmap_data["cell_types"] = [cell_type]
+        hubmap_data["anatomical_structures"] = [anatomical_structure]
 
     return tuples, hubmap_data
 
@@ -1108,23 +1094,35 @@ def main(summarize=False):
     ) = collect_results_sources_data()
 
     print(f"Creating tuples from {CELLXGENE_PATH}")
+    with open(CELLXGENE_PATH, "r") as fp:
+        cellxgene_results = json.load(fp)
     cellxgene_tuples, cellxgene_results = create_tuples_from_cellxgene(
-        summarize=summarize
+        cellxgene_results, summarize=summarize
     )
     tuples_to_load = cellxgene_tuples.copy()
 
     print(f"Creating tuples from {OPENTARGETS_PATH}")
+    with open(OPENTARGETS_PATH, "r") as fp:
+        opentargets_results = json.load(fp)
+    with open(GENE_PATH, "r") as fp:
+        gene_results = json.load(fp)  # Need UniProt names corresponding to gene names
     opentargets_tuples, opentargets_results = create_tuples_from_opentargets(
-        summarize=summarize
+        opentargets_results, gene_results, summarize=summarize
     )
     tuples_to_load.extend(opentargets_tuples)
 
     print(f"Creating tuples from {GENE_PATH}")
-    gene_tuples, gene_results = create_tuples_from_gene(summarize=summarize)
+    gene_tuples, gene_results = create_tuples_from_gene(
+        gene_results, summarize=summarize
+    )
     tuples_to_load.extend(gene_tuples)
 
     print(f"Creating tuples from {UNIPROT_PATH}")
-    uniprot_tuples, uniprot_results = create_tuples_from_uniprot(summarize=summarize)
+    with open(UNIPROT_PATH, "r") as fp:
+        uniprot_results = json.load(fp)
+    uniprot_tuples, uniprot_results = create_tuples_from_uniprot(
+        uniprot_results, summarize=summarize
+    )
     tuples_to_load.extend(uniprot_tuples)
 
     if summarize:
@@ -1136,25 +1134,38 @@ def main(summarize=False):
     with open(output_dirpath / "cell-kn-mvp-external-api-results.json", "w") as f:
         data = {}
         if summarize:
-            data["cellxgene"] = cellxgene_results
-            data["opentargets"] = opentargets_results
-            data["uniprot"] = uniprot_results
-            data["gene"] = gene_results
-        data["tuples"] = tuples_to_load
+            data["results"] = {}
+            data["results"]["cellxgene"] = cellxgene_results
+            data["results"]["opentargets"] = opentargets_results
+            data["results"]["uniprot"] = uniprot_results
+            data["results"]["gene"] = gene_results
+            data["tuples"] = {}
+            data["tuples"]["cellxgene"] = cellxgene_tuples
+            data["tuples"]["opentargets"] = opentargets_tuples
+            data["tuples"]["uniprot"] = uniprot_tuples
+            data["tuples"]["gene"] = gene_tuples
+        else:
+            data["tuples"] = tuples_to_load
         json.dump(data, f, indent=4)
 
     # Load data from HuBMAP and create tuples
     hubmap_paths = [Path(p).resolve() for p in glob(str(HUBMAP_DIRPATH / "*.json"))]
     for hubmap_path in hubmap_paths:
         print(f"Creating tuples from {hubmap_path}")
+        with open(hubmap_path, "r") as fp:
+            hubmap_data = json.load(fp)
         hubmap_tuples, hubmap_data = create_tuples_from_hubmap(
-            hubmap_path, cl_terms, summarize=summarize
+            hubmap_data, cl_terms, summarize=summarize
         )
         with open(output_dirpath / f"hubmap-{hubmap_path.name}", "w") as f:
             data = {}
             if summarize:
-                data["hubmap"] = hubmap_data
-            data["tuples"] = hubmap_tuples
+                data["data"] = {}
+                data["data"]["hubmap"] = hubmap_data
+                data["tuples"] = {}
+                data["tuples"]["hubmap"] = hubmap_tuples
+            else:
+                data["tuples"] = hubmap_tuples
             json.dump(data, f, indent=4)
         if summarize:
             break

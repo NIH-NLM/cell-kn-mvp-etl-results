@@ -1,0 +1,183 @@
+{
+    "results": {
+        "Unnamed: 0": {
+            "0": 6
+        },
+        "clusterName": {
+            "0": "AII_1"
+        },
+        "clusterSize": {
+            "0": 34655
+        },
+        "f_score": {
+            "0": 0.869010718
+        },
+        "precision": {
+            "0": 0.9829002675
+        },
+        "TN": {
+            "0": 1740516
+        },
+        "FP": {
+            "0": 358
+        },
+        "FN": {
+            "0": 14077
+        },
+        "TP": {
+            "0": 20578
+        },
+        "marker_count": {
+            "0": 2
+        },
+        "NSForest_markers": {
+            "0": "['SLC12A7', 'OTOGL']"
+        },
+        "binary_genes": {
+            "0": "['CLCNKA', 'GLCE', 'SLC12A7', 'OTOGL', 'CDHR3', 'SYNDIG1', 'CACNG5', 'ENSG00000228222.1', 'NFIA', 'PLCL1']"
+        },
+        "uuid": {
+            "0": "2x26lfpcbg2h"
+        }
+    },
+    "tuples": [
+        [
+            "http://purl.obolibrary.org/obo/BMC_2x26lfpcbg2h",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns/rdf#type",
+            "http://purl.obolibrary.org/obo/SO_0001260"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/BMC_2x26lfpcbg2h",
+            "http://purl.obolibrary.org/obo/SO_0001260",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "NSForest"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_SLC12A7",
+            "http://purl.obolibrary.org/obo/BFO_0000050",
+            "http://purl.obolibrary.org/obo/BMC_2x26lfpcbg2h"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_SLC12A7",
+            "http://purl.obolibrary.org/obo/BMC_2x26lfpcbg2h",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "NSForest"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_OTOGL",
+            "http://purl.obolibrary.org/obo/BFO_0000050",
+            "http://purl.obolibrary.org/obo/BMC_2x26lfpcbg2h"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/GS_OTOGL",
+            "http://purl.obolibrary.org/obo/BMC_2x26lfpcbg2h",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "NSForest"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_AII-1-2x26lfpcbg2h",
+            "http://purl.obolibrary.org/obo/RO_0015004",
+            "http://purl.obolibrary.org/obo/BMC_2x26lfpcbg2h"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_AII-1-2x26lfpcbg2h",
+            "http://purl.obolibrary.org/obo/BMC_2x26lfpcbg2h",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "NSForest"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/BMC_2x26lfpcbg2h",
+            "http://purl.obolibrary.org/obo/RO_0015003",
+            "http://purl.obolibrary.org/obo/BGS_2x26lfpcbg2h"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/BMC_2x26lfpcbg2h",
+            "http://purl.obolibrary.org/obo/BGS_2x26lfpcbg2h",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Source",
+            "NSForest"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_AII-1-2x26lfpcbg2h",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#F_beta_confidence_score",
+            "0.869010718"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_AII-1-2x26lfpcbg2h",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Total_cell_count",
+            "34655"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_AII-1-2x26lfpcbg2h",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Binary_genes",
+            "CLCNKA GLCE SLC12A7 OTOGL CDHR3 SYNDIG1 CACNG5 ENSG00000228222.1 NFIA PLCL1"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_AII-1-2x26lfpcbg2h",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Markers",
+            "SLC12A7 OTOGL"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/BGS_2x26lfpcbg2h",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Binary_genes",
+            "CLCNKA GLCE SLC12A7 OTOGL CDHR3 SYNDIG1 CACNG5 ENSG00000228222.1 NFIA PLCL1"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/BMC_2x26lfpcbg2h",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Markers",
+            "SLC12A7 OTOGL"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/BMC_2x26lfpcbg2h",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#F_beta_confidence_score",
+            "0.869010718"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_AII-1-2x26lfpcbg2h",
+            "http://purl.obolibrary.org/obo/BMC_2x26lfpcbg2h",
+            "http://purl.obolibrary.org/obo/#source_algorithm",
+            "NSForest-v4.0_dev"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_AII-1-2x26lfpcbg2h",
+            "http://purl.obolibrary.org/obo/BMC_2x26lfpcbg2h",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#F_beta_confidence_score",
+            "0.869010718"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_AII-1-2x26lfpcbg2h",
+            "http://purl.obolibrary.org/obo/BMC_2x26lfpcbg2h",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Precision",
+            "0.9829002675"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_AII-1-2x26lfpcbg2h",
+            "http://purl.obolibrary.org/obo/BMC_2x26lfpcbg2h",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#TN",
+            "1740516"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_AII-1-2x26lfpcbg2h",
+            "http://purl.obolibrary.org/obo/BMC_2x26lfpcbg2h",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#TP",
+            "20578"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_AII-1-2x26lfpcbg2h",
+            "http://purl.obolibrary.org/obo/BMC_2x26lfpcbg2h",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#FN",
+            "14077"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_AII-1-2x26lfpcbg2h",
+            "http://purl.obolibrary.org/obo/BMC_2x26lfpcbg2h",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#FP",
+            "358"
+        ],
+        [
+            "http://purl.obolibrary.org/obo/CS_AII-1-2x26lfpcbg2h",
+            "http://purl.obolibrary.org/obo/BMC_2x26lfpcbg2h",
+            "http://www.w3.org/1999/02/22-rdf-syntax-ns#Marker_count",
+            "2"
+        ]
+    ]
+}
