@@ -15,10 +15,20 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static gov.nih.nlm.OntologyElementParser.parseOntologyElements;
-import static gov.nih.nlm.OntologyGraphBuilder.*;
+import static gov.nih.nlm.OntologyGraphBuilder.createVTuple;
+import static gov.nih.nlm.OntologyGraphBuilder.insertEdges;
+import static gov.nih.nlm.OntologyGraphBuilder.insertVertices;
+import static gov.nih.nlm.OntologyGraphBuilder.normalizeEdgeLabel;
+import static gov.nih.nlm.OntologyGraphBuilder.oboDir;
+import static gov.nih.nlm.OntologyGraphBuilder.parsePredicate;
 import static gov.nih.nlm.PathUtilities.listFilesMatchingPattern;
 
 public class ResultsGraphBuilder {
@@ -61,14 +71,14 @@ public class ResultsGraphBuilder {
                     }
                     tupleArrayList.add(node);
                 }
-                if (tupleArrayList.size() == 3 && !(
-                        tupleArrayList.get(tripleSubjectIdx).isURI() && tupleArrayList.get(triplePredicateIdx).isURI() &&
-                                (tupleArrayList.get(tripleObjectIdx).isURI() || tupleArrayList.get(tripleObjectIdx).isLiteral()))) {
+                if (tupleArrayList.size() == 3 && !(tupleArrayList.get(tripleSubjectIdx).isURI() && tupleArrayList.get(
+                        triplePredicateIdx).isURI() && (tupleArrayList.get(tripleObjectIdx).isURI() || tupleArrayList.get(
+                        tripleObjectIdx).isLiteral()))) {
                     throw new IOException("Invalid triple " + tupleArrayList);
                 }
-                if (tupleArrayList.size() == 4 && !(
-                        tupleArrayList.get(quadrupleSubjectIdx).isURI() && tupleArrayList.get(quadrupleObjectIdx).isURI() &&
-                                tupleArrayList.get(quadruplePredicateIdx).isURI() && tupleArrayList.get(quadrupleLiteralIdx).isLiteral())) {
+                if (tupleArrayList.size() == 4 && !(tupleArrayList.get(quadrupleSubjectIdx).isURI() && tupleArrayList.get(
+                        quadrupleObjectIdx).isURI() && tupleArrayList.get(quadruplePredicateIdx).isURI() && tupleArrayList.get(
+                        quadrupleLiteralIdx).isLiteral())) {
                     throw new IOException("Invalid quadruple " + tupleArrayList);
                 }
                 tuplesArrayList.add(tupleArrayList);
@@ -82,17 +92,18 @@ public class ResultsGraphBuilder {
     }
 
     /**
-     * Construct vertices using tuples parsed from a results file that
-     * contain a filled subject and object which contain an ontology ID contained in
-     * the valid vertices collection.
+     * Construct vertices using tuples parsed from a results file that contain a filled subject and object which contain
+     * an ontology ID contained in the valid vertices collection.
      *
      * @param tuplesArrayList   list of tuples parsed from a results file
      * @param graph             ArangoDB graph in which to create vertex collections
      * @param vertexCollections ArangoDB vertex collections
      * @param vertexDocuments   ArangoDB vertex documents
      */
-    public static void constructVertices(ArrayList<ArrayList<Node>> tuplesArrayList, ArangoGraph graph,
-                                         Map<String, Set<String>> vertexKeys, Map<String, ArangoVertexCollection> vertexCollections,
+    public static void constructVertices(ArrayList<ArrayList<Node>> tuplesArrayList,
+                                         ArangoGraph graph,
+                                         Map<String, Set<String>> vertexKeys,
+                                         Map<String, ArangoVertexCollection> vertexCollections,
                                          Map<String, Map<String, BaseDocument>> vertexDocuments) {
 
         int nVertices = 0;
@@ -111,7 +122,8 @@ public class ResultsGraphBuilder {
 
                 // Create a vertex collection, if needed
                 if (!vertexCollections.containsKey(vtuple.id())) {
-                    vertexCollections.put(vtuple.id(), arangoDbUtilities.createOrGetVertexCollection(graph, vtuple.id()));
+                    vertexCollections.put(vtuple.id(),
+                            arangoDbUtilities.createOrGetVertexCollection(graph, vtuple.id()));
                     vertexDocuments.put(vtuple.id(), new HashMap<>());
                     vertexKeys.put(vtuple.id(), new HashSet<>());
                 }
@@ -130,15 +142,15 @@ public class ResultsGraphBuilder {
     }
 
     /**
-     * Update vertices using tuples parsed from a results file that
-     * contain a filled subject which contains an ontology ID contained in the valid
-     * vertices collection, and a filled object literal.
+     * Update vertices using tuples parsed from a results file that contain a filled subject which contains an ontology
+     * ID contained in the valid vertices collection, and a filled object literal.
      *
      * @param tuplesArrayList     list of tuples parsed from a results file
      * @param ontologyElementMaps Maps terms and labels
      * @param vertexDocuments     ArangoDB vertex documents
      */
-    public static void updateVertices(ArrayList<ArrayList<Node>> tuplesArrayList, Map<String, OntologyElementMap> ontologyElementMaps,
+    public static void updateVertices(ArrayList<ArrayList<Node>> tuplesArrayList,
+                                      Map<String, OntologyElementMap> ontologyElementMaps,
                                       Map<String, Map<String, BaseDocument>> vertexDocuments) throws RuntimeException {
 
         Set<String> updatedVertices = new HashSet<>(); // For counting only
@@ -190,8 +202,12 @@ public class ResultsGraphBuilder {
      * @param edgeCollections     ArangoDB edge collections
      * @param edgeDocuments       ArangoDB edge documents
      */
-    public static void constructEdges(ArrayList<ArrayList<Node>> tuplesArrayList, Map<String, OntologyElementMap> ontologyElementMaps, ArangoGraph graph,
-                                      Map<String, Set<String>> edgeKeys, Map<String, ArangoEdgeCollection> edgeCollections, Map<String, Map<String, BaseEdgeDocument>> edgeDocuments) throws RuntimeException {
+    public static void constructEdges(ArrayList<ArrayList<Node>> tuplesArrayList,
+                                      Map<String, OntologyElementMap> ontologyElementMaps,
+                                      ArangoGraph graph,
+                                      Map<String, Set<String>> edgeKeys,
+                                      Map<String, ArangoEdgeCollection> edgeCollections,
+                                      Map<String, Map<String, BaseEdgeDocument>> edgeDocuments) throws RuntimeException {
 
         int nEdges = 0;
         System.out.println("Constructing edges using " + tuplesArrayList.size() + " tuples");
@@ -210,12 +226,14 @@ public class ResultsGraphBuilder {
             if (!o_vtuple.isValidVertex()) continue;
 
             // Parse the predicate
-            String label = normalizeEdgeLabel(parsePredicate(ontologyElementMaps, tupleArrayList.get(triplePredicateIdx)));
+            String label = normalizeEdgeLabel(parsePredicate(ontologyElementMaps,
+                    tupleArrayList.get(triplePredicateIdx)));
 
             // Create an edge collection, if needed
             String idPair = s_vtuple.id() + "-" + o_vtuple.id();
             if (!edgeCollections.containsKey(idPair)) {
-                edgeCollections.put(idPair, arangoDbUtilities.createOrGetEdgeCollection(graph, s_vtuple.id(), o_vtuple.id()));
+                edgeCollections.put(idPair,
+                        arangoDbUtilities.createOrGetEdgeCollection(graph, s_vtuple.id(), o_vtuple.id()));
                 edgeDocuments.put(idPair, new HashMap<>());
                 edgeKeys.put(idPair, new HashSet<>());
             }
@@ -224,7 +242,9 @@ public class ResultsGraphBuilder {
             String key = s_vtuple.number() + "-" + o_vtuple.number();
             if (!edgeKeys.get(idPair).contains(key)) {
                 nEdges++;
-                BaseEdgeDocument doc = new BaseEdgeDocument(key, s_vtuple.id() + "/" + s_vtuple.number(), o_vtuple.id() + "/" + o_vtuple.number());
+                BaseEdgeDocument doc = new BaseEdgeDocument(key,
+                        s_vtuple.id() + "/" + s_vtuple.number(),
+                        o_vtuple.id() + "/" + o_vtuple.number());
                 doc.addAttribute("Label", label);
                 edgeDocuments.get(idPair).put(key, doc);
                 edgeKeys.get(idPair).add(key);
@@ -235,15 +255,15 @@ public class ResultsGraphBuilder {
     }
 
     /**
-     * Update edges using tuples parsed from a results file that
-     * contain a filled subject and object each which contains an ontology ID contained in the valid
-     * vertices collection, and two filled predicate literals.
+     * Update edges using tuples parsed from a results file that contain a filled subject and object each which contains
+     * an ontology ID contained in the valid vertices collection, and two filled predicate literals.
      *
      * @param tuplesArrayList     list of tuples parsed from a results file
      * @param ontologyElementMaps Maps terms and labels
      * @param edgeDocuments       ArangoDB edge documents
      */
-    public static void updateEdges(ArrayList<ArrayList<Node>> tuplesArrayList, Map<String, OntologyElementMap> ontologyElementMaps,
+    public static void updateEdges(ArrayList<ArrayList<Node>> tuplesArrayList,
+                                   Map<String, OntologyElementMap> ontologyElementMaps,
                                    Map<String, Map<String, BaseEdgeDocument>> edgeDocuments) throws RuntimeException {
 
         Set<String> updatedEdges = new HashSet<>(); // For counting only
@@ -289,68 +309,6 @@ public class ResultsGraphBuilder {
     }
 
     /**
-     * Load tuples parsed from a schema file into a local ArangoDB server instance.
-     *
-     * @param cellKnGraph         Cell-KN ArangoDB graph
-     * @param ontologyElementMaps Maps terms and labels
-     */
-    public static void loadSchemaTuples(ArangoGraph cellKnGraph, Map<String, OntologyElementMap> ontologyElementMaps) throws IOException {
-
-        // Create the database and graph
-        String cellKnSchemaDbName = "Cell-KN-Schema";
-        arangoDbUtilities.deleteDatabase(cellKnSchemaDbName);
-        ArangoDatabase cellKnSchemaDb = arangoDbUtilities.createOrGetDatabase(cellKnSchemaDbName);
-        String cellKnSchemaGraphName = "KN-Schema-v0.7";
-        arangoDbUtilities.deleteGraph(cellKnSchemaDb, cellKnSchemaGraphName);
-        ArangoGraph cellKnSchemaGraph = arangoDbUtilities.createOrGetGraph(cellKnSchemaDb, cellKnSchemaGraphName);
-
-        // Collect vertex keys for each vertex collection to prevent constructing
-        // duplicate vertices in the vertex collection
-        Map<String, Set<String>> vertexKeys = new HashMap<>();
-
-        // Collect edge keys in each edge collection to prevent constructing duplicate
-        // edges in the edge collection
-        Map<String, Set<String>> edgeKeys = new HashMap<>();
-
-        // Collect all vertices and edges before inserting them into the graph for improved performace
-        Map<String, ArangoVertexCollection> vertexCollections = new HashMap<>();
-        Map<String, Map<String, BaseDocument>> vertexDocuments = new HashMap<>();
-        Map<String, ArangoEdgeCollection> edgeCollections = new HashMap<>();
-        Map<String, Map<String, BaseEdgeDocument>> edgeDocuments = new HashMap<>();
-
-        Path tuplesFile = schemaDir.resolve("cell-kn-schema-v0.7.0.json");
-        System.out.println("Processing tuples file " + tuplesFile);
-
-        // Read the tuples file
-        ArrayList<ArrayList<Node>> tuplesArrayList;
-        try {
-            tuplesArrayList = readJsonFile(tuplesFile.toString());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        // Construct vertices
-        constructVertices(tuplesArrayList, cellKnSchemaGraph, vertexKeys, vertexCollections, vertexDocuments);
-
-        // Construct edges
-        constructEdges(tuplesArrayList, ontologyElementMaps, cellKnSchemaGraph, edgeKeys, edgeCollections, edgeDocuments);
-
-        // Insert vertices, and edges
-        insertVertices(vertexCollections, vertexDocuments);
-        insertEdges(vertexCollections, edgeCollections, edgeDocuments);
-
-        // Replace Cell-KN schema vertices which have no attributes with Cell-KN vertices which do
-        for (String id : vertexDocuments.keySet()) {
-            for (String number : vertexDocuments.get(id).keySet()) {
-                BaseDocument cellKnDoc = cellKnGraph.vertexCollection(id).getVertex(number, BaseDocument.class);
-                if (cellKnDoc != null) {
-                    vertexCollections.get(id).replaceVertex(number, cellKnDoc);
-                }
-            }
-        }
-    }
-
-    /**
      * Load tuples parsed from a results file into a local ArangoDB server instance.
      *
      * @param args (None expected)
@@ -358,12 +316,7 @@ public class ResultsGraphBuilder {
     public static void main(String[] args) {
 
         // Identify the results tuples files
-        String tuplesPath;
-        if (args.length > 0) {
-            tuplesPath = args[0];
-        } else {
-            tuplesPath = tuplesDir.toString();
-        }
+        String tuplesPath = tuplesDir.toString();
         String tuplesPattern = ".*\\.json";
         List<Path> tuplesFiles;
         try {
@@ -377,12 +330,7 @@ public class ResultsGraphBuilder {
         }
 
         // Map terms and labels
-        String oboPath;
-        if (args.length > 1) {
-            oboPath = args[1];
-        } else {
-            oboPath = oboDir.toString();
-        }
+        String oboPath = oboDir.toString();
         String oboPattern = "ro.owl";
         List<Path> oboFiles;
         try {
@@ -399,36 +347,24 @@ public class ResultsGraphBuilder {
         }
 
         // Create the database and graph
-        String cellKnDbName;
-        if (args.length > 2) {
-            cellKnDbName = args[2];
-        } else {
-            cellKnDbName = "Cell-KN-Ontologies";
-        }
-        // NEVER DO THIS: arangoDbUtilities.deleteDatabase(databaseName);
-        ArangoDatabase cellKnDb = arangoDbUtilities.createOrGetDatabase(cellKnDbName);
-        String cellKnGraphName;
-        if (args.length > 3) {
-            cellKnGraphName = args[3];
-        } else {
-            cellKnGraphName = "KN-Ontologies-v2.0";
-        }
-        // NEVER DO THIS: arangoDbUtilities.deleteGraph(db, graphName);
-        ArangoGraph cellKnGraph = arangoDbUtilities.createOrGetGraph(cellKnDb, cellKnGraphName);
+        String ontologyDatabaseName = "Cell-KN-Ontologies";
+        ArangoDatabase ontologyDb = arangoDbUtilities.createOrGetDatabase(ontologyDatabaseName);
+        String ontologyGraphName = "KN-Ontologies-v2.0";
+        ArangoGraph ontologyGraph = arangoDbUtilities.createOrGetGraph(ontologyDb, ontologyGraphName);
 
         // Collect vertex keys for each vertex collection to prevent constructing
         // duplicate vertices in the vertex collection
-        Map<String, Set<String>> vertexKeys = new HashMap<>();
+        Map<String, Set<String>> ontologyVertexKeys = new HashMap<>();
 
         // Collect edge keys in each edge collection to prevent constructing duplicate
         // edges in the edge collection
-        Map<String, Set<String>> edgeKeys = new HashMap<>();
+        Map<String, Set<String>> ontologyEdgeKeys = new HashMap<>();
 
         // Collect all vertices and edges before inserting them into the graph for improved performace
-        Map<String, ArangoVertexCollection> vertexCollections = new HashMap<>();
-        Map<String, Map<String, BaseDocument>> vertexDocuments = new HashMap<>();
-        Map<String, ArangoEdgeCollection> edgeCollections = new HashMap<>();
-        Map<String, Map<String, BaseEdgeDocument>> edgeDocuments = new HashMap<>();
+        Map<String, ArangoVertexCollection> ontologyVertexCollections = new HashMap<>();
+        Map<String, Map<String, BaseDocument>> ontologyVertexDocuments = new HashMap<>();
+        Map<String, ArangoEdgeCollection> ontologyEdgeCollections = new HashMap<>();
+        Map<String, Map<String, BaseEdgeDocument>> ontologyEdgeDocuments = new HashMap<>();
 
         // Read the results tuples files
         for (Path tuplesFile : tuplesFiles) {
@@ -441,24 +377,29 @@ public class ResultsGraphBuilder {
             }
 
             // Construct, and update vertices
-            constructVertices(tuplesArrayList, cellKnGraph, vertexKeys, vertexCollections, vertexDocuments);
-            updateVertices(tuplesArrayList, ontologyElementMaps, vertexDocuments);
+            constructVertices(tuplesArrayList,
+                    ontologyGraph,
+                    ontologyVertexKeys,
+                    ontologyVertexCollections,
+                    ontologyVertexDocuments);
+            updateVertices(tuplesArrayList, ontologyElementMaps, ontologyVertexDocuments);
 
             // Construct, and update edges
-            constructEdges(tuplesArrayList, ontologyElementMaps, cellKnGraph, edgeKeys, edgeCollections, edgeDocuments);
-            updateEdges(tuplesArrayList, ontologyElementMaps, edgeDocuments);
+            constructEdges(tuplesArrayList,
+                    ontologyElementMaps,
+                    ontologyGraph,
+                    ontologyEdgeKeys,
+                    ontologyEdgeCollections,
+                    ontologyEdgeDocuments);
+            updateEdges(tuplesArrayList, ontologyElementMaps, ontologyEdgeDocuments);
         }
         // Insert vertices, and edges
         try {
-            insertVertices(vertexCollections, vertexDocuments);
+            insertVertices(ontologyVertexCollections, ontologyVertexDocuments);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        insertEdges(vertexCollections, edgeCollections, edgeDocuments);
-
-        // TODO: Remove after testing Python version
-        // Load the schema tuples file
-        // loadSchemaTuples(cellKnGraph, ontologyElementMaps);
+        insertEdges(ontologyVertexCollections, ontologyEdgeCollections, ontologyEdgeDocuments);
 
         // Disconnect from a local ArangoDB server instance
         arangoDbUtilities.arangoDB.shutdown();
