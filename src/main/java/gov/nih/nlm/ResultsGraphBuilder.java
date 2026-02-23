@@ -182,14 +182,11 @@ public class ResultsGraphBuilder {
                 throw new RuntimeException("No vertex for VTuple " + vtuple);
             updatedVertices.add(vtuple.id() + "-" + vtuple.number());
             BaseDocument doc = vertexDocuments.get(vtuple.id()).get(vtuple.number());
-            Set<String> literals;
             if (doc.getAttribute(attribute) == null) {
-                literals = new HashSet<>();
-                doc.addAttribute(attribute, literals);
+                doc.addAttribute(attribute, literal);
             } else {
-                literals = (HashSet<String>) doc.getAttribute(attribute);
+                doc.updateAttribute(attribute, literal);
             }
-            literals.add(literal);
         }
         long stopTime = System.nanoTime();
         System.out.println("Updated " + updatedVertices.size() + " vertices using " + tuplesArrayList.size() + " tuples in " + (stopTime - startTime) / 1e9 + " s");
@@ -295,14 +292,11 @@ public class ResultsGraphBuilder {
                 throw new RuntimeException("Invalid edge in collection " + idPair + " with key " + key);
             updatedEdges.add(s_vtuple.id() + "/" + s_vtuple.number() + "-" + o_vtuple.id() + "/" + o_vtuple.number());
             BaseEdgeDocument doc = edgeDocuments.get(idPair).get(key);
-            Set<String> literals;
             if (doc.getAttribute(attribute) == null) {
-                literals = new HashSet<>();
-                doc.addAttribute(attribute, literals);
+                doc.addAttribute(attribute, literal);
             } else {
-                literals = (HashSet<String>) doc.getAttribute(attribute);
+                doc.updateAttribute(attribute, literal);
             }
-            literals.add(literal);
         }
         long stopTime = System.nanoTime();
         System.out.println("Updated " + updatedEdges.size() + " edges using " + tuplesArrayList.size() + " tuples in " + (stopTime - startTime) / 1e9 + " s");
