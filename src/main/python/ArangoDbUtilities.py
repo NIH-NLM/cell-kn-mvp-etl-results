@@ -333,14 +333,20 @@ def create_view(database_name, collection_maps_name):
         keys = list(properties["links"].keys())
         for key in keys:
             if key not in [
+                "BGS",
+                "BMC",
                 "CHEMBL",
                 "CL",
                 "CS",
                 "CSD",
+                "GO",
                 "GS",
                 "MONDO",
                 "NCBITaxon",
+                "PATO",
                 "PUB",
+                "PR",
+                "RS",
                 "UBERON",
             ]:
                 del properties["links"][key]
