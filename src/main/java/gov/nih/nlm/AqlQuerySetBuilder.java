@@ -3,16 +3,28 @@ package gov.nih.nlm;
 import com.arangodb.ArangoDatabase;
 import com.arangodb.model.AqlQueryOptions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+/**
+ * Defines sets of AQL query strings and bind variables for obtaining paths between specified nodes, including paths
+ * outbound from the last node in ontologies.
+ */
 public class AqlQuerySetBuilder {
 
     // Construct ArangoDB utilities
     private static final ArangoDbUtilities arangoDbUtilities = new ArangoDbUtilities();
 
-    // CS - BGS
+    /**
+     * Get AQL query set to identify a path with one edge.
+     *
+     * @param graph Graph name
+     * @param node  Node name
+     * @return Query set
+     */
     public static AqlQuerySet getQuerySetInOne(String graph, String node) {
         Map<String, Object> bindVars = new HashMap<>();
         bindVars.put("graph", graph);
@@ -27,17 +39,14 @@ public class AqlQuerySetBuilder {
         return new AqlQuerySet(bindVars, queryStr);
     }
 
-    // CS - BMC - BGS
-    // CS - CL - CSD
-    // CS - CL - GS
-    // CS - CL - PR
-    // CS - CSD - PUB
-    // CS - UBERON - CHEBI
-    // CS - UBERON - CSD
-    // CS - UBERON - GS
-    // CS - UBERON - NCBITaxon
-    // CS - UBERON - PATO
-    // CS - UBERON - PR
+    /**
+     * Get AQL query set to identify a path with two edges.
+     *
+     * @param graph   Graph name
+     * @param nodeOne Node one name
+     * @param nodeTwo Node two name
+     * @return Query set
+     */
     public static AqlQuerySet getQuerySetInTwo(String graph, String nodeOne, String nodeTwo) {
         Map<String, Object> bindVars = new HashMap<>();
         bindVars.put("graph", graph);
@@ -55,10 +64,16 @@ public class AqlQuerySetBuilder {
         return new AqlQuerySet(bindVars, queryStr);
     }
 
-    // CS - CL - NCBITaxon
-    // CS - CL - PATO
-    // CS - CL - UBERON
-    // CS - UBERON - GO
+    /**
+     * Get AQL query set to identify a path with two edges, including paths outbound from the last node in ontologies.
+     *
+     * @param graph          Graph name
+     * @param nodeOne        Node one name
+     * @param nodeTwo        Node two name
+     * @param edgeCollection Edge collection name, usually "nodeTwo-nodeTwo"
+     * @param edgeLabel      Edge label, usuall "SUB_CLASS_OF", or "PART_OF"
+     * @return Query set
+     */
     public static AqlQuerySet getQuerySetInTwoWithHierarchy(String graph,
                                                             String nodeOne,
                                                             String nodeTwo,
@@ -103,10 +118,15 @@ public class AqlQuerySetBuilder {
         return new AqlQuerySet(bindVars, queryStr);
     }
 
-    // CS - CL - GO - NCBITaxon
-    // CS - CL - GS - BMC
-    // CS - CL - GS - PR
-    // CS - CL - GS - UBERON
+    /**
+     * Get AQL query set to identify a path with three edges.
+     *
+     * @param graph     Graph name
+     * @param nodeOne   Node one name
+     * @param nodeTwo   Node two name
+     * @param nodeThree Node three name
+     * @return Query set
+     */
     public static AqlQuerySet getQuerySetInThree(String graph, String nodeOne, String nodeTwo, String nodeThree) {
         Map<String, Object> bindVars = new HashMap<>();
         bindVars.put("graph", graph);
@@ -127,7 +147,18 @@ public class AqlQuerySetBuilder {
         return new AqlQuerySet(bindVars, queryStr);
     }
 
-    // CS - CL - GS - MONDO
+    /**
+     * Get AQL query set to identify a path with three edges, including paths outbound from the last node in
+     * ontologies.
+     *
+     * @param graph          Graph name
+     * @param nodeOne        Node one name
+     * @param nodeTwo        Node two name
+     * @param nodeThree      Node three name
+     * @param edgeCollection Edge collection name, usually "nodeTwo-nodeTwo"
+     * @param edgeLabel      Edge label, usuall "SUB_CLASS_OF", or "PART_OF"
+     * @return Query set
+     */
     public static AqlQuerySet getQuerySetInThreeWithHierarchy(String graph,
                                                               String nodeOne,
                                                               String nodeTwo,
@@ -176,7 +207,16 @@ public class AqlQuerySetBuilder {
         return new AqlQuerySet(bindVars, queryStr);
     }
 
-    // CS - CL - GS - MONDO - NCBITaxon
+    /**
+     * Get AQL query set to identify a path with four edges.
+     *
+     * @param graph     Graph name
+     * @param nodeOne   Node one name
+     * @param nodeTwo   Node two name
+     * @param nodeThree Node three name
+     * @param nodeFour  Node four name
+     * @return Query set
+     */
     public static AqlQuerySet getQuerySetInFour(String graph,
                                                 String nodeOne,
                                                 String nodeTwo,
@@ -204,7 +244,18 @@ public class AqlQuerySetBuilder {
         return new AqlQuerySet(bindVars, queryStr);
     }
 
-    // CS - CL - GS - MONDO - HP
+    /**
+     * Get AQL query set to identify a path with four edges, including paths outbound from the last node in ontologies.
+     *
+     * @param graph          Graph name
+     * @param nodeOne        Node one name
+     * @param nodeTwo        Node two name
+     * @param nodeThree      Node three name
+     * @param nodeFour       Node four name
+     * @param edgeCollection Edge collection name, usually "nodeTwo-nodeTwo"
+     * @param edgeLabel      Edge label, usuall "SUB_CLASS_OF", or "PART_OF"
+     * @return Query set
+     */
     public static AqlQuerySet getQuerySetInFourWithHeirarchy(String graph,
                                                              String nodeOne,
                                                              String nodeTwo,
@@ -257,8 +308,17 @@ public class AqlQuerySetBuilder {
         return new AqlQuerySet(bindVars, queryStr);
     }
 
-    // CS - CL - GS - RS - CHEMBL - MONDO
-    // CS - CL - GS - RS - CHEMBL - PR
+    /**
+     * Get AQL query set to identify a path with five edges.
+     *
+     * @param graph     Graph name
+     * @param nodeOne   Node one name
+     * @param nodeTwo   Node two name
+     * @param nodeThree Node three name
+     * @param nodeFour  Node four name
+     * @param nodeFive  Node five name
+     * @return Query set
+     */
     public static AqlQuerySet getQuerySetInFive(String graph,
                                                 String nodeOne,
                                                 String nodeTwo,
@@ -290,36 +350,40 @@ public class AqlQuerySetBuilder {
         return new AqlQuerySet(bindVars, queryStr);
     }
 
+    /**
+     * Run a few example queries.
+     *
+     * @param args None expected
+     */
     public static void main(String[] args) {
 
         String database = "Cell-KN-Ontologies";
         String graph = "KN-Ontologies-v2.0";
-
         ArangoDatabase db = arangoDbUtilities.createOrGetDatabase(database);
-        AqlQueryOptions queryOpts = new AqlQueryOptions();
-        AqlQuerySet aqlQuerySet = new AqlQuerySet(null, null);
+
+        List<AqlQuerySet> aqlQuerySets = new ArrayList<>();
 
         // CS - BGS
         String node = "BGS";
-        aqlQuerySet = getQuerySetInOne(graph, node);
+        aqlQuerySets.add(getQuerySetInOne(graph, node));
 
         // CS - CL - GO
         String nodeOne = "CL";
         String nodeTwo = "GO";
-        aqlQuerySet = getQuerySetInTwo(graph, nodeOne, nodeTwo);
+        aqlQuerySets.add(getQuerySetInTwo(graph, nodeOne, nodeTwo));
 
         // CS - CL - GO
         nodeOne = "CL";
         nodeTwo = "GO";
         String edgeCollection = "GO-GO";
         String edgeLabel = "SUB_CLASS_OF";
-        aqlQuerySet = getQuerySetInTwoWithHierarchy(graph, nodeOne, nodeTwo, edgeCollection, edgeLabel);
+        aqlQuerySets.add(getQuerySetInTwoWithHierarchy(graph, nodeOne, nodeTwo, edgeCollection, edgeLabel));
 
         // CS - CL - GS - PR
         nodeOne = "CL";
         nodeTwo = "GS";
         String nodeThree = "PR";
-        aqlQuerySet = getQuerySetInThree(graph, nodeOne, nodeTwo, nodeThree);
+        aqlQuerySets.add(getQuerySetInThree(graph, nodeOne, nodeTwo, nodeThree));
 
         // CS - CL - GS - MONDO
         nodeOne = "CL";
@@ -327,14 +391,19 @@ public class AqlQuerySetBuilder {
         nodeThree = "MONDO";
         edgeCollection = "MONDO-MONDO";
         edgeLabel = "SUB_CLASS_OF";
-        aqlQuerySet = getQuerySetInThreeWithHierarchy(graph, nodeOne, nodeTwo, nodeThree, edgeCollection, edgeLabel);
+        aqlQuerySets.add(getQuerySetInThreeWithHierarchy(graph,
+                nodeOne,
+                nodeTwo,
+                nodeThree,
+                edgeCollection,
+                edgeLabel));
 
         // CS - CL - GS - MONDO - CHEMBL
         nodeOne = "CL";
         nodeTwo = "GS";
         nodeThree = "MONDO";
         String nodeFour = "CHEMBL";
-        aqlQuerySet = getQuerySetInFour(graph, nodeOne, nodeTwo, nodeThree, nodeFour);
+        aqlQuerySets.add(getQuerySetInFour(graph, nodeOne, nodeTwo, nodeThree, nodeFour));
 
         // CS - CL - GS - MONDO - HP
         nodeOne = "CL";
@@ -343,13 +412,13 @@ public class AqlQuerySetBuilder {
         nodeFour = "HP";
         edgeCollection = "HP-HP";
         edgeLabel = "SUB_CLASS_OF";
-        aqlQuerySet = getQuerySetInFourWithHeirarchy(graph,
+        aqlQuerySets.add(getQuerySetInFourWithHeirarchy(graph,
                 nodeOne,
                 nodeTwo,
                 nodeThree,
                 nodeFour,
                 edgeCollection,
-                edgeLabel);
+                edgeLabel));
 
         // CS - CL - GS - MONDO - CHEMBL - PR
         nodeOne = "CL";
@@ -357,15 +426,19 @@ public class AqlQuerySetBuilder {
         nodeThree = "MONDO";
         nodeFour = "CHEMBL";
         String nodeFive = "PR";
-        aqlQuerySet = getQuerySetInFive(graph, nodeOne, nodeTwo, nodeThree, nodeFour, nodeFive);
+        aqlQuerySets.add(getQuerySetInFive(graph, nodeOne, nodeTwo, nodeThree, nodeFour, nodeFive));
 
-        System.out.println(aqlQuerySet.queryStr);
-        List<Map> queryPaths = db.query(aqlQuerySet.queryStr,
-                Map.class,
-                aqlQuerySet.bindVars,
-                queryOpts).asListRemaining();
-        System.out.println("Got " + queryPaths.size() + " paths");
-        System.out.println(queryPaths.get(0));
+        AqlQueryOptions queryOpts = new AqlQueryOptions();
+        for (AqlQuerySet aqlQuerySet : aqlQuerySets) {
+            System.out.println(aqlQuerySet.queryStr().lines().collect(Collectors.joining()).replaceAll("\\s+", " "));
+            long startTime = System.nanoTime();
+            List<Map> queryPaths = db.query(aqlQuerySet.queryStr(),
+                    Map.class,
+                    aqlQuerySet.bindVars(),
+                    queryOpts).asListRemaining();
+            long stopTime = System.nanoTime();
+            System.out.println("Collected " + queryPaths.size() + " paths in " + (stopTime - startTime) / 1e9 + " s");
+        }
 
         arangoDbUtilities.arangoDB.shutdown();
     }
