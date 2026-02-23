@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 import static gov.nih.nlm.AqlQuerySetBuilder.AqlQuerySet;
 import static gov.nih.nlm.AqlQuerySetBuilder.getQuerySetInFive;
 import static gov.nih.nlm.AqlQuerySetBuilder.getQuerySetInFour;
-import static gov.nih.nlm.AqlQuerySetBuilder.getQuerySetInFourWithHeirarchy;
+import static gov.nih.nlm.AqlQuerySetBuilder.getQuerySetInFourWithHierarchy;
 import static gov.nih.nlm.AqlQuerySetBuilder.getQuerySetInOne;
 import static gov.nih.nlm.AqlQuerySetBuilder.getQuerySetInThree;
 import static gov.nih.nlm.AqlQuerySetBuilder.getQuerySetInThreeWithHierarchy;
@@ -43,10 +43,9 @@ public class PhenotypeGraphBuilder {
      *
      * @param databaseName Name of database containing fully populated graph
      * @param graphName    Name of fully populated graph
-     * @param limit        Number of cell sets to consider. If none, no limit is applied.
      * @return All identified paths
      */
-    private static List<Map> getPaths(String databaseName, String graphName, int limit) {
+    private static List<Map> getPaths(String databaseName, String graphName) {
 
         List<AqlQuerySet> aqlQuerySets = new ArrayList<>();
 
@@ -87,7 +86,7 @@ public class PhenotypeGraphBuilder {
 
         aqlQuerySets.add(getQuerySetInFour(graphName, "CL", "GS", "MONDO", "NCBITaxon"));
 
-        aqlQuerySets.add(getQuerySetInFourWithHeirarchy(graphName, "CL", "GS", "MONDO", "HP", "HP-HP", "SUB_CLASS_OF"));
+        aqlQuerySets.add(getQuerySetInFourWithHierarchy(graphName, "CL", "GS", "MONDO", "HP", "HP-HP", "SUB_CLASS_OF"));
 
         aqlQuerySets.add(getQuerySetInFive(graphName, "CL", "GS", "RS", "CHEMBL", "MONDO"));
         aqlQuerySets.add(getQuerySetInFive(graphName, "CL", "GS", "RS", "CHEMBL", "PR"));
@@ -129,7 +128,7 @@ public class PhenotypeGraphBuilder {
             }
         }
         long stopTime = System.nanoTime();
-        System.out.println("Collected " + vertexDocuments.size() + " unique vertex documents from " + paths.size() + " identified paths in " + (0L) / 1e9 + " s");
+        System.out.println("Collected " + vertexDocuments.size() + " unique vertex documents from " + paths.size() + " identified paths in " + (stopTime - startTime) / 1e9 + " s");
         return vertexDocuments;
     }
 
@@ -236,8 +235,7 @@ public class PhenotypeGraphBuilder {
         String ontologyGraphName = "KN-Ontologies-v2.0";
         ArangoDatabase ontologyDb = arangoDbUtilities.createOrGetDatabase(ontologyDatabaseName);
         ArangoGraph ontologyGraph = arangoDbUtilities.createOrGetGraph(ontologyDb, ontologyGraphName);
-        int limit = 0;
-        List<Map> paths = getPaths(ontologyDatabaseName, ontologyGraphName, limit);
+        List<Map> paths = getPaths(ontologyDatabaseName, ontologyGraphName);
 
         // Initialize the phenotype database and subgraph
         String phenotypeDatabaseName = "Cell-KN-Phenotypes";

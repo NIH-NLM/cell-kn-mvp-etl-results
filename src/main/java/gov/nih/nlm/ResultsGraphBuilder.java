@@ -93,7 +93,7 @@ public class ResultsGraphBuilder {
 
     /**
      * Construct vertices using tuples parsed from a results file that contain a filled subject and object which contain
-     * an ontology ID contained in the valid vertices collection.
+     * an ontology ID contained in the valid vertices' collection.
      *
      * @param tuplesArrayList   list of tuples parsed from a results file
      * @param graph             ArangoDB graph in which to create vertex collections
@@ -354,7 +354,7 @@ public class ResultsGraphBuilder {
         // edges in the edge collection
         Map<String, Set<String>> ontologyEdgeKeys = new HashMap<>();
 
-        // Collect all vertices and edges before inserting them into the graph for improved performace
+        // Collect all vertices and edges before inserting them into the graph for improved performance
         Map<String, ArangoVertexCollection> ontologyVertexCollections = new HashMap<>();
         Map<String, Map<String, BaseDocument>> ontologyVertexDocuments = new HashMap<>();
         Map<String, ArangoEdgeCollection> ontologyEdgeCollections = new HashMap<>();

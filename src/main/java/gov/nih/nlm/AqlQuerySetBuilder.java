@@ -35,7 +35,7 @@ public class AqlQuerySetBuilder {
                     FILTER
                     IS_SAME_COLLECTION(@node, p.vertices[1])
                 RETURN p
-                """.formatted(graph, node);
+                """;
         return new AqlQuerySet(bindVars, queryStr);
     }
 
@@ -71,7 +71,7 @@ public class AqlQuerySetBuilder {
      * @param nodeOne        Node one name
      * @param nodeTwo        Node two name
      * @param edgeCollection Edge collection name, usually "nodeTwo-nodeTwo"
-     * @param edgeLabel      Edge label, usuall "SUB_CLASS_OF", or "PART_OF"
+     * @param edgeLabel      Edge label, usually "SUB_CLASS_OF", or "PART_OF"
      * @return Query set
      */
     public static AqlQuerySet getQuerySetInTwoWithHierarchy(String graph,
@@ -156,7 +156,7 @@ public class AqlQuerySetBuilder {
      * @param nodeTwo        Node two name
      * @param nodeThree      Node three name
      * @param edgeCollection Edge collection name, usually "nodeTwo-nodeTwo"
-     * @param edgeLabel      Edge label, usuall "SUB_CLASS_OF", or "PART_OF"
+     * @param edgeLabel      Edge label, usually "SUB_CLASS_OF", or "PART_OF"
      * @return Query set
      */
     public static AqlQuerySet getQuerySetInThreeWithHierarchy(String graph,
@@ -253,10 +253,10 @@ public class AqlQuerySetBuilder {
      * @param nodeThree      Node three name
      * @param nodeFour       Node four name
      * @param edgeCollection Edge collection name, usually "nodeTwo-nodeTwo"
-     * @param edgeLabel      Edge label, usuall "SUB_CLASS_OF", or "PART_OF"
+     * @param edgeLabel      Edge label, usually "SUB_CLASS_OF", or "PART_OF"
      * @return Query set
      */
-    public static AqlQuerySet getQuerySetInFourWithHeirarchy(String graph,
+    public static AqlQuerySet getQuerySetInFourWithHierarchy(String graph,
                                                              String nodeOne,
                                                              String nodeTwo,
                                                              String nodeThree,
@@ -412,7 +412,7 @@ public class AqlQuerySetBuilder {
         nodeFour = "HP";
         edgeCollection = "HP-HP";
         edgeLabel = "SUB_CLASS_OF";
-        aqlQuerySets.add(getQuerySetInFourWithHeirarchy(graph,
+        aqlQuerySets.add(getQuerySetInFourWithHierarchy(graph,
                 nodeOne,
                 nodeTwo,
                 nodeThree,
