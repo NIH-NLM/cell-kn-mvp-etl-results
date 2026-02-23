@@ -13,7 +13,17 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import static gov.nih.nlm.AqlQuerySetBuilder.AqlQuerySet;
+import static gov.nih.nlm.AqlQuerySetBuilder.getQuerySetInFive;
+import static gov.nih.nlm.AqlQuerySetBuilder.getQuerySetInFour;
+import static gov.nih.nlm.AqlQuerySetBuilder.getQuerySetInFourWithHeirarchy;
+import static gov.nih.nlm.AqlQuerySetBuilder.getQuerySetInOne;
+import static gov.nih.nlm.AqlQuerySetBuilder.getQuerySetInThree;
+import static gov.nih.nlm.AqlQuerySetBuilder.getQuerySetInThreeWithHierarchy;
+import static gov.nih.nlm.AqlQuerySetBuilder.getQuerySetInTwo;
+import static gov.nih.nlm.AqlQuerySetBuilder.getQuerySetInTwoWithHierarchy;
 import static gov.nih.nlm.OntologyGraphBuilder.getDocumentCollectionName;
 
 /**
@@ -38,287 +48,63 @@ public class PhenotypeGraphBuilder {
      */
     private static List<Map> getPaths(String databaseName, String graphName, int limit) {
 
-        Map<String, Object> bindVars;
-        List<Map<String, Object>> bindVarMaps = new ArrayList<>();
-        List<String> queryStrings = new ArrayList<>();
-        AqlQueryOptions queryOpts = new AqlQueryOptions();
+        List<AqlQuerySet> aqlQuerySets = new ArrayList<>();
 
-        //@formatter:off
+        aqlQuerySets.add(getQuerySetInOne(graphName, "BGS"));
 
-        // Consider only CS nodes
-        String queryPrefix = "FOR cs IN CS ";
+        aqlQuerySets.add(getQuerySetInTwo(graphName, "BMC", "BGS"));
+        aqlQuerySets.add(getQuerySetInTwo(graphName, "CL", "CSD"));
+        aqlQuerySets.add(getQuerySetInTwo(graphName, "CL", "GS"));
+        aqlQuerySets.add(getQuerySetInTwo(graphName, "CL", "PR"));
+        aqlQuerySets.add(getQuerySetInTwo(graphName, "CSD", "PUB"));
+        aqlQuerySets.add(getQuerySetInTwo(graphName, "UBERON", "CHEBI"));
+        aqlQuerySets.add(getQuerySetInTwo(graphName, "UBERON", "CSD"));
+        aqlQuerySets.add(getQuerySetInTwo(graphName, "UBERON", "GS"));
+        aqlQuerySets.add(getQuerySetInTwo(graphName, "UBERON", "NCBITaxon"));
+        aqlQuerySets.add(getQuerySetInTwo(graphName, "UBERON", "PATO"));
+        aqlQuerySets.add(getQuerySetInTwo(graphName, "UBERON", "PR"));
 
-        // Path CS-BGS-BMC always created using NSForest results
-        bindVars = new HashMap<>();
-        if (limit > 0) {
-            bindVars.put("limit", limit);
-            queryPrefix += "LIMIT @limit ";
-        }
-        bindVars.put("graphName", graphName);
-        bindVarMaps.add(bindVars);
-        queryStrings.add(
-                queryPrefix
-                        + "FOR v, e, p IN 2 ANY cs GRAPH @graphName "
-                        + "FILTER "
-                        + "IS_SAME_COLLECTION('BGS', p.vertices[1]) "
-                        + "AND "
-                        + "IS_SAME_COLLECTION('BMC', p.vertices[2]) "
-                        + "RETURN p"
-        );
+        aqlQuerySets.add(getQuerySetInTwoWithHierarchy(graphName,
+                "CL",
+                "NCBITaxon",
+                "NCBITaxon-NCBITaxon",
+                "SUB_CLASS_OF"));
+        aqlQuerySets.add(getQuerySetInTwoWithHierarchy(graphName, "CL", "PATO", "PATO-PATO", "SUB_CLASS_OF"));
+        aqlQuerySets.add(getQuerySetInTwoWithHierarchy(graphName, "CL", "UBERON", "UBERON-UBERON", "PART_OF"));
+        aqlQuerySets.add(getQuerySetInTwoWithHierarchy(graphName, "UBERON", "GO", "GO-GO", "SUB_CLASS_OF"));
 
-        // Path CS-BMC-GS always created using NSForest results
-        bindVars = new HashMap<>();
-        if (limit > 0) {
-            bindVars.put("limit", limit);
-            queryPrefix += "LIMIT @limit ";
-        }
-        bindVars.put("graphName", graphName);
-        bindVarMaps.add(bindVars);
-        queryStrings.add(
-                queryPrefix
-                        + "FOR v, e, p IN 2 ANY cs GRAPH @graphName "
-                        + "FILTER "
-                        + "IS_SAME_COLLECTION('BMC', p.vertices[1]) "
-                        + "AND "
-                        + "IS_SAME_COLLECTION('GS', p.vertices[2]) "
-                        + "RETURN p"
-        );
+        aqlQuerySets.add(getQuerySetInThree(graphName, "CL", "GO", "NCBITaxon"));
+        aqlQuerySets.add(getQuerySetInThree(graphName, "CL", "GS", "BMC"));
+        aqlQuerySets.add(getQuerySetInThree(graphName, "CL", "GS", "PR"));
+        aqlQuerySets.add(getQuerySetInThree(graphName, "CL", "GS", "UBERON"));
 
-        // Path CS-BMC-CL always created using author to CL mapping results
-        bindVars = new HashMap<>();
-        if (limit > 0) {
-            bindVars.put("limit", limit);
-            queryPrefix += "LIMIT @limit ";
-        }
-        bindVars.put("graphName", graphName);
-        bindVarMaps.add(bindVars);
-        queryStrings.add(
-                queryPrefix
-                        + "FOR v, e, p IN 2 ANY cs GRAPH @graphName "
-                        + "FILTER "
-                        + "IS_SAME_COLLECTION('BMC', p.vertices[1]) "
-                        + "AND "
-                        + "IS_SAME_COLLECTION('CL', p.vertices[2]) "
-                        + "RETURN p"
-        );
+        aqlQuerySets.add(getQuerySetInThreeWithHierarchy(graphName,
+                "CL",
+                "GS",
+                "MONDO",
+                "MONDO-MONDO",
+                "SUB_CLASS_OF"));
 
-        // Path CL-UBERON-NCBITaxon always created using author to CL mapping results,
-        // and ontology contents, path UBERON-UBERON PART_OF, and path NCBITaxon-NCBITaxon SUB_CLASS_OF
-        bindVars = new HashMap<>();
-        if (limit > 0) {
-            bindVars.put("limit", limit);
-            queryPrefix += "LIMIT @limit ";
-        }
-        bindVars.put("graphName", graphName);
-        bindVars.put("uberonEdgeCollection", "UBERON-UBERON");
-        bindVars.put("ncbiTaxonEdgeCollection", "NCBITaxon-NCBITaxon");
-        bindVarMaps.add(bindVars);
-        queryStrings.add(
-                queryPrefix
-                        + "FOR v, e, p IN 3 ANY cs GRAPH @graphName "
-                        + "FILTER "
-                        + "IS_SAME_COLLECTION('CL', p.vertices[1]) "
-                        + "AND "
-                        + "IS_SAME_COLLECTION('UBERON', p.vertices[2]) "
-                        + "AND "
-                        + "IS_SAME_COLLECTION('NCBITaxon', p.vertices[3]) "
-                        + "LET lP1 = FIRST("
-                        + "FOR n1, e1, p1 "
-                        + "IN 1..64 "
-                        + "OUTBOUND p.vertices[2] "
-                        + "@uberonEdgeCollection "
-                        + "PRUNE e1 != null AND e1.Label NOT IN [\"PART_OF\", [\"PART_OF\"]] "
-                        + "FILTER p1.edges[*].Label ALL IN [\"PART_OF\", [\"PART_OF\"]] "
-                        + "SORT LENGTH(p1.edges) DESC "
-                        + "LIMIT 1 "
-                        + "RETURN p1"
-                        + ") "
-                        + "LET lP2 = FIRST("
-                        + "FOR n2, e2, p2 "
-                        + "IN 1..64 "
-                        + "OUTBOUND p.vertices[3] "
-                        + "@ncbiTaxonEdgeCollection "
-                        + "PRUNE e2 != null AND e2.Label NOT IN [\"SUB_CLASS_OF\", [\"SUB_CLASS_OF\"]] "
-                        + "FILTER p2.edges[*].Label ALL IN [\"SUB_CLASS_OF\", [\"SUB_CLASS_OF\"]] "
-                        + "SORT LENGTH(p2.edges) DESC "
-                        + "LIMIT 1 "
-                        + "RETURN p2"
-                        + ") "
-                        + "RETURN {"
-                        + "vertices: FLATTEN(["
-                        + "p ? p.vertices : [], "
-                        + "lP1 ? lP1.vertices : [], "
-                        + "lP2 ? lP2.vertices : []"
-                        + "]), "
-                        + "edges: FLATTEN(["
-                        + "p ? p.edges : [], "
-                        + "lP1 ? lP1.edges : [], "
-                        + "lP2 ? lP2.edges : []"
-                        + "])"
-                        + "}"
-        );
+        aqlQuerySets.add(getQuerySetInFour(graphName, "CL", "GS", "MONDO", "NCBITaxon"));
 
-        // Path CL-CSD-PUB always created using author to CL mapping results
-        bindVars = new HashMap<>();
-        if (limit > 0) {
-            bindVars.put("limit", limit);
-            queryPrefix += "LIMIT @limit ";
-        }
-        bindVars.put("graphName", graphName);
-        bindVarMaps.add(bindVars);
-        queryStrings.add(
-                queryPrefix
-                        + "FOR v, e, p IN 3 ANY cs GRAPH @graphName "
-                        + "FILTER "
-                        + "IS_SAME_COLLECTION('CL', p.vertices[1]) "
-                        + "AND "
-                        + "IS_SAME_COLLECTION('CSD', p.vertices[2]) "
-                        + "AND "
-                        + "IS_SAME_COLLECTION('PUB', p.vertices[3]) "
-                        + "RETURN p"
-        );
+        aqlQuerySets.add(getQuerySetInFourWithHeirarchy(graphName, "CL", "GS", "MONDO", "HP", "HP-HP", "SUB_CLASS_OF"));
 
-        // Path CL-GS always created using NSForest and author to CL mapping results
-        bindVars = new HashMap<>();
-        if (limit > 0) {
-            bindVars.put("limit", limit);
-            queryPrefix += "LIMIT @limit ";
-        }
-        bindVars.put("graphName", graphName);
-        bindVarMaps.add(bindVars);
-        queryStrings.add(
-                queryPrefix
-                        + "FOR v, e, p IN 2 ANY cs GRAPH @graphName "
-                        + "FILTER "
-                        + "IS_SAME_COLLECTION('CL', p.vertices[1]) "
-                        + "AND "
-                        + "IS_SAME_COLLECTION('GS', p.vertices[2]) "
-                        + "RETURN p"
-        );
+        aqlQuerySets.add(getQuerySetInFive(graphName, "CL", "GS", "RS", "CHEMBL", "MONDO"));
+        aqlQuerySets.add(getQuerySetInFive(graphName, "CL", "GS", "RS", "CHEMBL", "PR"));
 
-        // Path CL-GS always created using NSForest and author to CL mapping results,
-        // however CL-GS-MONDO may not always exist, and path MONDO-MONDO SUB_CLASS_OF
-        bindVars = new HashMap<>();
-        if (limit > 0) {
-            bindVars.put("limit", limit);
-            queryPrefix += "LIMIT @limit ";
-        }
-        bindVars.put("graphName", graphName);
-        bindVars.put("mondoEdgeCollection", "MONDO-MONDO");
-        bindVarMaps.add(bindVars);
-        queryStrings.add(
-                queryPrefix
-                        + "FOR v, e, p IN 3 ANY cs GRAPH @graphName "
-                        + "FILTER "
-                        + "IS_SAME_COLLECTION('CL', p.vertices[1]) "
-                        + "AND "
-                        + "IS_SAME_COLLECTION('GS', p.vertices[2]) "
-                        + "AND "
-                        + "IS_SAME_COLLECTION('MONDO', p.vertices[3]) "
-                        + "LET lP1 = FIRST("
-                        + "FOR n1, e1, p1 "
-                        + "IN 1..64 "
-                        + "OUTBOUND p.vertices[3] "
-                        + "@mondoEdgeCollection "
-                        + "PRUNE e1 != null AND e1.Label NOT IN [\"SUB_CLASS_OF\", [\"SUB_CLASS_OF\"]] "
-                        + "FILTER p1.edges[*].Label ALL IN [\"SUB_CLASS_OF\", [\"SUB_CLASS_OF\"]] "
-                        + "SORT LENGTH(p1.edges) DESC "
-                        + "LIMIT 1 "
-                        + "RETURN p1"
-                        + ") "
-                        + "RETURN {"
-                        + "vertices: FLATTEN(["
-                        + "p ? p.vertices : [], "
-                        + "lP1 ? lP1.vertices : []"
-                        + "]), "
-                        + "edges: FLATTEN(["
-                        + "p ? p.edges : [], "
-                        + "lP1 ? lP1.edges : []"
-                        + "])"
-                        + "}"
-        );
-
-        // Path CL-GS-PR always created using NSForest, author to CL mapping, and external API results,
-        // however CL-GS-PR-CHEMBL may not always exist
-        bindVars = new HashMap<>();
-        if (limit > 0) {
-            bindVars.put("limit", limit);
-            queryPrefix += "LIMIT @limit ";
-        }
-        bindVars.put("graphName", graphName);
-        bindVarMaps.add(bindVars);
-        queryStrings.add(
-                queryPrefix
-                        + "FOR v, e, p IN 4 ANY cs GRAPH @graphName "
-                        + "FILTER "
-                        + "IS_SAME_COLLECTION('CL', p.vertices[1]) "
-                        + "AND "
-                        + "IS_SAME_COLLECTION('GS', p.vertices[2]) "
-                        + "AND "
-                        + "IS_SAME_COLLECTION('PR', p.vertices[3]) "
-                        + "AND "
-                        + "IS_SAME_COLLECTION('CHEMBL', p.vertices[4]) "
-                        + "RETURN p"
-        );
-
-        // Path CL-GS-PR always created using NSForest, author to CL mapping, and external API results,
-        // however CL-GS-PR-CHEMBL-MONDO may not always exist, and path MONDO-MONDO SUB_CLASS_OF
-        bindVars = new HashMap<>();
-        if (limit > 0) {
-            bindVars.put("limit", limit);
-            queryPrefix += "LIMIT @limit ";
-        }
-        bindVars.put("graphName", graphName);
-        bindVars.put("mondoEdgeCollection", "MONDO-MONDO");
-                bindVarMaps.add(bindVars);
-        queryStrings.add(
-                queryPrefix
-                        + "FOR v, e, p IN 5 ANY cs GRAPH @graphName "
-                        + "FILTER "
-                        + "IS_SAME_COLLECTION('CL', p.vertices[1]) "
-                        + "AND "
-                        + "IS_SAME_COLLECTION('GS', p.vertices[2]) "
-                        + "AND "
-                        + "IS_SAME_COLLECTION('PR', p.vertices[3]) "
-                        + "AND "
-                        + "IS_SAME_COLLECTION('CHEMBL', p.vertices[4]) "
-                        + "AND "
-                        + "IS_SAME_COLLECTION('MONDO', p.vertices[5]) "
-                        + "LET lP1 = FIRST("
-                        + "FOR n1, e1, p1 "
-                        + "IN 1..64 "
-                        + "OUTBOUND p.vertices[5] "
-                        + "@mondoEdgeCollection "
-                        + "PRUNE e1 != null AND e1.Label NOT IN [\"SUB_CLASS_OF\", [\"SUB_CLASS_OF\"]] "
-                        + "FILTER p1.edges[*].Label ALL IN [\"SUB_CLASS_OF\", [\"SUB_CLASS_OF\"]] "
-                        + "SORT LENGTH(p1.edges) DESC "
-                        + "LIMIT 1 "
-                        + "RETURN p1"
-                        + ") "
-                        + "RETURN {"
-                        + "vertices: FLATTEN(["
-                        + "p ? p.vertices : [], "
-                        + "lP1 ? lP1.vertices : []"
-                        + "]), "
-                        + "edges: FLATTEN(["
-                        + "p ? p.edges : [], "
-                        + "lP1 ? lP1.edges : []"
-                        + "])"
-                        + "} "
-        );
-        //@formatter:on
-
-        // Execute query
         ArangoDatabase db = arangoDbUtilities.createOrGetDatabase(databaseName);
-        System.out.println("Quering a fully populated ontology ArangoDB to identify paths");
+        AqlQueryOptions queryOpts = new AqlQueryOptions();
         List<Map> paths = new ArrayList<>();
-        for (int queryIdx = 0; queryIdx < queryStrings.size(); queryIdx++) {
-            System.out.println("Query: " + queryStrings.get(queryIdx));
-            List<Map> queryPaths = db.query(queryStrings.get(queryIdx),
+        for (AqlQuerySet aqlQuerySet : aqlQuerySets) {
+            System.out.println(aqlQuerySet.queryStr().lines().collect(Collectors.joining()).replaceAll("\\s+", " "));
+            long startTime = System.nanoTime();
+            List<Map> queryPaths = db.query(aqlQuerySet.queryStr(),
                     Map.class,
-                    bindVarMaps.get(queryIdx),
+                    aqlQuerySet.bindVars(),
                     queryOpts).asListRemaining();
             paths.addAll(queryPaths);
+            long stopTime = System.nanoTime();
+            System.out.println("Collected " + queryPaths.size() + " paths in " + (stopTime - startTime) / 1e9 + " s");
         }
         return paths;
     }
@@ -343,7 +129,7 @@ public class PhenotypeGraphBuilder {
             }
         }
         long stopTime = System.nanoTime();
-        System.out.println("Collected " + vertexDocuments.size() + " unique vertex documents from " + paths.size() + " identified paths in " + (stopTime - startTime) / 1e9 + " s");
+        System.out.println("Collected " + vertexDocuments.size() + " unique vertex documents from " + paths.size() + " identified paths in " + (0L) / 1e9 + " s");
         return vertexDocuments;
     }
 
@@ -375,8 +161,8 @@ public class PhenotypeGraphBuilder {
      * Insert unique vertex documents.
      *
      * @param phenotypeVertexDocuments Unique vertex documents
-     * @param phenotypeGraph            Graph in phenotype database
-     * @param ontologyGraph             Graph in ontology database
+     * @param phenotypeGraph           Graph in phenotype database
+     * @param ontologyGraph            Graph in ontology database
      */
     private static void insertVertexDocuments(List<BaseDocument> phenotypeVertexDocuments,
                                               ArangoGraph phenotypeGraph,
