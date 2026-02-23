@@ -334,7 +334,7 @@ public class AqlQuerySetBuilder {
         bindVars.put("nodeFive", nodeFive);
         String queryStr = """
                 FOR cs IN CS
-                  FOR n, e, p IN 4 ANY cs GRAPH @graph
+                  FOR n, e, p IN 5 ANY cs GRAPH @graph
                     FILTER
                     IS_SAME_COLLECTION(@nodeOne, p.vertices[1])
                     AND
