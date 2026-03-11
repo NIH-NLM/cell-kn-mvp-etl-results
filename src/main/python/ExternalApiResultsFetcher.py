@@ -160,7 +160,7 @@ def get_cellxgene_metadata(dataset_version_ids, force=False):
 
 
 def get_opentargets_results(
-    gene_ensembl_ids, resources=OPENTARGETS_RESOURCES, force=False
+        gene_ensembl_ids, resources=OPENTARGETS_RESOURCES, force=False, opentargets_path=OPENTARGETS_PATH
 ):
     """Use the Open Targets Platform GraphQL API to obtain the
     specified resources for each gene Ensembl id specified. The Open
@@ -183,7 +183,7 @@ def get_opentargets_results(
         Ensembl id, then by resource
     """
     # Create, or load opentargets results
-    if not OPENTARGETS_PATH.exists() or force:
+    if not opentargets_path.exists() or force:
 
         # Initialize results
 
@@ -193,8 +193,8 @@ def get_opentargets_results(
 
         # Load results
 
-        print(f"Loading opentargets results from {OPENTARGETS_PATH}")
-        with open(OPENTARGETS_PATH, "r") as fp:
+        print(f"Loading opentargets results from {opentargets_path}")
+        with open(opentargets_path, "r") as fp:
             opentargets_results = json.load(fp)
 
     # Consider each gene id, and setup to dump the results in
@@ -288,8 +288,8 @@ def get_opentargets_results(
 
             opentargets_results["gene_ensembl_ids"] = gene_ensembl_ids
 
-            print(f"Dumping opentargets results to {OPENTARGETS_PATH}")
-            with open(OPENTARGETS_PATH, "w") as fp:
+            print(f"Dumping opentargets results to {opentargets_path}")
+            with open(opentargets_path, "w") as fp:
                 json.dump(opentargets_results, fp, indent=4)
 
     return opentargets_results
