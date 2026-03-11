@@ -27,15 +27,16 @@ OWL_NS = "{http://www.w3.org/2002/07/owl#}"
 OBO_IN_OWL_NS = "{http://www.geneontology.org/formats/oboInOwl#}"
 RDF_NS = "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}"
 
-with open(Path("../../../data/obo/deprecated_terms.txt"), "r") as fp:
+DATA_DIRPATH = Path(__file__).resolve().parents[3] / "data"
+RESULTS_SOURCES_PATH = DATA_DIRPATH / "results-sources-2026-01-06.json"
+EXTERNAL_DIRPATH = DATA_DIRPATH / "external"
+BIOMART_DIRPATH = EXTERNAL_DIRPATH / "biomart"
+GENE_MAPPING_PATH = BIOMART_DIRPATH / "gene_mapping.csv"
+
+with open(DATA_DIRPATH / "obo" / "deprecated_terms.txt", "r") as fp:
     DEPRECATED_TERMS = fp.read().splitlines()
 
 MIN_CLUSTER_SIZE = 10
-
-RESULTS_SOURCES_PATH = Path("../../../data/results-sources-2026-01-06.json")
-EXTERNAL_DIRPATH = Path("../../../data/external")
-BIOMART_DIRPATH = EXTERNAL_DIRPATH / "biomart"
-GENE_MAPPING_PATH = BIOMART_DIRPATH / "gene_mapping.csv"
 
 
 def get_cl_terms(author_to_cl_results):
@@ -784,7 +785,7 @@ def get_efo_to_mondo_map():
     """
     print("Creating EFO to MONDO term map")
     mondo_efo_mappings_name = (
-        "../../../cell-kn-mvp-etl-ontologies/data/mondo_efo_mappings.csv"
+        Path(__file__).parents[3] / "cell-kn-mvp-etl-ontologies/data/mondo_efo_mappings.csv"
     )
     efo2mondo = pd.read_csv(mondo_efo_mappings_name)
     efo2mondo = efo2mondo.set_index("EFO")
