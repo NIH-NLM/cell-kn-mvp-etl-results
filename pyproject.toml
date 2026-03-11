@@ -7,7 +7,7 @@ readme = "README.md"
 package-mode = false
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.13"
+python = ">=3.10,<=3.13"
 arango-rdf = ">=1.0"
 cellxgene-census = ">=1.14"
 gget = ">=0.29"
