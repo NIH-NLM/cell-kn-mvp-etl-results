@@ -74,7 +74,6 @@ public class PhenotypeGraphBuilder {
 
         aqlQuerySets.add(getQuerySetInThree(graphName, "CL", "GO", "NCBITaxon"));
         aqlQuerySets.add(getQuerySetInThree(graphName, "CL", "GS", "BMC"));
-        aqlQuerySets.add(getQuerySetInThree(graphName, "CL", "GS", "PR"));
         aqlQuerySets.add(getQuerySetInThree(graphName, "CL", "GS", "UBERON"));
 
         aqlQuerySets.add(getQuerySetInThreeWithHierarchy(graphName,
@@ -84,6 +83,7 @@ public class PhenotypeGraphBuilder {
                 "MONDO-MONDO",
                 "SUB_CLASS_OF"));
 
+        aqlQuerySets.add(getQuerySetInFour(graphName, "CL", "GS", "PR", "CHEMBL"));
         aqlQuerySets.add(getQuerySetInFour(graphName, "CL", "GS", "MONDO", "NCBITaxon"));
 
         aqlQuerySets.add(getQuerySetInFourWithHierarchy(graphName, "CL", "GS", "MONDO", "HP", "HP-HP", "SUB_CLASS_OF"));
@@ -240,7 +240,9 @@ public class PhenotypeGraphBuilder {
         // Initialize the phenotype database and subgraph
         String phenotypeDatabaseName = "Cell-KN-Phenotypes";
         String phenotypeGraphName = "KN-Phenotypes-v2.0";
+        arangoDbUtilities.deleteDatabase(phenotypeDatabaseName);
         ArangoDatabase phenotypeDb = arangoDbUtilities.createOrGetDatabase(phenotypeDatabaseName);
+        arangoDbUtilities.deleteGraph(phenotypeDb, phenotypeGraphName);
         ArangoGraph phenotypeGraph = arangoDbUtilities.createOrGetGraph(phenotypeDb, phenotypeGraphName);
 
         // Get vertex documents in the ontology graph and insert them in the phenotype graph
