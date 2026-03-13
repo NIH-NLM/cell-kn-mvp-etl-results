@@ -18,7 +18,9 @@ TUPLES_DIRPATH = Path("../../../data/tuples")
 
 
 def create_tuples_from_nsforest(
-    nsforest_results, cellxgene_results, dataset_version_ids
+    nsforest_results,
+    dataset_version_ids,
+    cellxgene_results,
 ):
     """Creates tuples from NSForest results consistent with schema
     v0.7. Exclude clusters smaller than the minimum size.
@@ -272,7 +274,6 @@ def create_tuples_from_nsforest(
         #         Literal(str(row["onTarget"])),
         #     )
         # )
-
         for dataset_version_id in dataset_version_ids:
             csd_term = f"CSD_{dataset_version_id}"
 
