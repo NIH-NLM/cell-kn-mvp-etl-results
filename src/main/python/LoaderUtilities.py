@@ -28,7 +28,7 @@ OBO_IN_OWL_NS = "{http://www.geneontology.org/formats/oboInOwl#}"
 RDF_NS = "{http://www.w3.org/1999/02/22-rdf-syntax-ns#}"
 
 DATA_DIRPATH = Path(__file__).resolve().parents[3] / "data"
-RESULTS_SOURCES_PATH = DATA_DIRPATH / "results-sources-2026-01-06.json"
+RESULTS_SOURCES_PATH = DATA_DIRPATH / "results-sources-2026-03-13.json"
 EXTERNAL_DIRPATH = DATA_DIRPATH / "external"
 BIOMART_DIRPATH = EXTERNAL_DIRPATH / "biomart"
 GENE_MAPPING_PATH = BIOMART_DIRPATH / "gene_mapping.csv"
