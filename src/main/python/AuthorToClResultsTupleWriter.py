@@ -44,7 +44,6 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
     dataset_version_ids = author_to_cl_results["dataset_version_id"].iloc[0].split("--")
     pmid_data = get_data_for_pmid(author_to_cl_results["PMID"].iloc[0])
     for dataset_version_id in dataset_version_ids:
-
         # CSD node annotations
         csd_term = f"CSD_{dataset_version_id}"
         tuples.append(
@@ -163,24 +162,6 @@ def create_tuples_from_author_to_cl(author_to_cl_results, cellxgene_results):
             tuples.append(
                 (
                     URIRef(f"{PURLBASE}/{cl_term}"),
-                    URIRef(f"{PURLBASE}/{csd_term}"),
-                    URIRef(f"{RDFSBASE}#Source"),
-                    Literal("Manual Mapping"),
-                )
-            )
-
-            # Cell_set_Ind, SOURCE, Cell_set_dataset_Ind
-            # -, dc:source, IAO:0000100
-            tuples.append(
-                (
-                    URIRef(f"{PURLBASE}/{cs_term}"),
-                    URIRef(f"{RDFSBASE}/dc#Source"),
-                    URIRef(f"{PURLBASE}/{csd_term}"),
-                )
-            )
-            tuples.append(
-                (
-                    URIRef(f"{PURLBASE}/{cs_term}"),
                     URIRef(f"{PURLBASE}/{csd_term}"),
                     URIRef(f"{RDFSBASE}#Source"),
                     Literal("Manual Mapping"),
@@ -404,6 +385,7 @@ def main(summarize=False):
         nsforest_paths,
         _silhouette_paths,
         author_to_cl_paths,
+        _dataset_version_id_lists,
         _dataset_version_ids,
         _cl_terms,
         _gene_names,

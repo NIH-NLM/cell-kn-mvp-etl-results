@@ -118,7 +118,6 @@ def create_tuples_from_cellxgene(cellxgene_results, summarize=False):
 
     # Assign datasets to consider
     if summarize:
-
         # Consider the first dataset only
         results = {}
         for dataset_version_id, dataset_metadata in cellxgene_results.items():
@@ -126,7 +125,6 @@ def create_tuples_from_cellxgene(cellxgene_results, summarize=False):
             break
 
     else:
-
         # Consider all datasets
         results = cellxgene_results
 
@@ -217,10 +215,8 @@ def create_tuples_from_opentargets(opentargets_results, gene_results, summarize=
 
     # Assign gene ids to consider
     if summarize:
-
         # Find a gene id with all resources, and a valid disease and interaction
         for gene_ensembl_id in opentargets_results["gene_ensembl_ids"]:
-
             # Find a gene id for which all resources are not empty
             is_empty = False
             for resource in OPENTARGETS_RESOURCES:
@@ -265,13 +261,11 @@ def create_tuples_from_opentargets(opentargets_results, gene_results, summarize=
             results[gene_ensembl_id][resource] = results[gene_ensembl_id][resource][0:3]
 
     else:
-
         # Consider all gene ids
         gene_ensembl_ids = opentargets_results["gene_ensembl_ids"]
         results = opentargets_results
 
     for gene_ensembl_id in gene_ensembl_ids:
-
         # Map gene Ensembl id to gene name and Entrez id
         gene_name = map_gene_ensembl_id_to_names(
             gene_ensembl_id, gene_ensembl_id_to_names
@@ -419,7 +413,6 @@ def create_tuples_from_opentargets(opentargets_results, gene_results, summarize=
                     )
 
             for drug_trial_id in drug["ctIds"]:
-
                 # Follow term naming convention for parsing
                 nct_term = drug_trial_id.replace("NCT", "NCT_")
 
@@ -745,7 +738,6 @@ def create_tuples_from_gene(gene_results, summarize=False):
 
     # Assign gene names to consider
     if summarize:
-
         # Find a gene name for which results are not empty
         for gene_entrez_id in gene_results["gene_entrez_ids"]:
             if len(gene_results[gene_entrez_id]) > 0:
@@ -758,7 +750,6 @@ def create_tuples_from_gene(gene_results, summarize=False):
         results[gene_entrez_id] = gene_results[gene_entrez_id]
 
     else:
-
         # Consider all gene names
         gene_entrez_ids = gene_results["gene_entrez_ids"]
         results = gene_results
@@ -854,7 +845,6 @@ def create_tuples_from_uniprot(uniprot_results, summarize=False):
 
     # Assign protein accessions to consider
     if summarize:
-
         # Find a protein accession for which results are not empty
         for protein_accession in uniprot_results["protein_accessions"]:
             if len(uniprot_results[protein_accession]) > 0:
@@ -867,7 +857,6 @@ def create_tuples_from_uniprot(uniprot_results, summarize=False):
         results[protein_accession] = uniprot_results[protein_accession]
 
     else:
-
         # Consider all protein ids
         protein_accessions = uniprot_results["protein_accessions"]
         results = uniprot_results
@@ -882,7 +871,6 @@ def create_tuples_from_uniprot(uniprot_results, summarize=False):
         "Organism",
     ]
     for protein_accession in protein_accessions:
-
         # == Protein annotations
 
         pr_term = f"PR_{protein_accession}"
@@ -1086,6 +1074,7 @@ def main(summarize=False):
         _nsforest_paths,
         _silhouette_paths,
         _author_to_cl_paths,
+        _dataset_version_id_lists,
         _dataset_version_ids,
         cl_terms,
         _gene_names,

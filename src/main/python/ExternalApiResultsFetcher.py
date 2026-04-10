@@ -12,11 +12,7 @@ from E_Utilities import get_data_for_gene_id
 from OpenTargetsGGetQueries import gget_queries
 from LoaderUtilities import (
     EXTERNAL_DIRPATH,
-    load_results,
     collect_results_sources_data,
-    collect_unique_gene_ensembl_ids,
-    collect_unique_gene_entrez_ids,
-    collect_unique_gene_names,
     get_value_or_none,
     get_values_or_none,
 )
@@ -73,7 +69,6 @@ def get_cellxgene_metadata(dataset_version_ids, force=False):
     """
     # Create, or load cellxgene results
     if not CELLXGENE_PATH.exists() or force:
-
         # Create results
 
         cellxgene_results = {}
@@ -81,7 +76,6 @@ def get_cellxgene_metadata(dataset_version_ids, force=False):
         print("Creating cellxgene results")
         base_url = "https://api.cellxgene.cziscience.com/curation/v1"
         for dataset_version_id in dataset_version_ids:
-
             dataset_results = {}
             dataset_url = f"{base_url}/dataset_versions/{dataset_version_id}"
             response = requests.get(dataset_url)
@@ -139,7 +133,6 @@ def get_cellxgene_metadata(dataset_version_ids, force=False):
                 cellxgene_results[dataset_version_id] = dataset_results
 
             else:
-
                 print(
                     f"Could not assign cellxgene metadata for dataset_version_id {dataset_version_id}"
                 )
@@ -149,7 +142,6 @@ def get_cellxgene_metadata(dataset_version_ids, force=False):
                 json.dump(cellxgene_results, fp, indent=4)
 
     else:
-
         # Load results
 
         print(f"Loading cellxgene results from {CELLXGENE_PATH}")
@@ -160,7 +152,10 @@ def get_cellxgene_metadata(dataset_version_ids, force=False):
 
 
 def get_opentargets_results(
-        gene_ensembl_ids, resources=OPENTARGETS_RESOURCES, force=False, opentargets_path=OPENTARGETS_PATH
+    gene_ensembl_ids,
+    resources=OPENTARGETS_RESOURCES,
+    force=False,
+    opentargets_path=OPENTARGETS_PATH,
 ):
     """Use the Open Targets Platform GraphQL API to obtain the
     specified resources for each gene Ensembl id specified. The Open
@@ -184,13 +179,11 @@ def get_opentargets_results(
     """
     # Create, or load opentargets results
     if not opentargets_path.exists() or force:
-
         # Initialize results
 
         opentargets_results = {}
 
     else:
-
         # Load results
 
         print(f"Loading opentargets results from {opentargets_path}")
@@ -339,7 +332,6 @@ def get_ebi_results(force=False):
     """
     # Create, or load EBI results
     if not EBI_PATH.exists() or force:
-
         # Initialize results, and collect unique drug names
 
         ebi_results = {}
@@ -351,7 +343,6 @@ def get_ebi_results(force=False):
         drug_names = collect_unique_drug_names(opentargets_results)
 
     else:
-
         # Load results, and assign unique drug names
 
         print(f"Loading ebi results from {EBI_PATH}")
@@ -423,7 +414,6 @@ def get_rxnav_results(force=False):
     """
     # Create, or load RxNav results
     if not RXNAV_PATH.exists() or force:
-
         # Initialize results, and collect unique drug names
 
         rxnav_results = {}
@@ -435,7 +425,6 @@ def get_rxnav_results(force=False):
         drug_names = collect_unique_drug_names(opentargets_results)
 
     else:
-
         # Load results, and assign unique drug names
 
         print(f"Loading RxNav results from {RXNAV_PATH}")
@@ -486,7 +475,6 @@ def get_rxnav_results(force=False):
 
             # Use the RXCUI to get drug properties
             if "rxnormId" in rxnav_results[drug_name]["idGroup"]:
-
                 rxcui = rxnav_results[drug_name]["idGroup"]["rxnormId"][0]
 
                 urls = [
@@ -589,7 +577,6 @@ def get_drugbank_results(force=False):
 
     # Create, or load DrugBank results
     if not DRUGBANK_PATH.exists() or force:
-
         # Initialize results, and collect unique drug names
 
         drugbank_results = {}
@@ -597,7 +584,6 @@ def get_drugbank_results(force=False):
         drug_names = rxnav_results["drug_names"]
 
     else:
-
         # Load results, and assign unique drug names
 
         print(f"Loading DrugBank results from {DRUGBANK_PATH}")
@@ -681,7 +667,6 @@ def get_ncats_results(force=False):
 
     # Create, or load NCATS results
     if not NCATS_PATH.exists() or force:
-
         # Initialize results, and collect unique drug names
 
         ncats_results = {}
@@ -689,7 +674,6 @@ def get_ncats_results(force=False):
         drug_names = rxnav_results["drug_names"]
 
     else:
-
         # Load results, and assign unique drug names
 
         print(f"Loading Ncats results from {NCATS_PATH}")
@@ -765,13 +749,11 @@ def get_gene_results(gene_entrez_ids, force=False):
     """
     # Create, or load gene results
     if not GENE_PATH.exists() or force:
-
         # Initialize results
 
         gene_results = {}
 
     else:
-
         # Load results
 
         print(f"Loading gene results from {GENE_PATH}")
@@ -865,7 +847,6 @@ def get_uniprot_results(force=False):
     """
     # Create, or load UniProt results
     if not UNIPROT_PATH.exists() or force:
-
         # Initialize results, and collect unique protein accessions
 
         uniprot_results = {}
@@ -877,7 +858,6 @@ def get_uniprot_results(force=False):
         protein_accessions = collect_unique_protein_accessions(gene_results)
 
     else:
-
         # Load results, and assign unique protein accessions
 
         print(f"Loading uniprot results from {UNIPROT_PATH}")
@@ -1016,7 +996,6 @@ def get_hubmap_json_urls():
             raise Exception("No organ in HuBMAP URL")
         response = requests.get(latest_url)
         if response.status_code == 200:
-
             # Parse the response to find version and JSON file URL
             m_url = p_url.search(response.text)
             if m_url is not None:
@@ -1048,7 +1027,6 @@ def download_hubmap_data_tables():
     # Get the URL to all HuBMAP data table JSON files
     json_urls = get_hubmap_json_urls()
     for org, ver, url in json_urls:
-
         # Skip the current JSON file if it exists, otherwise, archive
         # any earlier versions
         hubmap_filepath = HUBMAP_DIRPATH / f"{org}-v{ver}.json"
@@ -1188,6 +1166,7 @@ def main():
         _nsforest_paths,
         _silhouette_path,
         _author_to_cl_paths,
+        _dataset_version_id_lists,
         dataset_version_ids,
         _cl_terms,
         _gene_names,

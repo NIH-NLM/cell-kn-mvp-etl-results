@@ -4,6 +4,7 @@ from pathlib import Path
 
 from rdflib.term import Literal, URIRef
 
+from ExternalApiResultsFetcher import CELLXGENE_PATH
 from LoaderUtilities import (
     MIN_CLUSTER_SIZE,
     PURLBASE,
@@ -16,7 +17,11 @@ from LoaderUtilities import (
 TUPLES_DIRPATH = Path("../../../data/tuples")
 
 
-def create_tuples_from_nsforest(nsforest_results):
+def create_tuples_from_nsforest(
+    nsforest_results,
+    dataset_version_ids,
+    cellxgene_results,
+):
     """Creates tuples from NSForest results consistent with schema
     v0.7. Exclude clusters smaller than the minimum size.
 
@@ -24,6 +29,12 @@ def create_tuples_from_nsforest(nsforest_results):
     ----------
     nsforest_results : pd.DataFrame
         DataFrame containing NSForest results
+    cellxgene_results : dict
+        Dictionaries containing cellxgene results dictionaries keyed
+        by dataset_version_id
+    dataset_version_ids: list(str)
+        List of the dataset version identifiers corresponding to the
+        datasets used to generate the NSForest results
 
     Returns
     -------
@@ -263,6 +274,26 @@ def create_tuples_from_nsforest(nsforest_results):
         #         Literal(str(row["onTarget"])),
         #     )
         # )
+        for dataset_version_id in dataset_version_ids:
+            csd_term = f"CSD_{dataset_version_id}"
+
+            # Cell_set_Ind, SOURCE, Cell_set_dataset_Ind
+            # -, dc:source, IAO:0000100
+            tuples.append(
+                (
+                    URIRef(f"{PURLBASE}/{cs_term}"),
+                    URIRef(f"{RDFSBASE}/dc#Source"),
+                    URIRef(f"{PURLBASE}/{csd_term}"),
+                )
+            )
+            tuples.append(
+                (
+                    URIRef(f"{PURLBASE}/{cs_term}"),
+                    URIRef(f"{PURLBASE}/{csd_term}"),
+                    URIRef(f"{RDFSBASE}#Source"),
+                    Literal("NSForest"),
+                )
+            )
 
     return tuples
 
@@ -292,14 +323,18 @@ def main(summarize=False):
         nsforest_paths,
         silhouette_paths,
         _author_to_cl_paths,
+        dataset_version_id_lists,
         _dataset_version_ids,
         _cl_terms,
         _gene_names,
         _gene_ensembl_ids,
         _gene_entrez_ids,
     ) = collect_results_sources_data()
-    for nsforest_path, silhouette_path in zip(nsforest_paths, silhouette_paths):
-
+    with open(CELLXGENE_PATH, "r") as fp:
+        cellxgene_results = json.load(fp)
+    for nsforest_path, silhouette_path, dataset_version_ids in zip(
+        nsforest_paths, silhouette_paths, dataset_version_id_lists
+    ):
         # Load NSForest results
         nsforest_results = load_results(nsforest_path).sort_values(
             "clusterName", ignore_index=True
@@ -308,7 +343,6 @@ def main(summarize=False):
             nsforest_results = nsforest_results.head(1)
 
         if silhouette_path != []:
-
             # Load silhouette scores
             cluster_header = nsforest_results.loc[0, "cluster_header"]
             silhouette_scores = load_results(silhouette_path).sort_values(
@@ -324,7 +358,9 @@ def main(summarize=False):
             )
 
         print(f"Creating tuples from {nsforest_path}")
-        nsforest_tuples = create_tuples_from_nsforest(nsforest_results)
+        nsforest_tuples = create_tuples_from_nsforest(
+            nsforest_results, dataset_version_ids, cellxgene_results
+        )
         if summarize:
             output_dirpath = TUPLES_DIRPATH / "summaries"
         else:
